@@ -172,12 +172,27 @@ export default function ReportPage() {
 
         let fetchedRatings = querySnapshot.docs.map(d => {
             const data = d.data();
+            
+            // Calculate average score from 'scores' object
+            let calculatedScore = 0;
+            if (data.scores && typeof data.scores === 'object') {
+                const scoreValues = Object.values(data.scores).filter((v): v is number => typeof v === 'number');
+                if (scoreValues.length > 0) {
+                    const sum = scoreValues.reduce((acc, val) => acc + val, 0);
+                    calculatedScore = sum / scoreValues.length;
+                }
+            }
+            // Fallback to data.score if scores object didn't yield a value
+            if (calculatedScore === 0 && data.score) {
+                calculatedScore = data.score;
+            }
+            
             return {
                 ...data,
                 id: d.id,
                 created_at: data.createdAt?.toDate ? data.createdAt.toDate() : (new Date(data.createdAt) || new Date()),
                 user_id: data.user_uid,
-                score: data.score
+                score: calculatedScore
             };
         });
 
