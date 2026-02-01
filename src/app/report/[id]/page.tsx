@@ -173,18 +173,40 @@ export default function ReportPage() {
         let fetchedRatings = querySnapshot.docs.map(d => {
             const data = d.data();
             
+            // DEBUG: Log the raw data structure
+            console.log("[ReportPage] Raw evaluation data:", { 
+                id: d.id, 
+                scores: data.scores, 
+                score: data.score,
+                scoresType: typeof data.scores,
+                scoresKeys: data.scores ? Object.keys(data.scores) : null
+            });
+            
             // Calculate average score from 'scores' object
             let calculatedScore = 0;
-            if (data.scores && typeof data.scores === 'object') {
-                const scoreValues = Object.values(data.scores).filter((v): v is number => typeof v === 'number');
+            if (data.scores) {
+                let scoreValues: number[] = [];
+                
+                // Handle different data formats
+                if (typeof data.scores === 'object') {
+                    // Get all values that are numbers
+                    const values = Object.values(data.scores);
+                    scoreValues = values.filter((v): v is number => typeof v === 'number' && !isNaN(v));
+                }
+                
+                console.log("[ReportPage] Score values extracted:", scoreValues);
+                
                 if (scoreValues.length > 0) {
                     const sum = scoreValues.reduce((acc, val) => acc + val, 0);
                     calculatedScore = sum / scoreValues.length;
+                    console.log("[ReportPage] Calculated score:", calculatedScore, "from", scoreValues.length, "values");
                 }
             }
+            
             // Fallback to data.score if scores object didn't yield a value
-            if (calculatedScore === 0 && data.score) {
+            if (calculatedScore === 0 && typeof data.score === 'number') {
                 calculatedScore = data.score;
+                console.log("[ReportPage] Using fallback score:", calculatedScore);
             }
             
             return {
