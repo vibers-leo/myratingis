@@ -9,6 +9,7 @@ import { ChefHat, User, LogOut, Sun, Moon, ArrowRight } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 export function MyRatingIsHeader() {
   const router = useRouter();
@@ -43,9 +44,9 @@ export function MyRatingIsHeader() {
               {!mounted ? (
                 <div className="h-7 w-24 bg-white/5 animate-pulse rounded" />
               ) : theme === 'dark' ? (
-                <img src="/logo-white.png" alt="제 평가는요?" className="h-7 w-auto object-contain transition-all duration-300 group-hover:scale-105" />
+                <Image src="/logo-white.png" alt="제 평가는요?" width={140} height={56} quality={100} className="h-7 w-auto object-contain transition-all duration-300 group-hover:scale-105" />
               ) : (
-                <img src="/myratingis-logo.png" alt="제 평가는요?" className="h-7 w-auto object-contain transition-all duration-300 group-hover:scale-105 brightness-0" />
+                <Image src="/myratingis-logo.png" alt="제 평가는요?" width={140} height={56} quality={100} className="h-7 w-auto object-contain transition-all duration-300 group-hover:scale-105 brightness-0" />
               )}
           </Link>
         </div>

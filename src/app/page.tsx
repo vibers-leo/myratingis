@@ -51,8 +51,9 @@ export default function Home() {
           <Image 
             src="/myratingis-logo.png" 
             alt="제 평가는요?" 
-            width={200}
-            height={80}
+            width={400}
+            height={160}
+            quality={100}
             className="h-12 md:h-16 lg:h-20 w-auto object-contain brightness-0 invert"
             priority
           />

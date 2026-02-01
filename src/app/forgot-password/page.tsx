@@ -80,8 +80,9 @@ export default function ForgotPasswordPage() {
                 <Image
                   src="/myratingis-logo.png"
                   alt="MyRatingIs"
-                  width={150}
-                  height={45}
+                  width={300}
+                  height={90}
+                  quality={100}
                   className="h-8 w-auto invert brightness-0 opacity-80"
                 />
             </div>

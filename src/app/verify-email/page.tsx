@@ -103,8 +103,9 @@ function VerifyEmailContent() {
               <Image
                 src="/myratingis-logo.png"
                 alt="MyRatingIs"
-                width={180}
-                height={54}
+                width={360}
+                height={108}
+                quality={100}
                 className="h-9 w-auto invert brightness-0"
               />
             </div>
