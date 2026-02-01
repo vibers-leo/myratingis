@@ -277,6 +277,13 @@ function ViewerContent() {
       const scoreValues = Object.values(michelinScores);
       const avgScore = scoreValues.length > 0 ? Number((scoreValues.reduce((a, b) => a + b, 0) / scoreValues.length).toFixed(1)) : 0;
       
+      // DEBUG: Log what's being saved
+      console.log("[Viewer] Saving evaluation:", {
+        michelinScores,
+        scoreValues,
+        avgScore
+      });
+      
       const evaluationData = {
         projectId,
         scores: michelinScores,
@@ -292,6 +299,8 @@ function ViewerContent() {
         vote_type: pollSelection,
         createdAt: serverTimestamp()
       };
+
+      console.log("[Viewer] Full evaluation data:", evaluationData);
 
       await addDoc(collection(db, "evaluations"), evaluationData);
 
