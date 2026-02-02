@@ -393,49 +393,68 @@ export default function ReportPage() {
     ];
     
     const polls: Record<string, number> = {};
-    // Map various vote_type values to consistent IDs
-    const NORMALIZE_VOTE: Record<string, string> = {
-        // Default FeedbackPoll options
-        'launch': 'launch',
-        'more': 'more',
-        'research': 'research',
-        // Legacy mappings
-        'invest': 'more',
-        'develop': 'research',
-        'so-good': 'launch',
-        'good': 'more',
-        'bad': 'research',
-        // poll_X fallbacks
-        'poll_1': 'launch',
-        'poll_2': 'more',
-        'poll_3': 'research'
-    };
-
+    // Collect all vote_type values from ratings for debugging
+    const allVoteTypes: string[] = [];
+    
     targetRatings.forEach(r => {
       if (r.vote_type) {
-        const v = r.vote_type;
-        const normalized = NORMALIZE_VOTE[v] || v;
-        polls[normalized] = (polls[normalized] || 0) + 1;
-        if (normalized !== v) polls[v] = (polls[v] || 0) + 1;
+        allVoteTypes.push(r.vote_type);
+        // Count votes by the exact vote_type value
+        polls[r.vote_type] = (polls[r.vote_type] || 0) + 1;
       }
     });
+    
+    console.log("[ReportPage] All vote_type values:", allVoteTypes);
+    console.log("[ReportPage] Vote counts:", polls);
+    console.log("[ReportPage] Sticker options:", stickerOptions);
 
     // Determine My Vote
     let myVoteId: string | null = null;
     if (myRating && myRating.vote_type) {
-        myVoteId = NORMALIZE_VOTE[myRating.vote_type] || myRating.vote_type;
+        myVoteId = myRating.vote_type;
     }
 
+    // Map votes to sticker options with multiple matching strategies
     const barData = stickerOptions.map((opt: any, index: number) => {
-      let count = polls[opt.id] || 0;
-      if (count === 0 && polls[opt.label]) count = polls[opt.label];
-      if (count === 0) {
-          const genericId = `poll_${index + 1}`;
-          if (polls[genericId]) count = polls[genericId];
+      let count = 0;
+      
+      // Strategy 1: Direct ID match
+      if (polls[opt.id]) {
+        count = polls[opt.id];
       }
       
-      // Check if this option matches my vote logic (simple ID or label match)
-      const isMyChoice = (myVoteId === opt.id) || (myVoteId === opt.label) || (myVoteId === `poll_${index + 1}`);
+      // Strategy 2: Label match (if someone stored label as vote_type)
+      if (count === 0 && polls[opt.label]) {
+        count = polls[opt.label];
+      }
+      
+      // Strategy 3: Index-based fallback (poll_1, poll_2, poll_3 or legacy variations)
+      if (count === 0) {
+        const genericIds = [
+          `poll_${index + 1}`,
+          // Launch variations for index 0
+          ...(index === 0 ? ['launch', 'so-good', 'approve', 'accept'] : []),
+          // More/Hold variations for index 1
+          ...(index === 1 ? ['more', 'good', 'hold', 'invest', 'pending'] : []),
+          // Research/Reject variations for index 2
+          ...(index === 2 ? ['research', 'bad', 'reject', 'develop', 'decline'] : []),
+        ];
+        
+        for (const gid of genericIds) {
+          if (polls[gid]) {
+            count += polls[gid];
+          }
+        }
+      }
+      
+      // Check if this option matches my vote
+      const isMyChoice = myVoteId !== null && (
+        myVoteId === opt.id || 
+        myVoteId === opt.label ||
+        (index === 0 && ['launch', 'so-good', 'poll_1', 'approve', 'accept'].includes(myVoteId)) ||
+        (index === 1 && ['more', 'good', 'poll_2', 'hold', 'invest', 'pending'].includes(myVoteId)) ||
+        (index === 2 && ['research', 'bad', 'poll_3', 'reject', 'develop', 'decline'].includes(myVoteId))
+      );
 
       return {
         name: opt.label,
