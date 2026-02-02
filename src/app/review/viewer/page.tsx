@@ -58,7 +58,7 @@ function ReviewIntro({ onStart, project, loading }: { onStart: () => void, proje
           <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">Professional Evaluation Stage</span>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Image src="/logo-white.png" alt="제 평가는요?" width={200} height={80} className="h-10 md:h-20 w-auto object-contain" priority />
+          <Image src="/logo-white.png" alt="제 평가는요?" width={400} height={160} quality={100} className="h-10 md:h-20 w-auto object-contain" priority />
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="space-y-4">
              <p className="text-sm md:text-xl text-white font-bold break-keep">당신은 오늘, 이 창작물의 운명을 결정할<br />전문 심사위원으로 초대되었습니다.</p>
