@@ -42,8 +42,14 @@ export function OnboardingModal() {
 
     // Check if profile is loaded but missing info
     if (userProfile) {
-       // Check for nickname as well.
-       const isMissing = !(userProfile as any).nickname || !userProfile.gender || !userProfile.age_range || !userProfile.occupation;
+       // Check for nickname as well. Also check onboardingCompleted flag for robustness.
+       const hasCompletedOnboarding = (userProfile as any).onboardingCompleted === true;
+       const isMissing = !hasCompletedOnboarding && (
+           !(userProfile as any).nickname || 
+           !userProfile.gender || 
+           !(userProfile.age_group || userProfile.age_range) || // Check both for compatibility
+           !userProfile.occupation
+       );
        if (isMissing) {
            setOpen(true);
            // Pre-fill nickname if available but maybe empty string in form? 
