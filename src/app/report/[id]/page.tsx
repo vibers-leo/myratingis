@@ -387,19 +387,28 @@ export default function ReportPage() {
     });
 
     const stickerOptions = auditConfig?.poll?.options || [
-        { id: 'poll_1', label: '당장 계약하시죠! 탐나는 결과물', color: '#10b981' },
-        { id: 'poll_2', label: '좋긴 한데... 한 끗이 아쉽네요', color: '#f59e0b' },
-        { id: 'poll_3', label: '기획부터 다시! 싹 갈아엎읍시다', color: '#ef4444' },
+        { id: 'launch', label: '출시 강추! 당장 계약하시죠!', color: '#10b981' },
+        { id: 'more', label: '보류합니다. 한 끗이 아쉽네요', color: '#f59e0b' },
+        { id: 'research', label: '다시 기획! 싹 갈아엎읍시다', color: '#ef4444' },
     ];
     
     const polls: Record<string, number> = {};
+    // Map various vote_type values to consistent IDs
     const NORMALIZE_VOTE: Record<string, string> = {
-        'launch': 'poll_1',
-        'invest': 'poll_2',
-        'develop': 'poll_3',
-        'so-good': 'poll_1',
-        'good': 'poll_2',
-        'bad': 'poll_3'
+        // Default FeedbackPoll options
+        'launch': 'launch',
+        'more': 'more',
+        'research': 'research',
+        // Legacy mappings
+        'invest': 'more',
+        'develop': 'research',
+        'so-good': 'launch',
+        'good': 'more',
+        'bad': 'research',
+        // poll_X fallbacks
+        'poll_1': 'launch',
+        'poll_2': 'more',
+        'poll_3': 'research'
     };
 
     targetRatings.forEach(r => {
