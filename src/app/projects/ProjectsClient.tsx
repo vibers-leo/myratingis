@@ -12,7 +12,7 @@ import Image from 'next/image';
 import { useAuth } from '@/lib/auth/AuthContext';
 // Firebase Imports
 import { db } from '@/lib/firebase/client';
-import { collection, query, where, orderBy, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp, limit, getCountFromServer, updateDoc } from "firebase/firestore";
+import { collection, query, where, orderBy, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp, limit, getCountFromServer, updateDoc, increment } from "firebase/firestore";
 // Modals
 import { InquiryModal } from '@/components/InquiryModal';
 import { CollectionModal } from '@/components/CollectionModal';
@@ -165,14 +165,28 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
 
     try {
         const likeRef = doc(db, "projects", project.project_id, "likes", user.uid);
+        const projectRef = doc(db, "projects", project.project_id);
+        
         if (originalLiked) {
             // Unlike
             await deleteDoc(likeRef);
+            // Update project document's like count
+            await updateDoc(projectRef, { 
+                likes: increment(-1),
+                likes_count: increment(-1),
+                like_count: increment(-1)
+            });
         } else {
             // Like
             await setDoc(likeRef, {
                 user_id: user.uid,
                 created_at: serverTimestamp()
+            });
+            // Update project document's like count
+            await updateDoc(projectRef, { 
+                likes: increment(1),
+                likes_count: increment(1),
+                like_count: increment(1)
             });
         }
     } catch (err) {
