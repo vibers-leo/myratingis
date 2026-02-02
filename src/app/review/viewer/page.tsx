@@ -438,6 +438,22 @@ function ViewerContent() {
         </div>
         <div className="fixed inset-0 md:relative z-20 bg-chef-card flex flex-col h-full w-full md:border-l" style={{ width: (typeof window !== 'undefined' && window.innerWidth > 768) ? panelWidth : '100%' }}>
           <div onMouseDown={() => setIsResizing(true)} className="hidden md:block absolute top-0 -left-1 bottom-0 w-2 cursor-col-resize z-30" />
+          {/* Mobile-only: Project Link Bar */}
+          <div className="md:hidden flex items-center justify-between px-4 py-3 bg-chef-panel/80 border-b border-chef-border">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <ExternalLink size={14} className="text-orange-500 shrink-0" />
+              <span className="text-xs font-medium text-chef-text opacity-70 truncate">{finalDisplayUrl || "프로젝트 링크"}</span>
+            </div>
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => window.open(finalDisplayUrl, '_blank')}
+              className="shrink-0 h-8 px-3 text-xs font-bold border-orange-500/50 text-orange-500 hover:bg-orange-500/10"
+            >
+              <ExternalLink size={12} className="mr-1" />
+              새창 열기
+            </Button>
+          </div>
           <div className="p-6 border-b">
               <h3 className="text-xl font-black uppercase italic flex items-center gap-2"><ChefHat className="text-orange-500" /> 제 평가는요?</h3>
               {currentStep < steps.length - 1 && <div className="mt-4 h-1 w-full bg-chef-panel rounded-full overflow-hidden"><div className="h-full bg-orange-600 transition-all" style={{ width: `${((currentStep+1)/(steps.length-1))*100}%` }} /></div>}
