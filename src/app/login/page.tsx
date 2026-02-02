@@ -50,7 +50,42 @@ function LoginContent() {
   const { signInWithGoogle, signInWithEmail } = useAuth(); // Added signInWithEmail
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  // Detect in-app browsers (Naver, Kakao, Instagram, Facebook, etc.)
+  const isInAppBrowser = () => {
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent.toLowerCase();
+    return (
+      ua.includes('naver') ||
+      ua.includes('whale') ||
+      ua.includes('kakaotalk') ||
+      ua.includes('instagram') ||
+      ua.includes('fbav') || // Facebook App
+      ua.includes('fban') ||
+      ua.includes('line') ||
+      ua.includes('twitter') ||
+      // Generic in-app browser detection
+      (ua.includes('wv') && ua.includes('android')) || // Android WebView
+      (window as any).ReactNativeWebView !== undefined
+    );
+  };
+
   const handleGoogleLogin = async () => {
+    // Check for in-app browser
+    if (isInAppBrowser()) {
+      toast.error("인앱 브라우저에서는 구글 로그인이 제한됩니다.", {
+        description: "Chrome, Safari 등 외부 브라우저에서 열어주세요.",
+        duration: 5000,
+        action: {
+          label: "URL 복사",
+          onClick: () => {
+            navigator.clipboard.writeText(window.location.href);
+            toast.success("URL이 복사되었습니다. 외부 브라우저에 붙여넣기 해주세요!");
+          }
+        }
+      });
+      return;
+    }
+    
     setGoogleLoading(true);
     try {
       await signInWithGoogle();
