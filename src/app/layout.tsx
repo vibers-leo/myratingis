@@ -33,11 +33,11 @@ import { createClient } from "@supabase/supabase-js";
 export async function generateMetadata(): Promise<Metadata> {
   const defaultTitle = "제 평가는요?";
   const defaultDesc = "당신은 오늘, 이 창작물의 운명을 결정할 전문 심사위원으로 초대되었습니다.";
-  const defaultOgImage = "/images/og-myratingis.png";
+  const defaultOgImage = "/og-image.png";
 
   let title = defaultTitle;
   let description = defaultDesc;
-  let ogImage = "";
+  let ogImage = defaultOgImage; // Default to our OG image
   let favicon = "/favicon.ico"; 
 
   try {
@@ -89,7 +89,13 @@ export async function generateMetadata(): Promise<Metadata> {
       title: title,
       description: description,
       type: "website",
-      images: ogImage ? [{ url: ogImage }] : [],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: title,
+      description: description,
+      images: [ogImage],
     },
     icons: {
       icon: [
