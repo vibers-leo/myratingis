@@ -115,37 +115,8 @@ const nextConfig = {
     // 빌드 시 메모리 사용량을 조절하여 안정성 확보
     if (!dev) {
       config.devtool = false;
-      
-      // 청크 분할 최적화
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            // Firebase SDK 분리
-            firebase: {
-              test: /[\\/]node_modules[\\/](firebase|@firebase)[\\/]/,
-              name: 'firebase',
-              priority: 40,
-              reuseExistingChunk: true,
-            },
-            // UI 라이브러리 분리
-            ui: {
-              test: /[\\/]node_modules[\\/](@radix-ui|framer-motion|recharts)[\\/]/,
-              name: 'ui-libs',
-              priority: 30,
-              reuseExistingChunk: true,
-            },
-            // 공통 벤더 분리
-            vendor: {
-              test: /[\\/]node_modules[\\/]/,
-              name: 'vendor',
-              priority: 10,
-              reuseExistingChunk: true,
-            },
-          },
-        },
-      };
+      // Note: Removed custom splitChunks - Next.js handles this automatically
+      // Custom splitChunks caused "self is not defined" error in server build
     }
     return config;
   },
