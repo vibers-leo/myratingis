@@ -378,7 +378,40 @@ export default function MyPage() {
                   const projectSnaps = await Promise.all(projectPromises);
                   
                   const projectsMap: Record<string, any> = {};
-                  projectSnaps.forEach(p => { if(p.exists()) projectsMap[p.id] = { id: p.id, ...p.data() }; });
+                  
+                  // Build projects map with real-time counts
+                  await Promise.all(projectSnaps.map(async (p) => { 
+                    if(p.exists()) {
+                      const data = p.data();
+                      
+                      // Fetch real-time rating count
+                      let realRatingCount = 0;
+                      try {
+                          const countSnap = await getCountFromServer(query(collection(db, "evaluations"), where("projectId", "==", p.id)));
+                          realRatingCount = countSnap.data().count;
+                      } catch (e) {
+                          console.warn("Failed to fetch rating count for project", p.id);
+                      }
+
+                      // Fetch real-time likes count
+                      let realLikesCount = data?.likes || data?.likes_count || data?.like_count || 0;
+                      try {
+                          const likesCountSnap = await getCountFromServer(collection(db, "projects", p.id, "likes"));
+                          if (likesCountSnap.data().count > 0) {
+                              realLikesCount = likesCountSnap.data().count;
+                          }
+                      } catch (e) {
+                          // Fallback to stored value
+                      }
+
+                      projectsMap[p.id] = { 
+                        id: p.id, 
+                        ...data,
+                        likes: realLikesCount,
+                        rating_count: realRatingCount
+                      }; 
+                    }
+                  }));
 
                   // Map evaluations to display list
                   const participatedList = evaluations.map((ev: any) => {
@@ -390,9 +423,9 @@ export default function MyPage() {
                           id: proj.id,
                           title: proj.title || '제목 없음',
                           thumbnail_url: proj.thumbnail_url || '/placeholder.jpg',
-                          likes: proj.likes || proj.likes_count || 0,
+                          likes: proj.likes || 0,
                           views: proj.views || proj.views_count || 0,
-                          rating_count: 0, // Placeholder
+                          rating_count: proj.rating_count || 0,
                           created_at: proj.createdAt?.toDate ? proj.createdAt.toDate().toISOString() : new Date().toISOString(),
                           description: proj.content_text || proj.description || '',
                           custom_data: proj.custom_data,
