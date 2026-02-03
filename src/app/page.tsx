@@ -17,15 +17,19 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen bg-[#050505] text-white overflow-hidden flex flex-col items-center justify-center">
-      {/* Background Texture / Gradient */}
+      {/* Background - Pure CSS (no heavy image) */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('/dark-texture-bg.jpg')] bg-cover bg-center opacity-30 mix-blend-overlay" />
+        {/* Noise texture effect with CSS */}
+        <div className="absolute inset-0 opacity-20" style={{
+          backgroundImage: `radial-gradient(circle at 25% 25%, rgba(255,165,0,0.03) 0%, transparent 50%),
+                           radial-gradient(circle at 75% 75%, rgba(255,255,255,0.02) 0%, transparent 50%)`,
+        }} />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/80 to-[#050505]" />
       </div>
 
-      {/* Floating Elements (Aceternity UI Style) */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-[100px] animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-[100px] animate-pulse delay-1000" />
+      {/* Floating Elements (Aceternity UI Style) - Reduced blur for performance */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
       <main className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col items-center text-center space-y-12">
         {/* Badge */}

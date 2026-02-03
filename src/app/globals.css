@@ -1,5 +1,5 @@
 /* src/app/globals.css */
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css");
+/* Removed 2MB Pretendard CDN - using system fonts for performance */
 
 @font-face {
   font-family: "Taenada";
@@ -128,14 +128,14 @@
   }
 
   /* Vibe 카드 (호버 효과) */
-  /* Pretendard Font Helper */
+  /* System Font Stack (Pretendard CDN removed for performance) */
   .font-pretendard {
-    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, Roboto, "Helvetica Neue", "Segoe UI", sans-serif;
   }
 
   /* 글로벌 폰트 적용 */
   html, body {
-    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif !important;
+    font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, Roboto, "Helvetica Neue", "Segoe UI", sans-serif !important;
   }
 
   .behance-card {

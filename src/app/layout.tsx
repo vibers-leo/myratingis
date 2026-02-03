@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Poppins, Noto_Sans_KR } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { ClientProviders } from "@/components/ClientProviders";
 import { ScrollToTop } from "@/components/ScrollToTop";
@@ -16,16 +16,11 @@ import { OnboardingModal } from "@/components/auth/OnboardingModal";
 
 export const revalidate = 0; // 메타데이터 실시간 반영을 위해 캐시 끄기
 
-const poppins = Poppins({
-  weight: ["400", "500", "600", "700", "800"],
+// Optimized font loading with next/font (auto-subset, self-hosted)
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-poppins",
-});
-
-const notoSansKr = Noto_Sans_KR({
-  weight: ["400", "500", "700"],
-  subsets: ["latin"],
-  variable: "--font-noto-sans-kr",
+  variable: "--font-inter",
+  display: "swap", // Prevent FOIT
 });
 
 import { createClient } from "@supabase/supabase-js";
@@ -117,11 +112,14 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning className="dark">
       <head>
-        <link rel="stylesheet" as="style" crossOrigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+        {/* Preconnect hints for critical third-party origins (saves 300-500ms) */}
+        <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
+        <link rel="preconnect" href="https://www.googleapis.com" />
+        <link rel="preconnect" href="https://apis.google.com" />
+        <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
-        <link rel="preconnect" href="https://vibefolio.com" />
-        <link rel="dns-prefetch" href="https://vibefolio.com" />
         {/* Naver Search Advisor */}
         {process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION && (
           <meta
@@ -131,20 +129,21 @@ export default function RootLayout({
         )}
       </head>
       <body
-        className={`${poppins.variable} ${notoSansKr.variable} font-pretendard antialiased min-h-screen custom-scrollbar overscroll-none`}
+        className={`${inter.variable} font-sans antialiased min-h-screen custom-scrollbar overscroll-none`}
       >
+        {/* Kakao SDK - Load lazily (not needed for initial render) */}
         <Script
           src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        {/* Google Analytics (GA4) */}
+        {/* Google Analytics (GA4) - Load after page is interactive */}
         {process.env.NEXT_PUBLIC_GA_ID && (
           <>
             <Script
               src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-              strategy="afterInteractive"
+              strategy="lazyOnload"
             />
-            <Script id="google-analytics" strategy="afterInteractive">
+            <Script id="google-analytics" strategy="lazyOnload">
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
