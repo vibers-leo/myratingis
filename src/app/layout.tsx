@@ -112,13 +112,17 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning className="dark">
       <head>
-        {/* Preconnect hints for critical third-party origins (saves 300-500ms) */}
+        {/* Preconnect hints for critical third-party origins (saves 300-500ms per origin) */}
+        {/* Firebase Auth - Required for authentication */}
+        <link rel="preconnect" href="https://myratingis-29082.firebaseapp.com" />
+        <link rel="preconnect" href="https://firebase.googleapis.com" />
         <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
         <link rel="preconnect" href="https://www.googleapis.com" />
         <link rel="preconnect" href="https://apis.google.com" />
-        <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
+        {/* Kakao SDK */}
+        <link rel="preconnect" href="https://t1.kakaocdn.net" />
+        {/* DNS Prefetch for less critical origins */}
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         {/* Naver Search Advisor */}
         {process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION && (

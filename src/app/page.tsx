@@ -86,7 +86,8 @@ export default function Home() {
             alt="Cloche" 
             width={320}
             height={320}
-            className="w-full h-full object-contain filter drop-shadow-[0_20px_50px_rgba(255,165,0,0.3)]"
+            sizes="(max-width: 768px) 192px, (max-width: 1024px) 256px, 320px"
+            className="w-full h-full object-contain filter drop-shadow-[0_10px_30px_rgba(255,165,0,0.2)]"
             priority
           />
         </motion.div>
