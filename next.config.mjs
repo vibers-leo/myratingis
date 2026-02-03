@@ -3,7 +3,22 @@ const nextConfig = {
   // 서버 전용 외부 패키지 설정 (Next.js 14 특정 버전 대응)
   experimental: {
     serverComponentsExternalPackages: ['cheerio', 'undici'],
-    optimizePackageImports: ['lucide-react', '@fortawesome/react-fontawesome', 'dayjs', 'recharts', 'framer-motion'],
+    // Tree shaking을 위한 패키지 최적화
+    optimizePackageImports: [
+      'lucide-react', 
+      '@fortawesome/react-fontawesome',
+      '@fortawesome/free-solid-svg-icons',
+      '@fortawesome/free-brands-svg-icons',
+      '@fortawesome/free-regular-svg-icons',
+      'dayjs', 
+      'recharts', 
+      'framer-motion',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-select',
+      'sonner',
+    ],
   },
 
   // 이미지 최적화 설정
@@ -13,13 +28,16 @@ const nextConfig = {
       { protocol: 'https', hostname: 'vibefolio.com' },
       { protocol: 'https', hostname: 'localhost' },
       { protocol: 'https', hostname: '*.supabase.co' },
-      { protocol: 'https', hostname: 'firebasestorage.googleapis.com' }
+      { protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' }, // Google Profile Images
     ],
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 60 * 60 * 24 * 7, // 7일 캐시
+    minimumCacheTTL: 60 * 60 * 24 * 30, // 30일 캐시 (증가)
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920], // 최적화된 사이즈
+    imageSizes: [16, 32, 48, 64, 96, 128, 256], // 작은 이미지용
   },
   
-  // 헤더 설정 (캐싱)
+  // 헤더 설정 (캐싱 강화)
   async headers() {
     return [
       {
@@ -40,6 +58,26 @@ const nextConfig = {
           },
         ],
       },
+      {
+        // API 캐시 (짧은 시간)
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, s-maxage=60, stale-while-revalidate=600',
+          },
+        ],
+      },
+      {
+        // 폰트 캐싱
+        source: '/:path*.woff2',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
     ];
   },
 
@@ -52,6 +90,9 @@ const nextConfig = {
   },
   swcMinify: true, // 속도가 빠른 SWC 컴파일러 사용
   productionBrowserSourceMaps: false, // 브라우저 소스맵 생성 안함 (빌드 메모리 절약)
+  
+  // 압축 활성화
+  compress: true,
 
   // 리다이렉트
   async redirects() {
@@ -74,6 +115,37 @@ const nextConfig = {
     // 빌드 시 메모리 사용량을 조절하여 안정성 확보
     if (!dev) {
       config.devtool = false;
+      
+      // 청크 분할 최적화
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            // Firebase SDK 분리
+            firebase: {
+              test: /[\\/]node_modules[\\/](firebase|@firebase)[\\/]/,
+              name: 'firebase',
+              priority: 40,
+              reuseExistingChunk: true,
+            },
+            // UI 라이브러리 분리
+            ui: {
+              test: /[\\/]node_modules[\\/](@radix-ui|framer-motion|recharts)[\\/]/,
+              name: 'ui-libs',
+              priority: 30,
+              reuseExistingChunk: true,
+            },
+            // 공통 벤더 분리
+            vendor: {
+              test: /[\\/]node_modules[\\/]/,
+              name: 'vendor',
+              priority: 10,
+              reuseExistingChunk: true,
+            },
+          },
+        },
+      };
     }
     return config;
   },

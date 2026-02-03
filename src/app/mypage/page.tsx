@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { db } from "@/lib/firebase/client";
 import { doc, getDoc, collection, query, where, getCountFromServer, getDocs, orderBy, collectionGroup } from "firebase/firestore";
 
@@ -13,9 +14,6 @@ import { ProfileManager } from "@/components/ProfileManager";
 import { ImageCard } from "@/components/ImageCard";
 import { ProposalCard } from "@/components/ProposalCard";
 import { CommentCard } from "@/components/CommentCard";
-import { ProjectDetailModalV2 } from "@/components/ProjectDetailModalV2";
-import { ProposalDetailModal } from "@/components/ProposalDetailModal";
-import { FeedbackReportModal } from "@/components/FeedbackReportModal";
 import { supabase } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { cn } from "@/lib/utils";
@@ -30,19 +28,29 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
+// Lazy loaded heavy modals for performance
+const ProjectDetailModalV2 = dynamic(() => import("@/components/ProjectDetailModalV2").then(mod => mod.ProjectDetailModalV2), { ssr: false });
+const ProposalDetailModal = dynamic(() => import("@/components/ProposalDetailModal").then(mod => mod.ProposalDetailModal), { ssr: false });
+const FeedbackReportModal = dynamic(() => import("@/components/FeedbackReportModal").then(mod => mod.FeedbackReportModal), { ssr: false });
+const LeanCanvasModal = dynamic(() => import("@/components/LeanCanvasModal").then(mod => mod.LeanCanvasModal), { ssr: false });
+const PersonaDefinitionModal = dynamic(() => import("@/components/PersonaDefinitionModal").then(mod => mod.PersonaDefinitionModal), { ssr: false });
+const AssistantResultModal = dynamic(() => import("@/components/AssistantResultModal").then(mod => mod.AssistantResultModal), { ssr: false });
+
+// Lazy loaded AI tools
+const AiOpportunityExplorer = dynamic(() => import("@/components/tools/AiOpportunityExplorer").then(mod => mod.AiOpportunityExplorer), { ssr: false });
+const AiLeanCanvasChat = dynamic(() => import("@/components/tools/AiLeanCanvasChat").then(mod => mod.AiLeanCanvasChat), { ssr: false });
+const AiOpportunityChat = dynamic(() => import("@/components/tools/AiOpportunityChat").then(mod => mod.AiOpportunityChat), { ssr: false });
+const AiPersonaChat = dynamic(() => import("@/components/tools/AiPersonaChat").then(mod => mod.AiPersonaChat), { ssr: false });
+const AiAssistantChat = dynamic(() => import("@/components/tools/AiAssistantChat").then(mod => mod.AiAssistantChat), { ssr: false });
+const ApiKeyManager = dynamic(() => import("@/components/ApiKeyManager").then(mod => mod.ApiKeyManager), { ssr: false });
+
 type TabType = 'projects' | 'audit_requests' | 'likes' | 'collections' | 'proposals' | 'comments' | 'ai_tools' | 'dashboard' | 'settings';
 type AiToolType = 'lean-canvas' | 'persona' | 'assistant' | 'job' | 'trend' | 'recipe' | 'tool' | 'api-settings';
 
-import { LeanCanvasModal, type LeanCanvasData } from "@/components/LeanCanvasModal";
-import { PersonaDefinitionModal } from "@/components/PersonaDefinitionModal";
-import { AiOpportunityExplorer } from "@/components/tools/AiOpportunityExplorer";
-import { AiLeanCanvasChat } from "@/components/tools/AiLeanCanvasChat";
-import { AiOpportunityChat } from "@/components/tools/AiOpportunityChat";
-import { AiPersonaChat } from "@/components/tools/AiPersonaChat";
-import { AiAssistantChat, type AssistantData } from "@/components/tools/AiAssistantChat";
-import { AssistantResultModal } from "@/components/AssistantResultModal";
-import { PersonaData } from "@/components/PersonaDefinitionModal";
-import { ApiKeyManager } from "@/components/ApiKeyManager";
+// Type imports (not lazy loaded)
+import type { LeanCanvasData } from "@/components/LeanCanvasModal";
+import type { AssistantData } from "@/components/tools/AiAssistantChat";
+import type { PersonaData } from "@/components/PersonaDefinitionModal";
 
 export default function MyPage() {
   const router = useRouter();

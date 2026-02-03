@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MyRatingIsHeader } from '@/components/MyRatingIsHeader';
 import { ChefHat, Star, Eye, MessageSquare, Clock, ArrowRight, Sparkles, Heart, Bookmark, Send } from 'lucide-react';
@@ -13,9 +14,10 @@ import { useAuth } from '@/lib/auth/AuthContext';
 // Firebase Imports
 import { db } from '@/lib/firebase/client';
 import { collection, query, where, orderBy, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp, limit, getCountFromServer, updateDoc, increment } from "firebase/firestore";
-// Modals
-import { InquiryModal } from '@/components/InquiryModal';
-import { CollectionModal } from '@/components/CollectionModal';
+
+// Lazy loaded modals for performance
+const InquiryModal = dynamic(() => import('@/components/InquiryModal').then(mod => mod.InquiryModal), { ssr: false });
+const CollectionModal = dynamic(() => import('@/components/CollectionModal').then(mod => mod.CollectionModal), { ssr: false });
 
 interface ProjectClientProps {
   initialProjects?: any[];
