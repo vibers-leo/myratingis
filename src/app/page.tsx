@@ -2,16 +2,12 @@
 
 import React from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { MyRatingIsHeader } from "@/components/MyRatingIsHeader";
-import { useAuth } from "@/lib/auth/AuthContext";
 import { Button } from "@/components/ui/button";
-import { ChefHat, Rocket, Sparkles, Star, Crown } from "lucide-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faStar } from "@fortawesome/free-solid-svg-icons";
+import { ChefHat, Star } from "lucide-react";
 
+// CSS-only animations for better mobile performance (no framer-motion)
 export default function Home() {
   const router = useRouter();
 
@@ -19,7 +15,6 @@ export default function Home() {
     <div className="relative min-h-screen bg-[#050505] text-white overflow-hidden flex flex-col items-center justify-center">
       {/* Background - Pure CSS (no heavy image) */}
       <div className="absolute inset-0 z-0">
-        {/* Noise texture effect with CSS */}
         <div className="absolute inset-0 opacity-20" style={{
           backgroundImage: `radial-gradient(circle at 25% 25%, rgba(255,165,0,0.03) 0%, transparent 50%),
                            radial-gradient(circle at 75% 75%, rgba(255,255,255,0.02) 0%, transparent 50%)`,
@@ -27,31 +22,21 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/80 to-[#050505]" />
       </div>
 
-      {/* Floating Elements (Aceternity UI Style) - Reduced blur for performance */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      {/* Floating Elements - Hidden on mobile for performance */}
+      <div className="hidden md:block absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse" />
+      <div className="hidden md:block absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
 
       <main className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col items-center text-center space-y-12">
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md"
-        >
+        {/* Badge - CSS animation */}
+        <div className="animate-fade-in-down flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md">
           <Star className="w-3 h-3 md:w-3.5 md:h-3.5 text-orange-400 fill-orange-400" />
           <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">
             Professional Evaluation Stage
           </span>
-        </motion.div>
+        </div>
 
-        {/* Logo */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1 }}
-          className="pt-2 md:pt-4"
-        >
+        {/* Logo - CSS animation */}
+        <div className="animate-fade-in-up pt-2 md:pt-4" style={{ animationDelay: '0.1s' }}>
           <Image 
             src="/myratingis-logo.png" 
             alt="제 평가는요?" 
@@ -61,25 +46,21 @@ export default function Home() {
             className="h-12 md:h-16 lg:h-20 w-auto object-contain brightness-0 invert"
             priority
           />
-        </motion.div>
+        </div>
 
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-xs md:text-base lg:text-lg text-white/60 font-medium max-w-4xl mx-auto leading-relaxed px-4 break-keep"
+        {/* Subtitle - CSS animation */}
+        <p 
+          className="animate-fade-in-up text-xs md:text-base lg:text-lg text-white/60 font-medium max-w-4xl mx-auto leading-relaxed px-4 break-keep"
+          style={{ animationDelay: '0.2s' }}
         >
           전문평가위원과 잠재고객의 날카로운 시선으로<br />
           여러분의 프로젝트가 가진 진짜 가치를 증명해 드립니다.
-        </motion.p>
+        </p>
 
-        {/* Cloche Illustration */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.3, type: "spring" }}
-          className="relative w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80"
+        {/* Cloche Illustration - CSS animation */}
+        <div 
+          className="animate-scale-in relative w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80"
+          style={{ animationDelay: '0.3s' }}
         >
           <Image 
             src="/review/cloche-cover.png" 
@@ -90,14 +71,12 @@ export default function Home() {
             className="w-full h-full object-contain filter drop-shadow-[0_10px_30px_rgba(255,165,0,0.2)]"
             priority
           />
-        </motion.div>
+        </div>
 
-        {/* CTA Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex flex-col items-center gap-4 w-full max-w-sm mx-auto px-4"
+        {/* CTA Buttons - CSS animation */}
+        <div 
+          className="animate-fade-in-up flex flex-col items-center gap-4 w-full max-w-sm mx-auto px-4"
+          style={{ animationDelay: '0.4s' }}
         >
           <Button
             onClick={() => router.push("/project/upload")}
@@ -113,24 +92,17 @@ export default function Home() {
             <Star className="w-5 h-5 md:w-6 md:h-6" />
             평가 참여하기
           </Button>
-        </motion.div>
+        </div>
 
         {/* Secondary Discovery Links */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="flex gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/20 pt-8"
+        <div 
+          className="animate-fade-in flex gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-white/20 pt-8"
+          style={{ animationDelay: '0.6s' }}
         >
           <Link href="/about/features" className="hover:text-orange-500 transition-colors">Platform Features</Link>
-          <Link href="/faq" className="hover:text-orange-500 transition-colors">User Support & FAQ</Link>
-        </motion.div>
-
-
+          <Link href="/faq" className="hover:text-orange-500 transition-colors">User Support &amp; FAQ</Link>
+        </div>
       </main>
-
-      {/* Footer Hint */}
-
     </div>
   );
 }
