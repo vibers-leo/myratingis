@@ -11,6 +11,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
+import { db } from "@/lib/firebase/client";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { useAuth } from "@/lib/auth/AuthContext";
+import { toast } from "sonner";
 
 interface ProposalModalProps {
   open: boolean;
@@ -27,6 +31,7 @@ export function ProposalModal({
   receiverId,
   projectTitle,
 }: ProposalModalProps) {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -38,63 +43,49 @@ export function ProposalModal({
     e.preventDefault();
     
     if (!receiverId) {
-      alert("프로젝트 작성자 정보를 찾을 수 없습니다.");
+      toast.error("프로젝트 작성자 정보를 찾을 수 없습니다.");
+      return;
+    }
+
+    if (!user) {
+      toast.error("로그인이 필요한 서비스입니다.");
+      return;
+    }
+
+    // 자기 자신에게 제안 불가
+    if (receiverId === user.uid) {
+      toast.error("본인에게는 제안할 수 없습니다.");
       return;
     }
 
     setLoading(true);
 
     try {
-      const { supabase } = await import("@/lib/supabase/client");
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        alert("로그인이 필요한 서비스입니다.");
-        setLoading(false);
-        return;
-      }
+      const proposalData = {
+        projectId: projectId,
+        projectTitle: projectTitle,
+        senderUid: user.uid,
+        senderEmail: user.email,
+        senderName: user.displayName || 'Anonymous',
+        senderPhoto: user.photoURL || null,
+        receiverUid: receiverId,
+        title: formData.title || `[협업 제안] ${projectTitle} 관련 문의`,
+        content: formData.content,
+        contact: formData.contact || user.email,
+        status: 'pending',
+        createdAt: serverTimestamp(),
+        readAt: null,
+        repliedAt: null,
+      };
 
-      const res = await fetch("/api/proposals", {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({
-          project_id: Number(projectId),
-          receiver_id: receiverId,
-          title: formData.title || `[협업 제안] ${projectTitle} 관련 문의`,
-          content: formData.content,
-          contact: formData.contact,
-        }),
-      });
+      await addDoc(collection(db, "proposals"), proposalData);
 
-      const data = await res.json();
-      
-      if (res.ok) {
-        try {
-          const { createNotification } = await import("@/hooks/useNotifications");
-          await createNotification({
-            userId: receiverId,
-            type: "system",
-            title: "새로운 협업 제안이 도착했습니다!",
-            message: `'${formData.title || projectTitle}' 제안을 확인해보세요.`,
-            link: "/mypage",
-            senderId: session.user.id,
-          });
-        } catch (err) {
-          console.error("알림 생성 실패:", err);
-        }
-
-        alert(data.message || "제안이 성공적으로 전송되었습니다!");
-        setFormData({ title: "", content: "", contact: "" });
-        onOpenChange(false);
-      } else {
-        alert(data.error || "제안 등록에 실패했습니다.");
-      }
-    } catch (error) {
+      toast.success("제안이 성공적으로 전송되었습니다!");
+      setFormData({ title: "", content: "", contact: "" });
+      onOpenChange(false);
+    } catch (error: any) {
       console.error("제안 전송 실패:", error);
-      alert("제안 전송 중 오류가 발생했습니다.");
+      toast.error("제안 전송 중 오류가 발생했습니다: " + error.message);
     } finally {
       setLoading(false);
     }

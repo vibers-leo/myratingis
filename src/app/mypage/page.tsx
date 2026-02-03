@@ -363,34 +363,121 @@ export default function MyPage() {
           }
           
         } else if (activeTab === 'proposals') {
-          // Fetch from ProjectInquiry (New Table)
-          const { data } = await supabase
-            .from('ProjectInquiry' as any)
-            .select('*, Project(title, thumbnail_url)')
-            .or(`user_id.eq.${userId},contact_email.eq.${authUser?.email || ''}`) 
-            .order('created_at', { ascending: false });
-          
-          setProjects(data?.map((p: any) => ({
-             proposal_id: p.id,
-             title: p.title,
-             content: p.content,
-             status: p.status,
-             created_at: p.created_at,
-             inquiry_type: p.inquiry_type,
-             Project: p.Project, // Capital 'P' for Modal
-             project: p.Project, // Lowercase 'p' for potential other uses
-             contact: p.contact_email,
-             sender_id: p.user_id,
-             type: 'sent',
-             sender: { 
-                nickname: userProfile?.nickname || authProfile?.username || 'Me', 
-                profile_image_url: userProfile?.profile_image_url || (authProfile as any)?.avatar_url || (authProfile as any)?.profile_image_url || '/globe.svg' 
-             },
-             receiver: { 
-                nickname: p.Project?.title || 'Project', 
-                profile_image_url: p.Project?.thumbnail_url || '/placeholder.jpg' 
-             }
-          })) || []);
+          // Fetch proposals/inquiries from Firebase
+          try {
+              // Fetch inquiries where user is receiver OR sender
+              const receivedQuery = query(collection(db, "inquiries"), where("receiverUid", "==", userId));
+              const sentQuery = query(collection(db, "inquiries"), where("senderUid", "==", userId));
+              
+              const [receivedSnap, sentSnap] = await Promise.all([
+                  getDocs(receivedQuery),
+                  getDocs(sentQuery)
+              ]);
+              
+              // Also fetch from proposals collection
+              const receivedProposalsQuery = query(collection(db, "proposals"), where("receiverUid", "==", userId));
+              const sentProposalsQuery = query(collection(db, "proposals"), where("senderUid", "==", userId));
+              
+              const [receivedProposalsSnap, sentProposalsSnap] = await Promise.all([
+                  getDocs(receivedProposalsQuery),
+                  getDocs(sentProposalsQuery)
+              ]);
+              
+              // Combine all results
+              const allItems: any[] = [];
+              
+              receivedSnap.docs.forEach(d => {
+                  const data = d.data();
+                  allItems.push({
+                      proposal_id: d.id,
+                      title: data.title,
+                      content: data.content,
+                      status: data.status,
+                      created_at: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
+                      inquiry_type: data.inquiryType,
+                      projectId: data.projectId,
+                      projectTitle: data.projectTitle,
+                      type: 'received',
+                      sender: {
+                          nickname: data.senderName || 'Anonymous',
+                          email: data.senderEmail,
+                      },
+                      contact: data.senderEmail,
+                  });
+              });
+              
+              sentSnap.docs.forEach(d => {
+                  const data = d.data();
+                  // Avoid duplicates
+                  if (!allItems.find(i => i.proposal_id === d.id)) {
+                      allItems.push({
+                          proposal_id: d.id,
+                          title: data.title,
+                          content: data.content,
+                          status: data.status,
+                          created_at: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
+                          inquiry_type: data.inquiryType,
+                          projectId: data.projectId,
+                          projectTitle: data.projectTitle,
+                          type: 'sent',
+                          receiver: {
+                              nickname: data.projectTitle || 'Project',
+                          },
+                          contact: data.senderEmail,
+                      });
+                  }
+              });
+              
+              receivedProposalsSnap.docs.forEach(d => {
+                  const data = d.data();
+                  allItems.push({
+                      proposal_id: d.id,
+                      title: data.title,
+                      content: data.content,
+                      status: data.status,
+                      created_at: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
+                      inquiry_type: 'proposal',
+                      projectId: data.projectId,
+                      projectTitle: data.projectTitle,
+                      type: 'received',
+                      sender: {
+                          nickname: data.senderName || 'Anonymous',
+                          email: data.senderEmail,
+                          profile_image_url: data.senderPhoto,
+                      },
+                      contact: data.contact,
+                  });
+              });
+              
+              sentProposalsSnap.docs.forEach(d => {
+                  const data = d.data();
+                  if (!allItems.find(i => i.proposal_id === d.id)) {
+                      allItems.push({
+                          proposal_id: d.id,
+                          title: data.title,
+                          content: data.content,
+                          status: data.status,
+                          created_at: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
+                          inquiry_type: 'proposal',
+                          projectId: data.projectId,
+                          projectTitle: data.projectTitle,
+                          type: 'sent',
+                          receiver: {
+                              nickname: data.projectTitle || 'Project',
+                          },
+                          contact: data.contact,
+                      });
+                  }
+              });
+              
+              // Sort by created_at desc
+              allItems.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+              
+              setProjects(allItems);
+          } catch (error) {
+              console.error("Error fetching proposals:", error);
+              setProjects([]);
+          }
           
         } else if (activeTab === 'comments') {
           // 'Participated Audits' (Evaluations) fetched from Firebase

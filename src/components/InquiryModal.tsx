@@ -10,7 +10,8 @@ import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { Send, Lock, Loader2, Sparkles, MessageCircle } from "lucide-react";
-import { supabase } from "@/lib/supabase/client";
+import { db } from "@/lib/firebase/client";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useAuth } from "@/lib/auth/AuthContext";
 
 interface InquiryModalProps {
@@ -20,7 +21,9 @@ interface InquiryModalProps {
     project_id?: number | string;
     id?: number | string;
     title: string;
-    user_id: string; 
+    user_id?: string;
+    author_uid?: string;
+    author_email?: string;
   };
 }
 
@@ -40,7 +43,7 @@ export function InquiryModal({ open, onOpenChange, project }: InquiryModalProps)
   useEffect(() => {
     if (open && user) {
         // Pre-fill user info
-        setContactName(user.user_metadata?.nickname || user.user_metadata?.full_name || "");
+        setContactName(user.displayName || "");
         setContactEmail(user.email || "");
         setTitle("");
         setContent("");
@@ -58,23 +61,28 @@ export function InquiryModal({ open, onOpenChange, project }: InquiryModalProps)
     setIsSubmitting(true);
     try {
         const projectId = project.project_id || project.id;
+        const receiverUid = project.author_uid || project.user_id;
         
-        const payload = {
-            project_id: projectId,
-            user_id: user.id,
+        const inquiryData = {
+            projectId: projectId,
+            projectTitle: project.title,
+            receiverUid: receiverUid,
+            receiverEmail: project.author_email || null,
+            senderUid: user.uid,
+            senderEmail: user.email,
+            senderName: contactName.trim(),
+            senderPhone: contactPhone.trim() || null,
             title: title.trim(),
             content: content.trim(),
-            inquiry_type: inquiryType,
-            contact_name: contactName.trim(),
-            contact_email: contactEmail.trim(),
-            contact_phone: contactPhone.trim(),
-            is_private: isPrivate,
-            status: 'pending'
+            inquiryType: inquiryType,
+            isPrivate: isPrivate,
+            status: 'pending',
+            createdAt: serverTimestamp(),
+            readAt: null,
+            repliedAt: null,
         };
 
-        const { error } = await supabase.from('ProjectInquiry').insert(payload as any);
-
-        if (error) throw error;
+        await addDoc(collection(db, "inquiries"), inquiryData);
 
         toast.success(inquiryType === 'proposal' ? "제안서가 전달되었습니다." : "문의가 등록되었습니다.");
         onOpenChange(false);
