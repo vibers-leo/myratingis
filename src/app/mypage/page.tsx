@@ -146,15 +146,51 @@ export default function MyPage() {
 
         // 2. Fetch Stats from Firestore
         try {
+            // Projects count
             const projectsCountSnap = await getCountFromServer(
                 query(collection(db, "projects"), where("author_uid", "==", authUser.uid))
             );
-            // Likes/Collections might need migration or different queries
-            // For now, setting basic counts
+            
+            // My evaluations count (how many times I evaluated others)
+            let myEvaluationsCount = 0;
+            try {
+                const evalCountSnap = await getCountFromServer(
+                    query(collection(db, "evaluations"), where("user_uid", "==", authUser.uid))
+                );
+                myEvaluationsCount = evalCountSnap.data().count;
+            } catch (e) {
+                console.warn("Failed to fetch evaluation count");
+            }
+            
+            // Total likes received on my projects
+            let totalLikesReceived = 0;
+            try {
+                // Get all my projects first
+                const myProjectsSnap = await getDocs(
+                    query(collection(db, "projects"), where("author_uid", "==", authUser.uid))
+                );
+                
+                // For each project, count likes from subcollection
+                const likeCounts = await Promise.all(
+                    myProjectsSnap.docs.map(async (p) => {
+                        try {
+                            const likesCountSnap = await getCountFromServer(collection(db, "projects", p.id, "likes"));
+                            return likesCountSnap.data().count;
+                        } catch (e) {
+                            // Fallback to stored value
+                            return p.data().likes || p.data().likes_count || 0;
+                        }
+                    })
+                );
+                totalLikesReceived = likeCounts.reduce((sum, c) => sum + c, 0);
+            } catch (e) {
+                console.warn("Failed to fetch likes count");
+            }
+
             setStats({ 
                 projects: projectsCountSnap.data().count, 
-                likes: 0, // Implement later
-                collections: 0, // Implement later
+                likes: totalLikesReceived,
+                collections: myEvaluationsCount, // Reusing 'collections' as 'my evaluations' for now
                 followers: 0, 
                 following: 0 
             });
