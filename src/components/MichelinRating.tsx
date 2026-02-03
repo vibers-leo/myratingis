@@ -107,7 +107,8 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
           
           const initialScores: Record<string, number> = {};
           custom.forEach((c: any) => {
-            initialScores[c.id] = data.myRating ? Number(data.myRating[c.id] || 0) : 0;
+            // Default to 3 (middle value) for better UX, unless user has already rated
+            initialScores[c.id] = data.myRating ? Number(data.myRating[c.id] || 3) : 3;
           });
           setScores(initialScores);
         } else {
@@ -115,7 +116,8 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
           setCategories(DEFAULT_CATEGORIES);
           const initial: Record<string, number> = {};
           DEFAULT_CATEGORIES.forEach(c => {
-             initial[c.id] = data.myRating ? Number(data.myRating[c.id] || 0) : 0;
+             // Default to 3 (middle value) for better UX, unless user has already rated
+             initial[c.id] = data.myRating ? Number(data.myRating[c.id] || 3) : 3;
           });
           setScores(initial);
         }
