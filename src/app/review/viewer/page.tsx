@@ -456,7 +456,7 @@ function ViewerContent() {
           </div>
           <div className="p-6 border-b">
               <h3 className="text-xl font-black uppercase italic flex items-center gap-2"><ChefHat className="text-orange-500" /> 제 평가는요?</h3>
-              {currentStep < steps.length - 1 && <div className="mt-4 h-1 w-full bg-chef-panel rounded-full overflow-hidden"><div className="h-full bg-orange-600 transition-all" style={{ width: `${((currentStep+1)/(steps.length-1))*100}%` }} /></div>}
+              {currentStep < steps.length - 1 && <div className="mt-4 h-2 w-full bg-chef-panel rounded-full overflow-hidden shadow-inner border border-white/5"><div className="h-full bg-orange-600 transition-all shadow-[0_0_10px_rgba(234,88,12,0.4)]" style={{ width: `${((currentStep+1)/(steps.length-1))*100}%` }} /></div>}
           </div>
           <div className="flex-1 overflow-hidden p-6 relative">{renderCurrentStep()}</div>
           {currentStep < steps.length - 1 && (

@@ -137,7 +137,7 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
             const updatedScores: Record<string, number> = {};
             const cats = (customCategories && Array.isArray(customCategories)) ? customCategories : DEFAULT_CATEGORIES;
             cats.forEach((c: any) => {
-               updatedScores[c.id] = Number(specificRating[c.id] || 0);
+               updatedScores[c.id] = Number(specificRating[c.id] || 3);
             });
             setScores(updatedScores);
           }
@@ -155,7 +155,7 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
     }
     else if (isDemo) {
         const initial: Record<string, number> = {};
-        DEFAULT_CATEGORIES.forEach(c => initial[c.id] = 0);
+        DEFAULT_CATEGORIES.forEach(c => initial[c.id] = 3);
         setScores(initial);
     }
   }, [projectId, guestId, user]);
@@ -397,9 +397,9 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
             </div>
 
             <div className="relative h-12 flex items-center group/slider">
-                <div className="absolute inset-x-0 h-4 bg-chef-panel border border-chef-border/50 rounded-full overflow-hidden shadow-inner">
+                <div className="absolute inset-x-0 h-4 bg-chef-panel border border-chef-border rounded-full overflow-hidden shadow-inner">
                    <div 
-                     className="h-full transition-all duration-100 ease-out shadow-[0_0_15px_rgba(0,0,0,0.1)]" 
+                     className="h-full transition-all duration-100 ease-out shadow-[0_0_20px_rgba(245,158,11,0.3)]" 
                      style={{ 
                        width: `${((scores[activeCategory.id] || 0) / 5) * 100}%`,
                        backgroundColor: activeCategory.color || '#f59e0b'
@@ -499,10 +499,10 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
                   </div>
                 </div>
                 
-                 <div className="relative h-6 flex items-center group/slider-box">
-                    <div className="absolute inset-x-0 h-2 bg-chef-panel border border-chef-border/50 rounded-full shadow-inner overflow-hidden">
+                  <div className="relative h-6 flex items-center group/slider-box">
+                    <div className="absolute inset-x-0 h-2 bg-chef-panel border border-chef-border rounded-full shadow-inner overflow-hidden">
                       <div 
-                        className="h-full transition-all duration-100 ease-out opacity-40" 
+                        className="h-full transition-all duration-100 ease-out opacity-60" 
                         style={{ 
                           width: `${((scores[cat.id] || 0) / 5) * 100}%`,
                           backgroundColor: cat.color || '#f59e0b'
