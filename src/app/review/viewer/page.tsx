@@ -18,7 +18,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { cn, linkify } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { db } from '@/lib/firebase/client';
@@ -335,9 +335,10 @@ function ViewerContent() {
           </div>
           
           <div className="bg-chef-panel/50 p-6 rounded-3xl border border-chef-border/50 shadow-inner">
-             <p className="text-base font-medium text-chef-text leading-relaxed whitespace-pre-wrap break-keep opacity-90">
-                {project.summary || project.description || "프로젝트 소개가 없습니다."}
-             </p>
+             <div 
+               className="text-base font-medium text-chef-text leading-relaxed break-keep opacity-90 linkified-content"
+               dangerouslySetInnerHTML={{ __html: linkify(project.summary || project.description || "프로젝트 소개가 없습니다.") }}
+             />
           </div>
 
           <div className="space-y-6 pt-8 border-t border-chef-border/30">

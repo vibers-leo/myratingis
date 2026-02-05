@@ -29,6 +29,7 @@ import { LoginRequiredModal } from "./LoginRequiredModal";
 import { supabase } from "@/lib/supabase/client";
 import { createNotification } from "@/hooks/useNotifications";
 import { useAuth } from "@/lib/auth/AuthContext";
+import { cn, linkify } from "@/lib/utils";
 
 
 dayjs.extend(relativeTime);
@@ -810,8 +811,8 @@ export function ProjectDetailModalV2({
             <div className="flex-1 overflow-y-auto custom-scrollbar">
               {project.rendering_type === 'rich_text' ? (
                 <div 
-                  className="prose prose-sm prose-h1:text-xl max-w-full p-6 mx-auto bg-white whitespace-pre-wrap"
-                  dangerouslySetInnerHTML={{ __html: unescapeHtml(project.description || '') }}
+                  className="prose prose-sm prose-h1:text-xl max-w-full p-6 mx-auto bg-white"
+                  dangerouslySetInnerHTML={{ __html: linkify(unescapeHtml(project.description || '')) }}
                 />
               ) : (
                     <div className="relative inline-block">
@@ -1218,8 +1219,8 @@ export function ProjectDetailModalV2({
                 <div className="p-8 flex flex-col items-center min-h-[400px]">
                   {project.rendering_type === 'rich_text' ? (
                     <div 
-                      className="prose prose-lg prose-h1:text-3xl max-w-4xl w-full bg-white p-4 whitespace-pre-wrap"
-                      dangerouslySetInnerHTML={{ __html: unescapeHtml(project.description || '') }}
+                      className="prose prose-lg prose-h1:text-3xl max-w-4xl w-full bg-white p-4"
+                      dangerouslySetInnerHTML={{ __html: linkify(unescapeHtml(project.description || '')) }}
                     />
                   ) : (
                     <div className="relative inline-block w-full">
@@ -1296,9 +1297,10 @@ export function ProjectDetailModalV2({
 
                   {/* RichText가 아닐 경우의 텍스트 설명 */}
                   {project.rendering_type !== 'rich_text' && project.description && (
-                     <div className="max-w-3xl w-full mt-12 text-lg text-gray-700 leading-8 whitespace-pre-wrap break-keep">
-                        {stripHtml(project.description)}
-                     </div>
+                     <div 
+                       className="max-w-3xl w-full mt-12 text-lg text-gray-700 leading-8 break-keep linkified-text"
+                       dangerouslySetInnerHTML={{ __html: linkify(stripHtml(project.description)) }}
+                     />
                   )}
                 </div>
 

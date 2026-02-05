@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { linkify } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { 
   BarChart3, 
@@ -248,7 +249,10 @@ export function ReviewReportModal({ open, onOpenChange, projectId, projectTitle 
                                         </div>
                                     </div>
                                     <h5 className="font-bold text-slate-900 mb-2 truncate">{review.title}</h5>
-                                    <p className="text-sm text-slate-500 line-clamp-3 leading-relaxed mb-4">{review.content}</p>
+                                    <div 
+                                        className="text-sm text-slate-500 line-clamp-3 leading-relaxed mb-4 linkified-feedback"
+                                        dangerouslySetInnerHTML={{ __html: linkify(review.content) }}
+                                    />
                                     <div className="pt-4 border-t border-slate-50 flex justify-between items-center text-[10px] font-bold">
                                         <span className="text-indigo-500">{review.contact || "비공개 연락처"}</span>
                                         <button className="text-slate-300 hover:text-indigo-500 transition-colors flex items-center gap-1">

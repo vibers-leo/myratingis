@@ -32,8 +32,8 @@ import { recordView, getProjectViewCount } from "@/lib/views"; // Import view fu
 import dayjs from "dayjs";
 import { supabase } from "@/lib/supabase/client";
 import { ProjectTimeline } from "@/components/ProjectTimeline";
-
 import { getProjectVersions, ProjectVersion } from "@/lib/versions";
+import { cn, linkify } from "@/lib/utils";
 
 interface Project {
   id: string;
@@ -64,8 +64,7 @@ interface Project {
 }
 
 export default function ProjectDetailPage({ params }: { params: { id: string } }) {
-  const { session } = useAuth();
-  const user = session?.user;
+  const { user } = useAuth();
   const router = useRouter();
 
   const [project, setProject] = useState<Project | null>(null);
@@ -393,7 +392,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
               </h1>
               <div 
                 className="text-lg text-gray-700 leading-8 mb-10 break-keep prose prose-lg max-w-none prose-img:rounded-xl prose-video:rounded-xl prose-headings:font-bold prose-a:text-green-600 hover:prose-a:text-green-700"
-                dangerouslySetInnerHTML={{ __html: project.description || project.alt_description || "설명이 없습니다." }}
+                dangerouslySetInnerHTML={{ __html: linkify(project.description || project.alt_description || "설명이 없습니다.") }}
               />
 
               {/* Version Timeline */}
