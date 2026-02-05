@@ -40,7 +40,11 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
   const { user } = useAuth();
   const [projectData, setProjectData] = useState<any>(null);
   const [categories, setCategories] = useState<any[]>(DEFAULT_CATEGORIES);
-  const [scores, setScores] = useState<Record<string, number>>({});
+  const [scores, setScores] = useState<Record<string, number>>(() => {
+    const initial: Record<string, number> = {};
+    DEFAULT_CATEGORIES.forEach(c => initial[c.id] = 3);
+    return initial;
+  });
   const [averages, setAverages] = useState<Record<string, number>>({});
   const [totalAvg, setTotalAvg] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
@@ -275,7 +279,7 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
   };
 
   const myPoints = categories.map((c, i) => {
-      const p = valueToPoint(scores[c.id] || 0, i, categories.length);
+      const p = valueToPoint(scores[c.id] ?? 3, i, categories.length);
       return `${p.x},${p.y}`;
   }).join(" ");
 
@@ -306,7 +310,7 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
   });
 
   const handles = categories.map((c, i) => {
-      const p = valueToPoint(scores[c.id] || 0, i, categories.length);
+      const p = valueToPoint(scores[c.id] ?? 3, i, categories.length);
       const isActive = draggingCategory === c.id;
       
       return (
@@ -389,8 +393,8 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
                   ))}
                </div>
                <div className="text-right">
-                  <span className={cn("text-7xl font-black tabular-nums tracking-tighter transition-all", (scores[activeCategory.id] || 0) > 0 ? "opacity-100 scale-105" : "opacity-20")} style={{ color: activeCategory.color || '#f59e0b' }}>
-                     {(scores[activeCategory.id] || 0).toFixed(1)}
+                  <span className={cn("text-7xl font-black tabular-nums tracking-tighter transition-all", (scores[activeCategory.id] !== undefined) ? "opacity-100 scale-105" : "opacity-20")} style={{ color: activeCategory.color || '#f59e0b' }}>
+                     {(scores[activeCategory.id] ?? 3).toFixed(1)}
                   </span>
                   <p className="text-[10px] font-black text-chef-text opacity-20 uppercase tracking-widest">Score / 5.0</p>
                </div>
@@ -411,7 +415,7 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
                   min="0" 
                   max="5" 
                   step="0.1" 
-                  value={scores[activeCategory.id] || 0} 
+                  value={scores[activeCategory.id] ?? 3} 
                   onChange={(e) => { 
                     setScores(prev => ({ ...prev, [activeCategory.id]: parseFloat(e.target.value) })); 
                     setIsEditing(true); 
@@ -493,7 +497,7 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
                   </div>
                   <div className="text-center">
                     <span className="text-3xl font-black tabular-nums tracking-tighter" style={{ color: cat.color || '#f59e0b' }}>
-                      {(scores[cat.id] || 0) > 0 ? (scores[cat.id] || 0).toFixed(1) : "0.0"}
+                      {(scores[cat.id] ?? 3).toFixed(1)}
                     </span>
                     <p className="text-[8px] font-black text-chef-text opacity-20 uppercase tracking-widest">Score</p>
                   </div>
@@ -504,14 +508,14 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
                       <div 
                         className="h-full transition-all duration-100 ease-out opacity-60" 
                         style={{ 
-                          width: `${((scores[cat.id] || 0) / 5) * 100}%`,
+                          width: `${((scores[cat.id] ?? 3) / 5) * 100}%`,
                           backgroundColor: cat.color || '#f59e0b'
                         }} 
                       />
                     </div>
                     <div className="absolute inset-0 flex justify-between px-1 pointer-events-none items-center">
                       {[0, 1, 2, 3, 4, 5].map(v => (
-                        <div key={v} className={cn("w-[2px] h-2 transition-colors", (scores[cat.id] || 0) >= v ? "bg-white/40" : "bg-chef-text/10")} />
+                        <div key={v} className={cn("w-[2px] h-2 transition-colors", (scores[cat.id] ?? 3) >= v ? "bg-white/40" : "bg-chef-text/10")} />
                       ))}
                     </div>
                     <input 
@@ -519,7 +523,7 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
                       min="0" 
                       max="5" 
                       step="0.1" 
-                      value={scores[cat.id] || 0} 
+                      value={scores[cat.id] ?? 3} 
                       onChange={(e) => { 
                         setScores(prev => ({ ...prev, [cat.id]: parseFloat(e.target.value) })); 
                         setIsEditing(true); 

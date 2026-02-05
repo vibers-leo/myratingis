@@ -57,9 +57,11 @@ export async function GET(
     const customConfig = rawCustom?.audit_config || rawCustom?.custom_categories;
     const categories = customConfig?.categories || [
       { id: 'score_1', label: '기획력' }, 
-      { id: 'score_2', label: '완성도' }, 
-      { id: 'score_3', label: '독창성' }, 
-      { id: 'score_4', label: '상업성' }
+      { id: 'score_2', label: '독창성' }, 
+      { id: 'score_3', label: '심미성' }, 
+      { id: 'score_4', label: '완성도' },
+      { id: 'score_5', label: '상업성' },
+      { id: 'score_6', label: '편의성' }
     ];
     const catIds = categories.map((c: any) => c.id || c.label);
     

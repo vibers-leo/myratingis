@@ -39,9 +39,11 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     const categories = rawCustom?.audit_config?.categories || rawCustom?.categories || rawCustom?.custom_categories || [
       { id: 'score_1', label: '기획력' }, 
-      { id: 'score_2', label: '완성도' }, 
-      { id: 'score_3', label: '독창성' }, 
-      { id: 'score_4', label: '상업성' }
+      { id: 'score_2', label: '독창성' }, 
+      { id: 'score_3', label: '심미성' }, 
+      { id: 'score_4', label: '완성도' },
+      { id: 'score_5', label: '상업성' },
+      { id: 'score_6', label: '편의성' }
     ];
     const catIds = categories.map((c: any) => c.id || c.label);
 
@@ -81,13 +83,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       rawMyRating = allRatings.find((r: any) => r.guest_id === guestId) || null;
     }
 
-    if (rawMyRating) {
-        myRating = { ...rawMyRating };
-        catIds.forEach((id: string, idx: number) => {
-            const columnName = `score_${idx + 1}`;
-            myRating[id] = Number(rawMyRating[columnName]) || Number(rawMyRating[id]) || 0;
-        });
-    }
+        if (rawMyRating) {
+            myRating = { ...rawMyRating };
+            catIds.forEach((id: string, idx: number) => {
+                const columnName = `score_${idx + 1}`;
+                myRating[id] = Number(rawMyRating[columnName]) || Number(rawMyRating[id]) || 3;
+            });
+        }
 
     // 4. Check Visibility
     let isAuthorized = false;
@@ -144,7 +146,7 @@ export async function POST(
       }
       
       const body = await req.json();
-      const { score, proposal, custom_answers, guest_id, ...scores } = body;
+      const { score, proposal, custom_answers, guest_id, scores: nestedScores } = body;
 
       console.log(`[API/ProjectRating] POST started for Project ${projectId}. GuestID: ${guest_id}, UserID: ${userId}`);
 
@@ -154,7 +156,7 @@ export async function POST(
           return NextResponse.json({ error: 'Guest ID or Login required' }, { status: 400 });
       }
 
-      // 1. Fetch existing rating to merge data (The standard way to handle partial updates in JS)
+      // 1. Fetch existing rating to merge data
       const { data: existingRating } = await supabaseAdmin
         .from('ProjectRating')
         .select('*')
@@ -163,7 +165,6 @@ export async function POST(
         .maybeSingle();
 
       // 2. Prepare Balanced Update Data (Merge)
-      // Get project categories to map IDs to columns
       const { data: project } = await supabaseAdmin.from('Project').select('custom_data').eq('project_id', Number(projectId)).single();
       
       let rawCustom = project?.custom_data || {};
@@ -177,7 +178,8 @@ export async function POST(
 
       const mappedScores: any = {};
       categories.forEach((cat: any, idx: number) => {
-          const val = body[cat.id] ?? body[`score_${idx+1}`];
+          // Look in: nestedScores[cat.id], body[cat.id], body[score_N]
+          const val = (nestedScores && nestedScores[cat.id]) ?? body[cat.id] ?? body[`score_${idx+1}`];
           if (val !== undefined) {
               mappedScores[`score_${idx+1}`] = parseFloat(val);
           }
@@ -187,28 +189,24 @@ export async function POST(
           project_id: Number(projectId),
           user_id: userId,
           guest_id: userId ? null : guest_id,
-          // Map scores to score_1...6 columns and calculate the average score
-          score_1: mappedScores.score_1 ?? existingRating?.score_1 ?? 0,
-          score_2: mappedScores.score_2 ?? existingRating?.score_2 ?? 0,
-          score_3: mappedScores.score_3 ?? existingRating?.score_3 ?? 0,
-          score_4: mappedScores.score_4 ?? existingRating?.score_4 ?? 0,
-          score_5: mappedScores.score_5 ?? existingRating?.score_5 ?? 0,
-          score_6: mappedScores.score_6 ?? existingRating?.score_6 ?? 0,
+          // Default to 3.0 instead of 0.0 for new ratings to match UX intent
+          score_1: mappedScores.score_1 ?? existingRating?.score_1 ?? 3,
+          score_2: mappedScores.score_2 ?? existingRating?.score_2 ?? 3,
+          score_3: mappedScores.score_3 ?? existingRating?.score_3 ?? 3,
+          score_4: mappedScores.score_4 ?? existingRating?.score_4 ?? 3,
+          score_5: mappedScores.score_5 ?? existingRating?.score_5 ?? 3,
+          score_6: mappedScores.score_6 ?? existingRating?.score_6 ?? 3,
           proposal: proposal !== undefined ? proposal : existingRating?.proposal,
           custom_answers: custom_answers !== undefined ? custom_answers : existingRating?.custom_answers,
           updated_at: new Date().toISOString()
       };
 
-      // Recalculate average score from all 6 columns if not explicitly provided
-      if (score === undefined) {
-          const activeScores = [updateData.score_1, updateData.score_2, updateData.score_3, updateData.score_4, updateData.score_5, updateData.score_6]
-            .filter(s => s > 0);
-          updateData.score = activeScores.length > 0 
-            ? Number((activeScores.reduce((a, b) => a + b, 0) / activeScores.length).toFixed(1)) 
-            : 0;
-      } else {
-          updateData.score = score;
-      }
+      // Recalculate average score
+      const activeScores = [updateData.score_1, updateData.score_2, updateData.score_3, updateData.score_4, updateData.score_5, updateData.score_6]
+        .filter(s => s > 0);
+      updateData.score = score !== undefined ? score : (activeScores.length > 0 
+        ? Number((activeScores.reduce((a, b) => a + b, 0) / activeScores.length).toFixed(1)) 
+        : 3.0);
 
       console.log(`[API/ProjectRating] Final updateData:`, {
         project_id: updateData.project_id,

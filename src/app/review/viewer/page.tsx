@@ -114,7 +114,9 @@ function ViewerContent() {
   const [isLoginGuidanceOpen, setIsLoginGuidanceOpen] = useState(false);
   
   const [currentStep, setCurrentStep] = useState(0); 
-  const [michelinScores, setMichelinScores] = useState<Record<string, number>>({});
+  const [michelinScores, setMichelinScores] = useState<Record<string, number>>({
+      score_1: 3, score_2: 3, score_3: 3, score_4: 3, score_5: 3, score_6: 3
+  });
   const [pollSelection, setPollSelection] = useState<string | null>(null);
   const [customAnswers, setCustomAnswers] = useState<Record<string, string>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -302,7 +304,29 @@ function ViewerContent() {
 
       console.log("[Viewer] Full evaluation data:", evaluationData);
 
+      // --- 1. Save to Firestore (Existing) ---
       await addDoc(collection(db, "evaluations"), evaluationData);
+
+      // --- 2. Save to Supabase (New - Fixes Reports/Aggregates) ---
+      try {
+          const supabasePayload = {
+              projectId,
+              scores: michelinScores,
+              score: avgScore,
+              vote_type: pollSelection,
+              guest_id: !user ? guestId : null,
+              custom_answers: customAnswers
+          };
+          
+          await fetch(`/api/projects/${projectId}/rating`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(supabasePayload)
+          });
+          console.log("[Viewer] Successfully synced to Supabase");
+      } catch (supaErr) {
+          console.warn("[Viewer] Supabase sync failed, but Firestore saved.", supaErr);
+      }
 
       setIsSubmitted(true);
       setCurrentStep(steps.length - 1); // Move to summary
