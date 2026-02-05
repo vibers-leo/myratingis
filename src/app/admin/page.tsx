@@ -31,13 +31,13 @@ import {
 } from "lucide-react";
 import {
   ComposedChart,
-  Line,
-  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  ResponsiveContainer
+  ResponsiveContainer,
+  Area,
+  Line
 } from 'recharts';
 import Link from "next/link";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -340,12 +340,6 @@ export default function AdminPage() {
     );
   }
 
-  // ... (previous imports and setup)
-
-  // ... (previous imports)
-
-
-
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
@@ -379,7 +373,7 @@ export default function AdminPage() {
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">
             반가워요, <span className="text-[#16A34A]">관리자님!</span> 👋
           </h1>
-          <p className="text-slate-500 mt-2 font-medium">오늘의 바이브폴리오 현황을 요약해 드립니다.</p>
+          <p className="text-slate-500 mt-2 font-medium">오늘의 제 평가는요? 현황을 요약해 드립니다.</p>
         </div>
         <div className="flex items-center gap-3">
            <div className="px-4 py-2 bg-white border border-slate-200 rounded-xl shadow-sm flex items-center gap-2">

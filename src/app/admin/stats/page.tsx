@@ -39,7 +39,7 @@ interface ActivityLog {
   ip_address: string;
   created_at: string;
   user?: { email: string };
-  user_email?: string; // 
+  user_email?: string; 
 }
 
 interface ReferrerStat {
@@ -217,14 +217,12 @@ export default function AdminStatsPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `vibefolio_category_stats_${new Date().toISOString().split('T')[0]}.csv`);
+    link.setAttribute("download", `myratingis_category_stats_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
-  // const getAIInsight = ... 삭제됨
-  
   if (adminLoading || loading) {
     return (
       <div className="h-[80vh] flex items-center justify-center">
@@ -237,8 +235,6 @@ export default function AdminStatsPage() {
   }
 
   return (
-
-
     <div className="space-y-10 pb-20 max-w-[1400px] mx-auto pt-8 px-4">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -247,7 +243,7 @@ export default function AdminStatsPage() {
             <BarChart3 className="text-[#16A34A]" size={36} />
             종합 통계 리포트
           </h1>
-          <p className="text-slate-500 mt-2 font-medium">바이브폴리오의 성장 지표를 실시간으로 분석합니다.</p>
+          <p className="text-slate-500 mt-2 font-medium">제 평가는요?의 성장 지표를 실시간으로 분석합니다.</p>
         </div>
         <div className="flex bg-white p-1 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <button 
@@ -384,37 +380,37 @@ export default function AdminStatsPage() {
 
            {/* Referrer Ranking */}
            <Card className="lg:col-span-2 border-none shadow-sm rounded-[32px] overflow-hidden bg-white">
-             <div className="p-8 pb-4 flex items-center justify-between">
-                <CardTitle className="text-xl font-black italic">TOP REFERRERS</CardTitle>
-             </div>
-             <div className="overflow-x-auto">
-               <table className="w-full text-sm text-left">
-                 <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[11px] tracking-wider">
-                   <tr>
-                     <th className="px-6 py-4 w-16">Rank</th>
-                     <th className="px-6 py-4">Source (Domain)</th>
-                     <th className="px-6 py-4">Visits</th>
-                     <th className="px-6 py-4">Ratio</th>
-                   </tr>
-                 </thead>
-                 <tbody className="divide-y divide-slate-100">
-                   {stats.topReferrers.length > 0 ? stats.topReferrers.map((ref, i) => (
-                     <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                       <td className="px-6 py-4 font-black text-slate-300 text-lg italic">#{i + 1}</td>
-                       <td className="px-6 py-4 text-slate-900 font-bold">{ref.name}</td>
-                       <td className="px-6 py-4 text-slate-600 font-medium">{ref.count.toLocaleString()}</td>
-                       <td className="px-6 py-4">
-                         <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                           <div className="h-full bg-slate-900" style={{ width: `${(ref.count / 500) * 100}%` }} />
-                         </div>
-                       </td>
-                     </tr>
-                   )) : (
-                      <tr><td colSpan={4} className="p-8 text-center text-slate-400">데이터가 충분하지 않습니다.</td></tr>
-                   )}
-                 </tbody>
-               </table>
-             </div>
+              <div className="p-8 pb-4 flex items-center justify-between">
+                 <CardTitle className="text-xl font-black italic">TOP REFERRERS</CardTitle>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[11px] tracking-wider">
+                    <tr>
+                      <th className="px-6 py-4 w-16">Rank</th>
+                      <th className="px-6 py-4">Source (Domain)</th>
+                      <th className="px-6 py-4">Visits</th>
+                      <th className="px-6 py-4">Ratio</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {stats.topReferrers.length > 0 ? stats.topReferrers.map((ref, i) => (
+                      <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-6 py-4 font-black text-slate-300 text-lg italic">#{i + 1}</td>
+                        <td className="px-6 py-4 text-slate-900 font-bold">{ref.name}</td>
+                        <td className="px-6 py-4 text-slate-600 font-medium">{ref.count.toLocaleString()}</td>
+                        <td className="px-6 py-4">
+                          <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full bg-slate-900" style={{ width: `${(ref.count / 500) * 100}%` }} />
+                          </div>
+                        </td>
+                      </tr>
+                    )) : (
+                       <tr><td colSpan={4} className="p-8 text-center text-slate-400">데이터가 충분하지 않습니다.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
            </Card>
         </div>
       )}

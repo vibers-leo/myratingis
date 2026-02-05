@@ -3,8 +3,8 @@ import { AdminGuard } from "@/components/admin/AdminGuard";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 
 export const metadata: Metadata = {
-  title: "관리자 대시보드 | Vibefolio",
-  description: "Vibefolio 관리자 전용 페이지입니다.",
+  title: "관리자 대시보드 | MyRatingIs",
+  description: "MyRatingIs 관리자 전용 페이지입니다.",
   robots: {
     index: false,
     follow: false,
