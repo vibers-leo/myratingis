@@ -14,7 +14,7 @@ export function Footer({ className }: { className?: string }) {
   
   if (isReviewUrl) return null;
   return (
-    <footer className={clsx("w-full pt-8 pb-24 md:pb-8 border-t border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-950 mt-auto", className)}>
+    <footer className={clsx("w-full pt-8 pb-24 md:pb-8 border-t border-gray-100 dark:border-white/5 bg-white dark:bg-[#050505] mt-auto", className)}>
       <div className="max-w-[1800px] mx-auto px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
         
         <div className="flex flex-col gap-3 items-center md:items-start">
