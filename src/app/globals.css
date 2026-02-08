@@ -62,41 +62,42 @@
   }
 
   .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
+    /* Pure Black Theme (replacing navy/slate) */
+    --background: 0 0% 2%;
+    --foreground: 0 0% 98%;
 
-    --card: 224 71.4% 4.1%;
-    --card-foreground: 210 20% 98%;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 98%;
 
     --primary: 24.6 95% 53.1%;
-    --primary-foreground: 210 20% 98%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 0 0% 8%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 64%;
 
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
+    --accent: 0 0% 10%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
+    --border: 0 0% 12%;
+    --input: 0 0% 12%;
     --ring: 24.6 95% 53.1%;
 
-    /* Original Chef/Michelin Variables for Legacy Support */
-    --chef-bg: #030712;
-    --chef-card-bg: #0F172A;
-    --chef-text: #F8FAFC;
+    /* Chef/Michelin Variables - Pure Black */
+    --chef-bg: #050505;
+    --chef-card-bg: #0a0a0a;
+    --chef-text: #f8f8f8;
     --chef-border: rgba(255, 255, 255, 0.08);
-    --chef-panel: #1E293B;
-    --chef-panel-hsl: 224 71.4% 17%; 
+    --chef-panel: #111111;
+    --chef-panel-hsl: 0 0% 7%;
   }
 
   * { @apply border-border; }
@@ -771,3 +772,36 @@ input:-webkit-autofill:active {
 }
 
 /* Removed Keyframes for Performance */
+
+/* ==============================================
+ * DARK MODE: Force Pure Black Backgrounds
+ * Override slate/gray backgrounds to ensure 
+ * consistent black theme across all pages
+ * ============================================== */
+.dark .bg-slate-950,
+.dark .bg-slate-900,
+.dark .bg-slate-800,
+.dark .bg-gray-950,
+.dark .bg-gray-900,
+.dark .bg-gray-800,
+.dark .bg-zinc-950,
+.dark .bg-zinc-900,
+.dark .bg-neutral-950,
+.dark .bg-neutral-900 {
+  background-color: #050505 !important;
+}
+
+.dark .bg-slate-900\/50,
+.dark .bg-slate-900\/80,
+.dark .bg-gray-900\/50,
+.dark .bg-gray-900\/80 {
+  background-color: rgba(5, 5, 5, 0.8) !important;
+}
+
+/* Dark mode card backgrounds */
+.dark .dark\:bg-slate-950,
+.dark .dark\:bg-slate-900,
+.dark .dark\:bg-gray-950,
+.dark .dark\:bg-gray-900 {
+  background-color: #0a0a0a !important;
+}
