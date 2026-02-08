@@ -67,25 +67,9 @@ const config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
-      keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-        shine: {
-          "0%": { transform: "translateX(-150%) skewX(-15deg)" },
-          "100%": { transform: "translateX(150%) skewX(-15deg)" },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-        shine: "shine 1.5s infinite",
-      },
+      // Remove animations for performance
+      keyframes: {},
+      animation: {},
       fontFamily: {
         sans: ["var(--font-poppins)", "Pretendard", "var(--font-noto-sans-kr)", "-apple-system", "BlinkMacSystemFont", "system-ui", "Roboto", "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "sans-serif"],
         poppins: ["var(--font-poppins)", "sans-serif"],
@@ -98,7 +82,7 @@ const config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  plugins: [require("@tailwindcss/typography")], // Removed tailwindcss-animate
 } satisfies Config;
 
 export default config;
