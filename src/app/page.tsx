@@ -12,45 +12,41 @@ export default function Home() {
   const router = useRouter();
 
   return (
-    <div className="relative min-h-screen bg-[#050505] text-white overflow-hidden flex flex-col items-center justify-center">
-      {/* Background - Pure CSS (no heavy image) */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: `radial-gradient(circle at 25% 25%, rgba(255,165,0,0.03) 0%, transparent 50%),
-                           radial-gradient(circle at 75% 75%, rgba(255,255,255,0.02) 0%, transparent 50%)`,
-        }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/80 to-[#050505]" />
+    <div className="relative min-h-screen bg-[#050505] text-white overflow-hidden flex flex-col items-center justify-center pt-20 pb-10">
+      {/* Background - Using Global Texture via CSS override just in case */}
+      <div className="absolute inset-0 z-0 bg-[url('/dark-texture-bg.jpg')] bg-cover bg-center bg-fixed">
+        <div className="absolute inset-0 bg-[#050505]/90" />
       </div>
 
       {/* Floating Elements - Hidden on mobile for performance */}
-      <div className="hidden md:block absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-3xl animate-pulse" />
-      <div className="hidden md:block absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="hidden md:block absolute top-[15%] left-[15%] w-[500px] h-[500px] bg-orange-600/5 rounded-full blur-[120px] animate-pulse" />
+      <div className="hidden md:block absolute bottom-[15%] right-[15%] w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
 
-      <main className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col items-center text-center space-y-12">
-        {/* Badge - CSS animation */}
-        <div className="animate-fade-in-down flex items-center gap-2 px-3 md:px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md">
-          <Star className="w-3 h-3 md:w-3.5 md:h-3.5 text-orange-400 fill-orange-400" />
-          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">
+      <main className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col items-center text-center">
+        
+        {/* Badge Section */}
+        <div className="animate-fade-in-down mb-6 mt-12 md:mt-0 flex items-center gap-2 px-3 md:px-5 py-2 rounded-full border border-white/5 bg-white/[0.03] backdrop-blur-md shadow-2xl">
+          <Star className="w-3 h-3 md:w-3.5 md:h-3.5 text-orange-500 fill-orange-500" />
+          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] text-orange-500/90">
             Professional Evaluation Stage
           </span>
         </div>
 
-        {/* Logo - CSS animation */}
-        <div className="animate-fade-in-up pt-2 md:pt-4" style={{ animationDelay: '0.1s' }}>
+        {/* Logo Section */}
+        <div className="animate-fade-in-up mb-6" style={{ animationDelay: '0.1s' }}>
           <Image 
             src="/myratingis-logo.png" 
             alt="제 평가는요?" 
-            width={400}
-            height={160}
-            quality={100}
-            className="h-12 md:h-16 lg:h-20 w-auto object-contain brightness-0 invert"
+            width={480}
+            height={192}
             priority
+            className="h-14 md:h-20 lg:h-24 w-auto object-contain brightness-0 invert drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]"
           />
         </div>
 
-        {/* Subtitle - CSS animation */}
+        {/* Subtitle Section */}
         <p 
-          className="animate-fade-in-up text-xs md:text-base lg:text-lg text-white/60 font-medium max-w-4xl mx-auto leading-relaxed px-4 break-keep"
+          className="animate-fade-in-up text-xs md:text-base lg:text-lg text-white/50 font-medium max-w-2xl mx-auto leading-relaxed px-4 break-keep mb-12"
           style={{ animationDelay: '0.2s' }}
         >
           전문평가위원과 잠재고객의 날카로운 시선으로<br />
