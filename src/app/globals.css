@@ -119,9 +119,9 @@
   /* Global Dark Texture Background */
   .dark body {
     background-color: #050505;
-    /* Texture as base, then 90% black overlay on top */
+    /* Texture as base, then 50% black overlay on top for more visible texture */
     background-image: 
-      linear-gradient(rgba(5, 5, 5, 0.90), rgba(5, 5, 5, 0.90)),
+      linear-gradient(rgba(5, 5, 5, 0.50), rgba(5, 5, 5, 0.50)),
       url('/dark-texture-bg.jpg');
     background-size: cover, cover;
     background-attachment: fixed, fixed;
@@ -132,17 +132,26 @@
   /* Force transparency on all major containers so texture shows through */
   .dark .min-h-screen,
   .dark main,
-  .dark .bg-background,
-  .dark [class*="bg-[#050505]"],
-  .dark [class*="bg-[#0a0a0a]"] {
+  .dark .bg-background {
     background-color: transparent !important;
   }
 
-  /* Keep cards/panels with subtle dark backgrounds */
+  /* Keep cards/panels with subtle dark backgrounds - but NOT buttons */
   .dark .bg-card,
   .dark .bg-chef-card,
-  .dark [class*="rounded-"] {
-    background-color: rgba(10, 10, 10, 0.6) !important;
+  .dark .bg-chef-panel {
+    background-color: rgba(10, 10, 10, 0.7) !important;
+  }
+
+  /* Preserve button backgrounds */
+  .dark button.bg-white,
+  .dark .bg-white {
+    background-color: white !important;
+  }
+  
+  .dark button.bg-orange-600,
+  .dark .bg-orange-600 {
+    background-color: rgb(234, 88, 12) !important;
   }
 
   /* 
