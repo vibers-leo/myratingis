@@ -7,7 +7,7 @@ export default function PrivacyPolicyPage() {
       id: "p1",
       icon: <FileCheck className="w-6 h-6 text-blue-500" />,
       title: "개인정보 처리 목적",
-      content: "Vibefolio는 서비스 제공, 회원 관리, 신규 서비스 개발 등의 목적으로 최소한의 개인정보를 수집하고 이용합니다."
+      content: "제 평가는요?는 서비스 제공, 회원 관리, 신규 서비스 개발 등의 목적으로 최소한의 개인정보를 수집하고 이용합니다."
     },
     {
       id: "p2",
@@ -40,7 +40,7 @@ export default function PrivacyPolicyPage() {
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">개인정보처리방침</h1>
             <p className="text-xl text-slate-500 max-w-xl mx-auto">
-              Vibefolio는 소중한 창작자의 데이터와 프라이버시를 보호하기 위해 최선을 다하고 있습니다.
+              제 평가는요?는 소중한 창작자의 데이터와 프라이버시를 보호하기 위해 최선을 다하고 있습니다.
             </p>
           </header>
 
@@ -100,12 +100,12 @@ export default function PrivacyPolicyPage() {
 
           {/* Contact Representative */}
           <div className="mt-20 p-8 rounded-3xl bg-blue-50 flex items-center gap-6">
-            <img src="/logo.svg" alt="Vibefolio" className="w-16 h-16 opacity-50 hidden sm:block" />
+            <img src="/logo.svg" alt="MyRatingIs" className="w-16 h-16 opacity-50 hidden sm:block" />
             <div>
               <h4 className="font-bold text-blue-900 mb-2">개인정보 보호 책임자</h4>
               <p className="text-blue-700 text-sm">
-                담당: 바이브폴리오 운영팀 <br />
-                연락처: support@vibefolio.kr
+                담당: 제 평가는요? 운영팀 <br />
+                연락처: support@myratingis.com
               </p>
             </div>
           </div>

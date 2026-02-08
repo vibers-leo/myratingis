@@ -206,7 +206,7 @@ export default function TemplatesPage() {
           <p className="text-lg md:text-xl opacity-90 mb-8 max-w-2xl mx-auto">
             AI 시대의 창작자들을 위한 고품질 디자인 템플릿을 만나보세요.
             <br />
-            바이브코딩으로 쉽게 커스터마이징하고 나만의 웹사이트를 만들 수 있습니다.
+            제 평가는요?로 쉽게 커스터마이징하고 나만의 웹사이트를 만들 수 있습니다.
           </p>
           
           {/* 검색 */}
@@ -338,7 +338,7 @@ export default function TemplatesPage() {
             나만의 템플릿을 공유해보세요
           </h2>
           <p className="text-gray-300 mb-8">
-            바이브폴리오에서 당신의 디자인 템플릿을 판매하고 수익을 창출하세요.
+            제 평가는요?에서 당신의 디자인 템플릿을 판매하고 수익을 창출하세요.
           </p>
           <Button 
             size="lg" 

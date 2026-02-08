@@ -15,7 +15,7 @@ export default function AdminEmailPage() {
   
   // 이메일 발송 폼
   const [sendForm, setForm] = useState({
-    from: "vibefolio@vibefolio.net",
+    from: "noreply@myratingis.com",
     to: "",
     subject: "",
     message: "",
@@ -61,7 +61,7 @@ export default function AdminEmailPage() {
       if (data.success) {
         toast.success("이메일이 발송되었습니다!");
         setForm({
-          from: "vibefolio@vibefolio.net",
+          from: "noreply@myratingis.com",
           to: "",
           subject: "",
           message: "",
@@ -83,7 +83,7 @@ export default function AdminEmailPage() {
   const handleReply = (email: any) => {
     setIsReplyMode(true);
     setForm({
-      from: email.to_email || "vibefolio@vibefolio.net",
+      from: email.to_email || "noreply@myratingis.com",
       to: email.from_email,
       subject: `Re: ${email.subject}`,
       message: `\n\n---\n원본 메시지:\n발신: ${email.from_email}\n제목: ${email.subject}\n\n${email.text_content || ""}`,
@@ -137,7 +137,7 @@ export default function AdminEmailPage() {
                   onClick={() => {
                     setIsReplyMode(false);
                     setForm({
-                      from: "vibefolio@vibefolio.net",
+                      from: "noreply@myratingis.com",
                       to: "",
                       subject: "",
                       message: "",
@@ -161,9 +161,8 @@ export default function AdminEmailPage() {
                   onChange={(e) => setForm({ ...sendForm, from: e.target.value })}
                   className="w-full h-11 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
-                  <option value="vibefolio@vibefolio.net">vibefolio@vibefolio.net</option>
-                  <option value="support@vibefolio.net">support@vibefolio.net</option>
-                  <option value="noreply@vibefolio.net">noreply@vibefolio.net</option>
+                  <option value="noreply@myratingis.com">noreply@myratingis.com</option>
+                  <option value="support@myratingis.com">support@myratingis.com</option>
                 </select>
               </div>
 
@@ -236,7 +235,7 @@ export default function AdminEmailPage() {
               <div>
                 <h2 className="text-xl font-bold text-gray-900">수신 이메일</h2>
                 <p className="text-sm text-gray-600">
-                  vibefolio@, support@ 수신함 ({emails.length}개)
+                  noreply@, support@ 수신함 ({emails.length}개)
                 </p>
               </div>
             </div>

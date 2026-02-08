@@ -140,7 +140,7 @@ export function ProfileManager({ user, onUpdate }: ProfileManagerProps) {
           const { data, error } = await supabase.from('api_keys').insert({
               user_id: user.id,
               api_key: key,
-              key_name: 'Vibefolio Personal Key',
+              key_name: 'MyRatingIs Personal Key',
               is_active: true
           }).select().single();
 

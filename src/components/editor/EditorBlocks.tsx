@@ -623,7 +623,7 @@ export function SettingsModal({ isOpen, onClose, onSave }: SettingsModalProps) {
         <div className="flex items-center justify-between p-8 border-b border-gray-50 flex-shrink-0">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">프로젝트 설정</h2>
-            <p className="text-sm text-gray-500 mt-1">Vibefolio에 당신의 감각을 게시할 준비를 하세요.</p>
+            <p className="text-sm text-gray-500 mt-1">제 평가는요?에 당신의 감각을 게시할 준비를 하세요.</p>
           </div>
           <button onClick={onClose} className="p-3 hover:bg-gray-100 rounded-full transition-all group">
             <X className="w-6 h-6 text-gray-400 group-hover:rotate-90 transition-transform duration-300" />

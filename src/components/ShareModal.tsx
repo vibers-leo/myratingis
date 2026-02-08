@@ -88,7 +88,7 @@ export function ShareModal({
         content: {
           title: cleanTitle,
           description: cleanDescription,
-          imageUrl: imageUrl || 'https://vibefolio.net/og-image.png',
+          imageUrl: imageUrl || '/og-image.png',
           link: {
             mobileWebUrl: url,
             webUrl: url,

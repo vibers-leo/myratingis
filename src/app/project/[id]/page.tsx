@@ -452,7 +452,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                {/* Badge & Title */}
                <div className="mb-4">
                   <span className="inline-block px-3 py-1 bg-[#00d084] text-black text-xs font-bold rounded mb-4">
-                    VIBEFOLIO PICK 선정
+                    MYRATINGIS PICK 선정
                   </span>
                   <h2 className="text-2xl md:text-3xl font-bold mb-3">{project.title}</h2>
                </div>

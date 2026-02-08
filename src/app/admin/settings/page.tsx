@@ -184,7 +184,7 @@ export default function AdminSettingsPage() {
                 <Label htmlFor="seo_title" className="text-sm font-bold text-slate-700">사이트 제목 (Title)</Label>
                 <Input
                   id="seo_title"
-                  placeholder="Vibefolio - 크리에이터를 위한 영감 저장소"
+                  placeholder="MyRatingIs - 크리에이터를 위한 영감 저장소"
                   value={config.seo_title}
                   onChange={(e) => setConfig(prev => ({ ...prev, seo_title: e.target.value }))}
                   className="h-12 rounded-xl border-slate-200"
@@ -269,7 +269,7 @@ export default function AdminSettingsPage() {
                          {!config.seo_og_image && <div className="w-full h-full flex items-center justify-center text-slate-300 text-[10px]">No Image</div>}
                        </div>
                        <div className="p-3">
-                          <div className="font-bold text-sm line-clamp-1">{config.seo_title || "Vibefolio"}</div>
+                          <div className="font-bold text-sm line-clamp-1">{config.seo_title || "MyRatingIs"}</div>
                           <div className="text-xs text-gray-500 mt-1 line-clamp-2">{config.seo_description || "설명이 없습니다."}</div>
                        </div>
                     </div>
@@ -345,7 +345,7 @@ export default function AdminSettingsPage() {
                         <div className="w-4 h-4 rounded-sm bg-slate-100 bg-contain bg-center bg-no-repeat flex-shrink-0" style={{ backgroundImage: config.seo_favicon ? `url(${config.seo_favicon})` : 'none' }}>
                             {!config.seo_favicon && <div className="w-full h-full bg-slate-200"></div>}
                         </div>
-                        <div className="text-xs text-slate-700 font-medium truncate">{config.seo_title || "Vibefolio"}</div>
+                        <div className="text-xs text-slate-700 font-medium truncate">{config.seo_title || "MyRatingIs"}</div>
                      </div>
                   </div>
                 </div>

@@ -42,7 +42,7 @@ export default function AboutPage() {
         <div className="relative z-10 max-w-5xl mx-auto px-6 text-center text-white">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full mb-6 border border-white/20">
             <Sparkles className="w-4 h-4 text-green-400" />
-            <span className="text-sm font-medium">크리에이터를 위한 포트폴리오 플랫폼</span>
+            <span className="text-sm font-medium">크리에이터를 위한 프로젝트 평가 플랫폼</span>
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
@@ -54,9 +54,9 @@ export default function AboutPage() {
           </h1>
 
           <p className="text-xl md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto leading-relaxed">
-            바이브폴리오는 크리에이터들이 자신의 작품을 공유하고,
+            제 평가는요?는 크리에이터들의 작품을 평가하고,
             <br className="hidden md:block" />
-            협업 기회를 찾고, 함께 성장하는 공간입니다.
+            피드백을 주고받으며 함께 성장하는 공간입니다.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -110,10 +110,10 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              왜 바이브폴리오인가요?
+              왜 제 평가는요?인가요?
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              크리에이터를 위한 모든 기능을 한 곳에서
+              객관적인 피드백과 성장을 위한 모든 기능을 한 곳에서
             </p>
           </div>
 
@@ -124,11 +124,11 @@ export default function AboutPage() {
                 <Sparkles className="w-7 h-7 text-green-600" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                아름다운 포트폴리오
+                상세한 평가 리포트
               </h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                드래그 앤 드롭으로 쉽게 만드는 전문가급 포트폴리오. 
-                당신의 작품을 가장 멋지게 보여주세요.
+                전문가급의 상세한 평가 리포트. 
+                당신의 작품에 대한 객관적인 데이터를 확인하세요.
               </p>
               <ul className="space-y-3">
                 <li className="flex items-center text-sm text-gray-700">

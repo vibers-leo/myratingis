@@ -15,7 +15,7 @@ export const resend = resendApiKey ? new Resend(resendApiKey) : null;
  * 이메일 발송
  */
 export async function sendEmail({
-  from = 'Vibefolio <noreply@vibefolio.net>',
+  from = 'MyRatingIs <noreply@myratingis.com>',
   to,
   subject,
   html,
@@ -64,7 +64,7 @@ export async function sendTemplateEmail({
   subject,
   template,
   data,
-  from = 'Vibefolio <noreply@vibefolio.net>',
+  from = 'MyRatingIs <noreply@myratingis.com>',
 }: {
   to: string | string[];
   subject: string;
@@ -85,12 +85,12 @@ function renderTemplate(template: string, data: Record<string, any>): string {
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #16a34a;">환영합니다! 👋</h1>
         <p>안녕하세요, ${data.name || '회원'}님!</p>
-        <p>${data.message || 'Vibefolio에 가입해주셔서 감사합니다.'}</p>
+        <p>${data.message || '제 평가는요?에 가입해주셔서 감사합니다.'}</p>
         <a href="${data.link || '#'}" style="display: inline-block; padding: 12px 24px; background-color: #16a34a; color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">
           시작하기
         </a>
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
-        <p style="color: #6b7280; font-size: 12px;">© 2026 Vibefolio. All rights reserved.</p>
+        <p style="color: #6b7280; font-size: 12px;">© 2026 MyRatingIs. All rights reserved.</p>
       </div>
     `,
     notification: `
@@ -99,7 +99,7 @@ function renderTemplate(template: string, data: Record<string, any>): string {
         <p>${data.message || ''}</p>
         ${data.link ? `<a href="${data.link}" style="color: #16a34a;">자세히 보기 →</a>` : ''}
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
-        <p style="color: #6b7280; font-size: 12px;">© 2026 Vibefolio. All rights reserved.</p>
+        <p style="color: #6b7280; font-size: 12px;">© 2026 MyRatingIs. All rights reserved.</p>
       </div>
     `,
     support: `

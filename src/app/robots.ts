@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/admin/', '/api/'],
       },
     ],
-    sitemap: 'https://vibefolio.com/sitemap.xml',
+    sitemap: 'https://myratingis.vercel.app/sitemap.xml',
   }
 }

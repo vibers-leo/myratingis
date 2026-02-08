@@ -48,9 +48,9 @@ export async function POST(request: NextRequest) {
     }
 
     // 자동 응답 (옵션)
-    // if (from && to?.includes('support@vibefolio.net')) {
+    // if (from && to?.includes('support@myratingis.com')) {
     //   await sendEmail({
-    //     from: 'Vibefolio <support@vibefolio.net>',
+    //     from: 'MyRatingIs <support@myratingis.com>',
     //     to: from,
     //     subject: `Re: ${subject}`,
     //     html: '<p>문의해주셔서 감사합니다. 빠른 시일 내에 답변드리겠습니다.</p>',

@@ -1125,7 +1125,7 @@ export function ProjectDetailModalV2({
                   </h1>
                   {isAuditMode && (
                     <Button 
-                      onClick={() => window.open(`https://review.vibefolio.net/viewer?projectId=${project.id}`, '_blank')}
+                      onClick={() => window.open(`/review/viewer?projectId=${project.id}`, '_blank')}
                       className="mt-2 bg-slate-900 hover:bg-black text-white font-black rounded-xl h-11 px-6 shadow-xl w-full md:w-fit gap-2 border-2 border-orange-500/20"
                     >
                        <FontAwesomeIcon icon={faStar} className="text-orange-400" />
@@ -1325,7 +1325,7 @@ export function ProjectDetailModalV2({
                            </div>
                            <h3 className="text-3xl font-black mb-4">전문가가 평가한 리포트가 도착했습니다</h3>
                            <p className="text-slate-400 text-lg mb-8 leading-relaxed max-w-xl">
-                             본 프로젝트는 Vibefolio 인증 전문가들에 의해 기획력, 완성도, 시장성 등 다각도 분석이 완료되었습니다. 자세한 분석 내용은 전용 뷰어에서 확인하실 수 있습니다.
+                             본 프로젝트는 제 평가는요? 인증 전문가들에 의해 기획력, 완성도, 시장성 등 다각도 분석이 완료되었습니다. 자세한 분석 내용은 전용 뷰어에서 확인하실 수 있습니다.
                            </p>
                             <Button 
                               onClick={() => {
@@ -1410,7 +1410,7 @@ export function ProjectDetailModalV2({
                           </div>
                           
                           <div className="inline-block px-3 py-1 bg-green-500 text-white text-xs font-bold rounded mb-3">
-                             VIBEFOLIO PICK
+                             MYRATINGIS PICK
                           </div>
                           <h2 className="text-xl font-bold mb-3">{project.title}</h2>
                           

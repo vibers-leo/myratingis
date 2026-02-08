@@ -443,7 +443,7 @@ export function ProjectDetailModal({
         open={shareModalOpen}
         onOpenChange={setShareModalOpen}
         url={typeof window !== 'undefined' ? `${window.location.origin}/project/${project.id}` : ''}
-        title={project.description || '바이브폴리오 프로젝트'}
+        title={project.description || '제 평가는요? 프로젝트'}
         description={`${project.user.username}님의 작품`}
         imageUrl={project.urls.regular}
       />

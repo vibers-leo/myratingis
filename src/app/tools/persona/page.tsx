@@ -151,7 +151,7 @@ ${persona.frustrations.map(f => `- ${f}`).join('\n')}
         <div className="max-w-4xl mx-auto text-center relative z-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full text-xs font-bold text-blue-400 mb-6 border border-white/10 backdrop-blur-sm">
             <User className="w-3 h-3" />
-            Vibefolio AI Labs
+            MyRatingIs AI Labs
           </div>
           <h1 className="text-4xl md:text-6xl font-black mb-6 leading-tight tracking-tight">
             내 고객은 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-400">누구일까요?</span>

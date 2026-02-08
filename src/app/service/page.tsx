@@ -64,14 +64,14 @@ export default function ServicePage() {
         <div className="max-w-7xl mx-auto text-center relative z-10 px-6">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-green-400 text-sm font-medium mb-8 backdrop-blur-md animate-fade-in-up">
             <Rocket size={16} />
-            <span>크리에이터의 새로운 무대, Vibefolio 1.0</span>
+            <span>크리에이터의 새로운 무대, MyRatingIs 1.0</span>
           </div>
           <h1 className="text-5xl md:text-8xl font-black tracking-tight text-white mb-8 leading-[1.1] animate-fade-in-up animation-delay-200">
             당신의 모든 <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">영감</span>이<br />
             하나의 포트폴리오가 되는 순간.
           </h1>
           <p className="text-xl md:text-2xl text-slate-200 mb-12 max-w-3xl mx-auto leading-relaxed animate-fade-in-up animation-delay-400 font-medium opacity-90">
-            Vibefolio는 단순한 기록을 넘어, 전 세계 크리에이터들과 영감을 주고받으며 
+            제 평가는요?는 단순한 기록을 넘어, 전 세계 크리에이터들과 영감을 주고받으며 
             함께 성장하는 프리미엄 포트폴리오 커뮤니티입니다.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-6 animate-fade-in-up animation-delay-600">
@@ -148,7 +148,7 @@ export default function ServicePage() {
                </span>
              </h2>
              <p className="mt-6 text-xl text-slate-500 max-w-2xl mx-auto">
-               Vibefolio는 크리에이터가 오직 창작에만 집중할 수 있도록<br className="hidden md:block"/> 
+               제 평가는요?는 크리에이터가 오직 창작에만 집중할 수 있도록<br className="hidden md:block"/> 
                가장 진보된 기술과 환경을 제공합니다.
              </p>
           </div>
@@ -296,11 +296,11 @@ export default function ServicePage() {
         </div>
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
-            지금 Vibefolio의 일원이 되어<br />
+            지금 제 평가는요?의 일원이 되어<br />
             당신의 영감을 증명하세요.
           </h2>
           <p className="text-slate-400 text-lg mb-12">
-            이미 5,000명 이상의 크리에이터가 Vibefolio와 함께하고 있습니다.
+            이미 5,000명 이상의 크리에이터가 제 평가는요?와 함께하고 있습니다.
           </p>
           <Button asChild size="lg" className="h-16 px-12 bg-green-600 hover:bg-green-500 text-white rounded-full text-xl font-bold transition-all hover:scale-105 active:scale-95">
             <Link href="/signup">무료로 시작하기 <ArrowRight className="ml-2" /></Link>

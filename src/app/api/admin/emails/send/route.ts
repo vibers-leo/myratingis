@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #16a34a 0%, #059669 100%); padding: 30px; text-align: center; border-radius: 12px 12px 0 0;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">Vibefolio</h1>
+          <h1 style="color: white; margin: 0; font-size: 24px;">MyRatingIs</h1>
         </div>
         
         <div style="background: white; padding: 40px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
@@ -30,14 +30,14 @@ export async function POST(request: NextRequest) {
         </div>
         
         <div style="text-align: center; padding: 20px; color: #9ca3af; font-size: 12px;">
-          <p>© 2026 Vibefolio. All rights reserved.</p>
-          <p>이 이메일은 Vibefolio 관리자가 발송했습니다.</p>
+          <p>© 2026 MyRatingIs. All rights reserved.</p>
+          <p>이 이메일은 MyRatingIs 관리자가 발송했습니다.</p>
         </div>
       </div>
     `;
 
     const result = await sendEmail({
-      from: `Vibefolio <${from}>`,
+      from: `MyRatingIs <${from}>`,
       to,
       subject,
       html,

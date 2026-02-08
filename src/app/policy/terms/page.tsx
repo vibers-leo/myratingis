@@ -40,7 +40,7 @@ export default function TermsPage() {
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">서비스 이용약관</h1>
             <p className="text-xl text-slate-500 max-w-xl mx-auto">
-              Vibefolio 서비스 이용과 관련하여 필요한 권리, 의무 및 책임사항을 안내드립니다.
+              제 평가는요? 서비스 이용과 관련하여 필요한 권리, 의무 및 책임사항을 안내드립니다.
             </p>
           </header>
 
@@ -64,14 +64,14 @@ export default function TermsPage() {
             <div>
               <h2 className="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-slate-800 pl-4">제 1 조 (목적)</h2>
               <p>
-                본 약관은 주식회사 바이브(이하 "회사")가 제공하는 바이브폴리오 및 관련 제반 서비스(이하 "서비스")의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
+                본 약관은 주식회사 제평가는요(이하 "회사")가 제공하는 제 평가는요? 및 관련 제반 서비스(이하 "서비스")의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
               </p>
             </div>
 
             <div>
               <h2 className="text-2xl font-bold text-slate-900 mb-6 border-l-4 border-slate-800 pl-4">제 2 조 (용어의 정의)</h2>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong>"서비스"</strong>라 함은 구현되는 단말기(PC, 휴대형단말기 등의 각종 유무선 장치를 포함)와 상관없이 "회원"이 이용할 수 있는 바이브폴리오 및 관련 제반 서비스를 의미합니다.</li>
+                <li><strong>"서비스"</strong>라 함은 구현되는 단말기(PC, 휴대형단말기 등의 각종 유무선 장치를 포함)와 상관없이 "회원"이 이용할 수 있는 제 평가는요? 및 관련 제반 서비스를 의미합니다.</li>
                 <li><strong>"회원"</strong>이라 함은 회사의 "서비스"에 접속하여 본 약관에 따라 "회사"와 이용계약을 체결하고 "회사"가 제공하는 "서비스"를 이용하는 고객을 말합니다.</li>
                 <li><strong>"아이디(ID)"</strong>라 함은 "회원"의 식별과 "서비스" 이용을 위하여 "회원"이 정하고 "회사"가 승인하는 문자와 숫자의 조합을 의미합니다.</li>
               </ul>

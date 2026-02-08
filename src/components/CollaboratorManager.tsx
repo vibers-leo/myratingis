@@ -139,7 +139,7 @@ export function CollaboratorManager({ projectId, initialCollaborators = [], onCh
             <Input 
                 value={inputEmail}
                 onChange={(e) => setInputEmail(e.target.value)}
-                placeholder="팀원 이메일 입력 (예: team@vibefolio.com)"
+                placeholder="팀원 이메일 입력 (예: team@myratingis.com)"
                 className="pl-9"
                 onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
             />

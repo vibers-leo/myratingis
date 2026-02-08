@@ -13,7 +13,7 @@ export default function AdsPage() {
         <div className="absolute top-0 left-0 w-full h-full opacity-10 bg-[url('https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&q=80')] bg-cover bg-center" />
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <Badge className="mb-6 bg-blue-600 hover:bg-blue-700 px-4 py-1 text-sm">
-            Vibefolio Ads
+            MyRatingIs Ads
           </Badge>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
             압도적인 노출,<br />
@@ -23,7 +23,7 @@ export default function AdsPage() {
           </h1>
           <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto leading-relaxed">
             매월 나가는 광고비가 부담스러우신가요?<br />
-            Vibefolio는 게시 종료를 원하실 때까지, 추가 비용 없이 귀사의 브랜드를 메인 상단에 노출해 드립니다.
+            제 평가는요?는 게시 종료를 원하실 때까지, 추가 비용 없이 귀사의 브랜드를 메인 상단에 노출해 드립니다.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" className="text-lg px-8 py-6 bg-white text-slate-900 hover:bg-slate-200">
@@ -43,7 +43,7 @@ export default function AdsPage() {
             <div className="p-8 md:p-12 md:w-2/3">
               <h2 className="text-3xl font-bold mb-6 text-slate-900">Premium Top Banner</h2>
               <p className="text-slate-600 mb-8 text-lg">
-                Vibefolio 메인 페이지 최상단, 가장 눈에 띄는 자리에 귀사의 배너가 고정됩니다. 
+                제 평가는요? 메인 페이지 최상단, 가장 눈에 띄는 자리에 귀사의 배너가 고정됩니다. 
                 디자이너, 기획자, 개발자 등 크리에이티브 업계 종사자들에게 확실하게 각인시킬 수 있는 기회입니다.
               </p>
               

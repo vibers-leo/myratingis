@@ -94,7 +94,7 @@ export default function OpportunityFinderPage() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-4xl font-bold text-gray-900 mb-2"
           >
-            Vibefolio AI Intelligence
+            MyRatingIs AI Intelligence
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0 }}
@@ -232,7 +232,7 @@ export default function OpportunityFinderPage() {
 
                       <div className="flex items-center justify-between pt-4 border-t border-gray-50 mt-auto">
                         <span className="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded">
-                           출처: {item.sourceUrl?.includes('haebojago') ? '✨ 해보자고(MCP)' : 'Vibefolio'}
+                           출처: {item.sourceUrl?.includes('haebojago') ? '✨ 해보자고(MCP)' : 'MyRatingIs'}
                         </span>
                         
                         {item.link && (

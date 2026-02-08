@@ -33,7 +33,7 @@ export default function FeedbackFeaturesPage() {
            
            <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-200">
              단순한 좋아요를 넘어, 실질적인 도움이 되는 피드백을 주고받으세요.<br/>
-             Vibefolio가 여러분의 작업을 다음 단계로 끌어올릴 새로운 도구들을 소개합니다.
+             제 평가는요?가 여러분의 작업을 다음 단계로 끌어올릴 새로운 도구들을 소개합니다.
            </p>
 
            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-300">

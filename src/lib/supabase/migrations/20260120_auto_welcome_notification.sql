@@ -8,7 +8,7 @@ BEGIN
     VALUES (
         NEW.id,
         'system',
-        'Vibefolio에 오신 것을 환영합니다! 🎉',
+        '제 평가는요?에 오신 것을 환영합니다! 🎉',
         '나만의 포트폴리오를 만들고 전 세계 크리에이터들과 소통해보세요.',
         '/mypage/profile',
         false

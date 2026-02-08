@@ -23,20 +23,20 @@ export async function generateMetadata(
 
   if (!item) {
     return {
-      title: '정보를 찾을 수 없습니다 | Vibefolio',
+      title: '정보를 찾을 수 없습니다 | MyRatingIs',
     };
   }
 
   const previousImages = (await parent).openGraph?.images || [];
 
   return {
-    title: `${item.title} | Vibefolio Recruit`,
+    title: `${item.title} | MyRatingIs Recruit`,
     description: item.description.substring(0, 160),
     openGraph: {
       title: item.title,
       description: item.description.substring(0, 160),
-      url: `https://vibefolio.net/recruit/${id}`,
-      siteName: 'Vibefolio',
+      url: `https://myratingis.vercel.app/recruit/${id}`,
+      siteName: 'MyRatingIs',
       images: [
         item.thumbnail || '/images/default-banner.jpg',
         ...previousImages,

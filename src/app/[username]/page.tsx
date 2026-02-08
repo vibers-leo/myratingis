@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${profile.username} | Vibefolio`,
+    title: `${profile.username} | MyRatingIs`,
     description: profile.bio || `${profile.username}님의 포트폴리오입니다.`,
     openGraph: {
       images: [profile.cover_image_url || profile.avatar_url || '/og-image.png'],

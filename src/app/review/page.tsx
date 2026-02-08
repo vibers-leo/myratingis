@@ -44,7 +44,7 @@ function ReviewLanding() {
             className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-full text-xs font-black tracking-widest uppercase"
           >
             <ChefHat size={14} className="text-orange-400" />
-            Vibefolio Expert Audit System (제 평가는요?)
+            MyRatingIs Expert Audit System (제 평가는요?)
           </motion.div>
           
           <motion.h1 
@@ -63,7 +63,7 @@ function ReviewLanding() {
             transition={{ delay: 0.2 }}
             className="max-w-2xl mx-auto text-xl text-slate-500 font-medium leading-relaxed"
           >
-            V-Audit은 단순한 피드백을 넘어, 업계 전문가들의 기획력, 완성도, 독참성 분석을 통해 
+            MyRatingIs Audit은 단순한 피드백을 넘어, 업계 전문가들의 기획력, 완성도, 독참성 분석을 통해 
             당신의 프로젝트가 가진 진정한 포텐셜을 평가합니다.
           </motion.p>
 

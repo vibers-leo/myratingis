@@ -121,7 +121,7 @@ const ADMIN_EMAILS = [
   "juuuno1116@gmail.com", 
   "designd@designd.co.kr", 
   "designdlab@designdlab.co.kr", 
-  "admin@vibefolio.net"
+  "admin@myratingis.com"
 ];
 
 export async function PUT(

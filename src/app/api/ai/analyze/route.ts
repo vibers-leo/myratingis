@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     // 프롬프트 엔지니어링: 전문가 페르소나 부여
     const prompt = `
-      당신은 'Vibefolio Michelin'이라는 권위 있는 예술/디자인 평가 시스템의 수석 인스펙터입니다.
+      당신은 'MyRatingIs Michelin'이라는 권위 있는 예술/디자인 평가 시스템의 수석 인스펙터입니다.
       아래 프로젝트의 4가지 차원 평가 데이터를 바탕으로, 창작자에게 전하는 **한 줄의 강렬한 통찰(Insight)**과 **구체적인 조언**을 작성해주세요.
       
       [프로젝트 정보]

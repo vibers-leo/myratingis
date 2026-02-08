@@ -15,7 +15,7 @@ export default function OperationPolicyPage() {
       id: "ch1",
       icon: <FileText className="w-5 h-5 text-green-600" />,
       title: "제1조 (목적)",
-      content: "본 운영정책은 Vibefolio(이하 \"회사\")가 제공하는 서비스(이하 \"서비스\")를 운영함에 있어, 서비스 내에서 발생할 수 있는 문제상황에 대하여 일관성 있게 대처하기 위한 기준과 절차를 규정함을 목적으로 합니다. 회사는 본 정책을 통해 창작자의 권익을 보호하고 건전한 커뮤니티 문화를 조성하고자 합니다."
+      content: "본 운영정책은 제 평가는요?(이하 \"회사\")가 제공하는 서비스(이하 \"서비스\")를 운영함에 있어, 서비스 내에서 발생할 수 있는 문제상황에 대하여 일관성 있게 대처하기 위한 기준과 절차를 규정함을 목적으로 합니다. 회사는 본 정책을 통해 창작자의 권익을 보호하고 건전한 커뮤니티 문화를 조성하고자 합니다."
     },
     {
       id: "ch2",
@@ -33,7 +33,7 @@ export default function OperationPolicyPage() {
       id: "ch3",
       icon: <ShieldCheck className="w-5 h-5 text-purple-600" />,
       title: "제3조 (지적재산권 보호)",
-      content: "Vibefolio는 창작자의 소중한 지적재산권을 보호하기 위해 엄격한 기준을 적용합니다.",
+      content: "제 평가는요?는 창작자의 소중한 지적재산권을 보호하기 위해 엄격한 기준을 적용합니다.",
       list: [
         "게시물에 포함된 창작물의 저작권은 해당 게시물을 작성한 회원에게 귀속됩니다.",
         "타인의 저작물을 무단으로 복제, 배포하거나 도용하여 게시할 경우 예고 없이 삭제될 수 있습니다.",
@@ -71,7 +71,7 @@ export default function OperationPolicyPage() {
           </div>
           <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">서비스 운영정책</h1>
           <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto font-light leading-relaxed">
-            Vibefolio는 크리에이터의 열정과 권리를 보호하며,<br />
+            제 평가는요?는 크리에이터의 열정과 권리를 보호하며,<br />
             모두가 영감을 얻을 수 있는 공정한 커뮤니티를 지향합니다.
           </p>
         </div>

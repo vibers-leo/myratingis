@@ -1,8 +1,8 @@
 /**
- * Centralized Constants for Vibefolio
+ * Centralized Constants for MyRatingIs
  */
 
-export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://vibefolio.net';
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://myratingis.vercel.app';
 
 export const CATEGORY_IDS = {
   PHOTO: 1,
@@ -28,12 +28,12 @@ export const GENRE_TO_CATEGORY_ID: Record<string, number> = {
   game: 9,
 };
 
-export const CONTACT_EMAIL = 'support@vibefolio.com';
+export const CONTACT_EMAIL = 'support@myratingis.com';
 export const SOCIAL_LINKS = {
-  INSTAGRAM: 'https://instagram.com/vibefolio',
-  FACEBOOK: 'https://facebook.com/vibefolio',
-  THREADS: 'https://www.threads.net/@vibefolio',
-  YOUTUBE: 'https://youtube.com/vibefolio',
+  INSTAGRAM: 'https://instagram.com/myratingis',
+  FACEBOOK: 'https://facebook.com/myratingis',
+  THREADS: 'https://www.threads.net/@myratingis',
+  YOUTUBE: 'https://youtube.com/myratingis',
 };
 
 export const GENRE_CATEGORIES = [

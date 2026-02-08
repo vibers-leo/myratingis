@@ -278,7 +278,7 @@ export function ReviewReportModal({ open, onOpenChange, projectId, projectTitle 
                         <Sparkles size={120} />
                     </div>
                     <div className="relative z-10 max-w-2xl">
-                        <Badge className="bg-indigo-500 hover:bg-indigo-500 mb-4 px-3 py-1 font-black">Vibefolio AI Insight</Badge>
+                        <Badge className="bg-indigo-500 hover:bg-indigo-500 mb-4 px-3 py-1 font-black">MyRatingIs AI Insight</Badge>
                         <h4 className="text-2xl font-black mb-4">"종합 점수 {data.michelin.totalAvg.toFixed(1)}점, {data.totalReviewers}명의 시선을 사로잡았습니다."</h4>
                         <p className="text-slate-400 text-sm leading-relaxed font-medium">
                             본 데이터는 프로젝트의 완성도와 시장성을 다각도로 분석한 결과입니다. 

@@ -87,7 +87,7 @@ export default function NoticesPage() {
             <span>Community News</span>
           </div>
           <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">공지사항</h1>
-          <p className="mt-4 text-lg text-slate-500">Vibefolio의 새로운 소식과 주요 업데이트 내용을 알려드립니다.</p>
+          <p className="mt-4 text-lg text-slate-500">제 평가는요?의 새로운 소식과 주요 업데이트 내용을 알려드립니다.</p>
         </div>
 
         {/* Notice List */}
@@ -148,7 +148,7 @@ export default function NoticesPage() {
                     dangerouslySetInnerHTML={{ __html: notice.content_text }} // Render rich text
                   />
                   <div className="mt-12 flex justify-center pt-8 border-t border-slate-50">
-                    <img src="/logo.svg" alt="Vibefolio" className="w-24 opacity-20 grayscale" />
+                    <img src="/logo.svg" alt="MyRatingIs" className="w-24 opacity-20 grayscale" />
                   </div>
                 </DialogContent>
               </Dialog>
