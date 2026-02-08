@@ -287,21 +287,8 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
 
         {/* Project Grid */}
         {loading ? (
-          <div className="flex flex-col gap-6 max-w-5xl mx-auto">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="flex flex-col md:flex-row gap-8 bg-chef-panel/30 border border-chef-border p-8 rounded-[2.5rem] animate-pulse">
-                 <div className="w-full md:w-60 aspect-[4/3] rounded-3xl bg-chef-panel shrink-0" />
-                 <div className="flex-1 space-y-4 py-4">
-                    <div className="h-4 w-20 bg-chef-panel rounded-full" />
-                    <div className="h-8 w-3/4 bg-chef-panel rounded-lg" />
-                    <div className="h-12 w-full bg-chef-panel rounded-xl" />
-                    <div className="flex gap-4">
-                       <div className="h-3 w-16 bg-chef-panel rounded-full" />
-                       <div className="h-3 w-16 bg-chef-panel rounded-full" />
-                    </div>
-                 </div>
-              </div>
-            ))}
+          <div className="flex flex-col items-center justify-center py-20">
+             <div className="w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : projects.length > 0 ? (
           <div className="flex flex-col gap-6 max-w-5xl mx-auto">
