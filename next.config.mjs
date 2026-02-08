@@ -30,6 +30,8 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.supabase.co' },
       { protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' }, // Google Profile Images
+      { protocol: 'https', hostname: 'wsrv.nl' }, // Image Proxy
+      { protocol: 'https', hostname: 'api.microlink.io' }, // Microlink Proxy
     ],
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30일 캐시 (증가)

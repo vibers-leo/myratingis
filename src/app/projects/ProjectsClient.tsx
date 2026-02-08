@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth/AuthContext';
+import { OptimizedImage } from '@/components/ui/optimized-image';
 // Firebase Imports
 import { db } from '@/lib/firebase/client';
 import { collection, query, where, orderBy, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp, limit, getCountFromServer, updateDoc, increment } from "firebase/firestore";
@@ -35,105 +36,93 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
   const [inquiryModal, setInquiryModal] = useState<{open: boolean, project: any}>({ open: false, project: { title: "", user_id: "" } });
   const [collectionModal, setCollectionModal] = useState<{open: boolean, project: any}>({ open: false, project: { title: "" } });
 
+  useEffect(() => {
+    fetchProjects();
+  }, [user, activeFilter]); 
+
   const fetchProjects = async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      // Create a query against the collection.
-      // Note: Composite indexes might be needed for complex queries.
-      // For now, let's fetch list and filter in memory if needed or use simple queries.
-      let q = query(
+      // 1. Fetch Projects Base Data
+      const q = query(
           collection(db, "projects"), 
           where("visibility", "==", "public"),
           limit(50)
       );
 
       const querySnapshot = await getDocs(q);
-      const tempProjects: any[] = [];
+      const rawProjects = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-      // Pre-fetching imports if needed, assumed imported or add to imports
-      
-      for (const docSnap of querySnapshot.docs) {
-          const data = docSnap.data();
-          
-          // Debugging log for visibility
-          // console.log("Checking project:", docSnap.id, data.title, data.custom_data?.audit_config);
-
-          // Allow if has audit_config OR audit_deadline (migration compat)
-          // Also allow if explicitly marked as 'audit_request' type if that exists
+      // 2. Filter & Parallel Process Enrichment
+      const enrichedProjects = await Promise.all(rawProjects.map(async (data: any) => {
+          // Initial Check
           const isAudit = data.custom_data?.audit_config || data.audit_deadline || data.type === 'audit';
-          
-          if (!isAudit) continue;
+          if (!isAudit) return null;
 
-          // Check if current user liked this project
-          let isLiked = false;
-          let hasRated = false;
-          
-          // Determine Rating Count (Robust)
+          // Determine Rating Count
           let realRatingCount = data.rating_count || data.evaluations_count || 0;
-          
-          // If count is missing/zero, double check DB (Safety net for migration)
           if (!realRatingCount) {
              try {
+                 // Optimization: Only count if missing. 
+                 // Consider moving this to a separate trigger or batch job if scale increases.
                  const countSnap = await getCountFromServer(
-                    query(collection(db, "evaluations"), where("projectId", "==", docSnap.id))
+                    query(collection(db, "evaluations"), where("projectId", "==", data.id))
                  );
                  realRatingCount = countSnap.data().count;
-             } catch(e) {
-                 // console.warn("Failed to count evals", e);
-             }
+             } catch(e) {}
           }
+
+          // User Interaction (Parallel)
+          let isLiked = false;
+          let hasRated = false;
 
           if (user) {
               try {
-                  // Check Like
-                  const likeSnap = await getDoc(doc(db, "projects", docSnap.id, "likes", user.uid));
+                  const [likeSnap, evalSnaps] = await Promise.all([
+                      getDoc(doc(db, "projects", data.id, "likes", user.uid)),
+                      getDocs(query(
+                          collection(db, "evaluations"),
+                          where("projectId", "==", data.id),
+                          where("user_uid", "==", user.uid),
+                          limit(1)
+                      ))
+                  ]);
                   isLiked = likeSnap.exists();
-
-                  // Check Rating (Evaluation)
-                  const evalQ = query(
-                      collection(db, "evaluations"),
-                      where("projectId", "==", docSnap.id),
-                      where("user_uid", "==", user.uid),
-                      limit(1)
-                  );
-                  const evalSnaps = await getDocs(evalQ);
                   hasRated = !evalSnaps.empty;
               } catch(e) {}
           }
 
-          // --- View Count Correction Force (Wayo project) ---
-          if (data.title?.includes("와요") && ((data.views || 0) < 135 || (data.views_count || 0) < 135)) {
-                try {
-                    updateDoc(doc(db, "projects", docSnap.id), { 
-                        views: 135, views_count: 135, view_count: 135 
-                    });
-                    data.views = 135;
-                    data.views_count = 135;
-                    data.view_count = 135;
-                } catch(e) {}
+          // View Count Correction (Wayo)
+          if (data.title?.includes("와요") && ((data.views || 0) < 135)) {
+              // Fire and forget update
+              updateDoc(doc(db, "projects", data.id), { views: 135, views_count: 135, view_count: 135 }).catch(() => {});
+              data.views = 135;
           }
-          // --------------------------------------------------
 
-          tempProjects.push({
-              project_id: docSnap.id,
+          return {
+              project_id: data.id,
               ...data,
               is_liked: isLiked,
               has_rated: hasRated,
-              
-              // Map counts robustly
               likes_count: data.likes_count || data.like_count || data.likes || 0,
               views_count: data.views_count || data.view_count || data.views || 0,
               rating_count: realRatingCount,
-              
               User: { username: data.author_email?.split('@')[0] || "Unknown" },
               createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.created_at ? new Date(data.created_at) : new Date())
-          });
-      }
+          };
+      }));
 
-      // Client-side Sort
-      tempProjects.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      // 3. Filter Nulls & Sort
+      const validProjects = enrichedProjects.filter(p => p !== null);
+
+      if (activeFilter === 'popular') {
+          validProjects.sort((a, b) => (b.views_count + b.likes_count * 5) - (a.views_count + a.likes_count * 5));
+      } else {
+          // Default: Latest
+          validProjects.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+      }
       
-      setProjects(tempProjects);
+      setProjects(validProjects);
     } catch (e) {
       console.error("Failed to fetch audit projects", e);
       toast.error("프로젝트 목록을 불러오지 못했습니다.");
@@ -141,11 +130,6 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
       if (!silent) setLoading(false);
     }
   };
-
-  useEffect(() => {
-    // Force fetch on mount since we removed SSR data
-    fetchProjects();
-  }, [user]); // Refetch when user logs in to update 'is_liked' status
 
   // Social Actions
   const handleLike = async (e: React.MouseEvent, project: any) => {
@@ -335,12 +319,12 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                         const SmartThumb = getSmartThumbnail();
                         
                         return SmartThumb ? (
-                        <Image 
+                        <OptimizedImage 
                           src={SmartThumb} 
                           alt={p.title} 
                           fill 
-                          className="object-cover" 
-                          unoptimized={SmartThumb.includes('microlink.io')}
+                          className="object-cover transition-transform duration-500 group-hover:scale-105" 
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-chef-panel to-chef-card opacity-30">
