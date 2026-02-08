@@ -119,16 +119,30 @@
   /* Global Dark Texture Background */
   .dark body {
     background-color: #050505;
-    background-image: url('/dark-texture-bg.jpg');
-    background-size: cover;
-    background-attachment: fixed;
-    background-position: center;
-    background-repeat: no-repeat;
+    /* Texture as base, then 90% black overlay on top */
+    background-image: 
+      linear-gradient(rgba(5, 5, 5, 0.90), rgba(5, 5, 5, 0.90)),
+      url('/dark-texture-bg.jpg');
+    background-size: cover, cover;
+    background-attachment: fixed, fixed;
+    background-position: center, center;
+    background-repeat: no-repeat, no-repeat;
   }
 
-  /* Ensure main content areas don't fully cover the texture */
-  .dark .bg-background {
+  /* Force transparency on all major containers so texture shows through */
+  .dark .min-h-screen,
+  .dark main,
+  .dark .bg-background,
+  .dark [class*="bg-[#050505]"],
+  .dark [class*="bg-[#0a0a0a]"] {
     background-color: transparent !important;
+  }
+
+  /* Keep cards/panels with subtle dark backgrounds */
+  .dark .bg-card,
+  .dark .bg-chef-card,
+  .dark [class*="rounded-"] {
+    background-color: rgba(10, 10, 10, 0.6) !important;
   }
 
   /* 
