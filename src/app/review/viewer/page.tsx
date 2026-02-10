@@ -99,7 +99,7 @@ function ReviewIntro({ onStart, project, loading }: { onStart: () => void, proje
 type ViewerMode = 'desktop' | 'mobile';
 
 function ViewerContent() {
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { user, userProfile, isAuthenticated, loading: authLoading } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
   const projectId = searchParams.get('projectId') || searchParams.get('projectid');
@@ -292,12 +292,12 @@ function ViewerContent() {
         score: avgScore,
         custom_answers: customAnswers,
         guest_id: !user ? guestId : null,
-        user_uid: user ? user.uid : null,
+        user_uid: user ? user.id : null,
         user_email: user ? user.email : null,
-        user_nickname: user?.displayName || null,
-        user_photo: user?.photoURL || null,
-        user_job: (user as any)?.custom_data?.job || null,
-        user_bio: (user as any)?.custom_data?.bio || null,
+        user_nickname: userProfile?.nickname || user?.user_metadata?.full_name || null,
+        user_photo: user?.user_metadata?.avatar_url || null,
+        user_job: userProfile?.job || null,
+        user_bio: userProfile?.bio || null,
         vote_type: pollSelection,
         createdAt: serverTimestamp()
       };
@@ -409,7 +409,33 @@ function ViewerContent() {
     if (st === 'voting') return <div className="flex flex-col h-full"><div className="text-center space-y-3 mb-8 shrink-0"><div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600/10 rounded-full"><span className="text-[10px] font-black text-indigo-600">STAGE 02. STICKER</span></div><h3 className="text-xl font-black">판정 투표</h3></div><div className="flex-1 overflow-y-auto pb-10"><FeedbackPoll ref={pollRef} projectId={projectId!} guestId={guestId || undefined} onChange={setPollSelection} /></div></div>;
     if (st === 'subjective') {
         const qs = project.custom_data?.audit_config?.questions || [];
-        return <div className="flex flex-col h-full"><div className="text-center mb-8"><h3 className="text-2xl font-black">종합 의견</h3></div><div className="flex-1 space-y-10 overflow-y-auto pb-20">{qs.map((q: string, i: number) => (<div key={i} className="space-y-3"><label className="font-black">Q{i+1}. {q}</label><textarea value={customAnswers[q] || ""} onChange={e => setCustomAnswers({ ...customAnswers, [q]: e.target.value })} className="w-full h-32 bg-chef-panel rounded-2xl p-5" /></div>))}</div></div>;
+        return (
+          <div className="flex flex-col h-full">
+            <div className="text-center space-y-3 mb-8 shrink-0">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-600/10 rounded-full">
+                <span className="text-[10px] font-black text-emerald-600 uppercase">STAGE 03. FEEDBACK</span>
+              </div>
+              <h3 className="text-2xl font-black">종합 의견</h3>
+            </div>
+            <div className="flex-1 space-y-10 overflow-y-auto pb-20">
+              {qs.map((q: string, i: number) => (
+                <div key={i} className="space-y-3">
+                  <label className="font-black italic text-chef-text/50 text-xs uppercase tracking-widest flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center text-[10px] not-italic">Q{i+1}</span>
+                    Question
+                  </label>
+                  <p className="text-lg font-bold leading-relaxed break-keep">"{q}"</p>
+                  <textarea 
+                    value={customAnswers[q] || ""} 
+                    onChange={e => setCustomAnswers({ ...customAnswers, [q]: e.target.value })} 
+                    className="w-full h-32 bg-chef-panel rounded-2xl p-5 border border-chef-border/50 focus:border-orange-500 transition-colors outline-none text-chef-text" 
+                    placeholder="셰프님의 진심 어린 의견을 남겨주세요."
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        );
     }
     if (st === 'summary') return (
         <div className="flex flex-col items-center justify-center text-center h-full px-6 animate-in fade-in zoom-in duration-500">

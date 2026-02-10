@@ -122,23 +122,32 @@ export default function MyPage() {
   const initStats = async () => {
       if (!authUser || isLoadingRef.current) return;
       isLoadingRef.current = true;
-      setUserId(authUser.uid);
+      setUserId(authUser.id);
       
       try {
-        console.log("[MyPage] Starting initStats for:", authUser.uid);
+        console.log("[MyPage] Starting initStats for:", authUser.id);
         
-        // 1. Fetch Profile from Firestore
-        const userDocRef = doc(db, "users", authUser.uid);
+        // 1. Fetch Profile from Firestore (Try by ID first, then fallback to Email)
+        let fsProfile: any = {};
+        const userDocRef = doc(db, "users", authUser.id);
         const userDocSnap = await getDoc(userDocRef);
         
-        const fsProfile = userDocSnap.exists() ? userDocSnap.data() : {};
-        console.log("[MyPage] Firestore Profile:", fsProfile);
+        if (userDocSnap.exists()) {
+          fsProfile = userDocSnap.data();
+        } else {
+          // Fallback: search by email
+          const usersByEmail = await getDocs(query(collection(db, "users"), where("email", "==", authUser.email)));
+          if (!usersByEmail.empty) {
+            fsProfile = usersByEmail.docs[0].data();
+            console.log("[MyPage] Firestore Profile found by email:", fsProfile);
+          }
+        }
 
         setUserProfile({
-          username: fsProfile.username || authUser.displayName || 'user',
-          nickname: fsProfile.nickname || authUser.displayName || '사용자',
+          username: fsProfile.username || authUser.user_metadata?.full_name || 'user',
+          nickname: fsProfile.nickname || authUser.user_metadata?.full_name || '사용자',
           email: authUser.email,
-          profile_image_url: fsProfile.profile_image || fsProfile.photoURL || authUser.photoURL || '/globe.svg',
+          profile_image_url: fsProfile.profile_image || fsProfile.photoURL || authUser.user_metadata?.avatar_url || '/globe.svg',
           role: fsProfile.role || 'user',
           bio: fsProfile.bio || '',
           cover_image_url: fsProfile.cover_image_url || null,
@@ -149,21 +158,16 @@ export default function MyPage() {
           age_group: fsProfile.age_group,
           occupation: fsProfile.occupation,
           expertise: fsProfile.expertise,
-          id: authUser.uid, 
+          id: authUser.id, 
         });
 
         // 2. Fetch Stats from Firestore
         try {
-            // Projects count
-            const projectsCountSnap = await getCountFromServer(
-                query(collection(db, "projects"), where("author_uid", "==", authUser.uid))
-            );
-            
-            // My evaluations count (how many times I evaluated others)
+            // My evaluations count (how many times I evaluated others) - Using email as more robust bridge
             let myEvaluationsCount = 0;
             try {
                 const evalCountSnap = await getCountFromServer(
-                    query(collection(db, "evaluations"), where("user_uid", "==", authUser.uid))
+                    query(collection(db, "evaluations"), where("user_email", "==", authUser.email))
                 );
                 myEvaluationsCount = evalCountSnap.data().count;
             } catch (e) {
@@ -172,10 +176,11 @@ export default function MyPage() {
             
             // Total likes received on my projects
             let totalLikesReceived = 0;
+            let myProjectsSnap: any = null;
             try {
                 // Get all my projects first
-                const myProjectsSnap = await getDocs(
-                    query(collection(db, "projects"), where("author_uid", "==", authUser.uid))
+                myProjectsSnap = await getDocs(
+                  query(collection(db, "projects"), where("author_email", "==", authUser.email))
                 );
                 
                 // For each project, count likes from subcollection
@@ -196,7 +201,7 @@ export default function MyPage() {
             }
 
             setStats({ 
-                projects: projectsCountSnap.data().count, 
+                projects: myProjectsSnap?.size || 0, 
                 likes: totalLikesReceived,
                 collections: myEvaluationsCount, // Reusing 'collections' as 'my evaluations' for now
                 followers: 0, 
@@ -300,8 +305,8 @@ export default function MyPage() {
         } else if (activeTab === 'likes') {
           // Firebase Collection Group Query for 'likes'
           try {
-             // Note: Requires index on 'likes' collection group for user_id ASC/DESC if sorting
-             // If index missing, orderBy might fail. Try simple query first without orderBy if needed, but let's try with orderBy created_at desc
+             // Query by user_id OR user_email if available. Since index is complex, prioritize email if possible.
+             // Actually most like records might not have email.
              const likesQuery = query(collectionGroup(db, "likes"), where("user_id", "==", userId), orderBy("created_at", "desc"));
              const likesSnap = await getDocs(likesQuery);
              
@@ -375,49 +380,38 @@ export default function MyPage() {
           try {
               // Fetch inquiries where user is receiver OR sender
               const receivedQuery = query(collection(db, "inquiries"), where("receiverUid", "==", userId));
+              const receivedEmailQuery = query(collection(db, "inquiries"), where("receiverEmail", "==", authUser?.email || ""));
               const sentQuery = query(collection(db, "inquiries"), where("senderUid", "==", userId));
+              const sentEmailQuery = query(collection(db, "inquiries"), where("senderEmail", "==", authUser?.email || ""));
               
-              const [receivedSnap, sentSnap] = await Promise.all([
+              const [receivedSnap, sentSnap, receivedEmailSnap, sentEmailSnap] = await Promise.all([
                   getDocs(receivedQuery),
-                  getDocs(sentQuery)
+                  getDocs(sentQuery),
+                  getDocs(receivedEmailQuery),
+                  getDocs(sentEmailQuery)
               ]);
               
               // Also fetch from proposals collection
               const receivedProposalsQuery = query(collection(db, "proposals"), where("receiverUid", "==", userId));
+              const receivedEmailProposalsQuery = query(collection(db, "proposals"), where("receiverEmail", "==", authUser?.email || ""));
               const sentProposalsQuery = query(collection(db, "proposals"), where("senderUid", "==", userId));
+              const sentEmailProposalsQuery = query(collection(db, "proposals"), where("senderEmail", "==", authUser?.email || ""));
               
-              const [receivedProposalsSnap, sentProposalsSnap] = await Promise.all([
+              const [receivedProposalsSnap, sentProposalsSnap, receivedEmailProposalsSnap, sentEmailProposalsSnap] = await Promise.all([
                   getDocs(receivedProposalsQuery),
-                  getDocs(sentProposalsQuery)
+                  getDocs(sentProposalsQuery),
+                  getDocs(receivedEmailProposalsQuery),
+                  getDocs(sentEmailProposalsQuery)
               ]);
               
               // Combine all results
               const allItems: any[] = [];
               
-              receivedSnap.docs.forEach(d => {
-                  const data = d.data();
-                  allItems.push({
-                      proposal_id: d.id,
-                      title: data.title,
-                      content: data.content,
-                      status: data.status,
-                      created_at: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
-                      inquiry_type: data.inquiryType,
-                      projectId: data.projectId,
-                      projectTitle: data.projectTitle,
-                      type: 'received',
-                      sender: {
-                          nickname: data.senderName || 'Anonymous',
-                          email: data.senderEmail,
-                      },
-                      contact: data.senderEmail,
-                  });
-              });
-              
-              sentSnap.docs.forEach(d => {
-                  const data = d.data();
-                  // Avoid duplicates
-                  if (!allItems.find(i => i.proposal_id === d.id)) {
+              // Helper to add unique docs
+              const addDocs = (snap: any, type: 'received' | 'sent') => {
+                  snap.docs.forEach((d: any) => {
+                      if (allItems.find(i => i.proposal_id === d.id)) return;
+                      const data = d.data();
                       allItems.push({
                           proposal_id: d.id,
                           title: data.title,
@@ -427,56 +421,27 @@ export default function MyPage() {
                           inquiry_type: data.inquiryType,
                           projectId: data.projectId,
                           projectTitle: data.projectTitle,
-                          type: 'sent',
-                          receiver: {
+                          type: type,
+                          sender: type === 'received' ? {
+                              nickname: data.senderName || 'Anonymous',
+                              email: data.senderEmail,
+                          } : undefined,
+                          receiver: type === 'sent' ? {
                               nickname: data.projectTitle || 'Project',
-                          },
+                          } : undefined,
                           contact: data.senderEmail,
                       });
-                  }
-              });
-              
-              receivedProposalsSnap.docs.forEach(d => {
-                  const data = d.data();
-                  allItems.push({
-                      proposal_id: d.id,
-                      title: data.title,
-                      content: data.content,
-                      status: data.status,
-                      created_at: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
-                      inquiry_type: 'proposal',
-                      projectId: data.projectId,
-                      projectTitle: data.projectTitle,
-                      type: 'received',
-                      sender: {
-                          nickname: data.senderName || 'Anonymous',
-                          email: data.senderEmail,
-                          profile_image_url: data.senderPhoto,
-                      },
-                      contact: data.contact,
                   });
-              });
-              
-              sentProposalsSnap.docs.forEach(d => {
-                  const data = d.data();
-                  if (!allItems.find(i => i.proposal_id === d.id)) {
-                      allItems.push({
-                          proposal_id: d.id,
-                          title: data.title,
-                          content: data.content,
-                          status: data.status,
-                          created_at: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : new Date().toISOString(),
-                          inquiry_type: 'proposal',
-                          projectId: data.projectId,
-                          projectTitle: data.projectTitle,
-                          type: 'sent',
-                          receiver: {
-                              nickname: data.projectTitle || 'Project',
-                          },
-                          contact: data.contact,
-                      });
-                  }
-              });
+              };
+
+              addDocs(receivedSnap, 'received');
+              addDocs(receivedEmailSnap, 'received');
+              addDocs(sentSnap, 'sent');
+              addDocs(sentEmailSnap, 'sent');
+              addDocs(receivedProposalsSnap, 'received');
+              addDocs(receivedEmailProposalsSnap, 'received');
+              addDocs(sentProposalsSnap, 'sent');
+              addDocs(sentEmailProposalsSnap, 'sent');
               
               // Sort by created_at desc
               allItems.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -490,8 +455,8 @@ export default function MyPage() {
         } else if (activeTab === 'comments') {
           // 'Participated Audits' (Evaluations) fetched from Firebase
           try {
-              // Removed orderBy to avoid missing index error. Sorting client-side.
-              const evalQuery = query(collection(db, "evaluations"), where("user_uid", "==", userId));
+              // Query by email to bridge migration gap
+              const evalQuery = query(collection(db, "evaluations"), where("user_email", "==", authUser?.email));
               const evalSnap = await getDocs(evalQuery);
               const evaluations = evalSnap.docs.map(d => ({ id: d.id, ...d.data() }))
                   .sort((a: any, b: any) => {

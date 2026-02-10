@@ -320,16 +320,16 @@ export default function AuditReportPage() {
                        </div>
 
                        {/* Custom Answers Analysis */}
-                       {project.custom_data?.audit_questions?.length > 0 && r.custom_answers && (
+                       {project.custom_data?.audit_config?.questions?.length > 0 && r.custom_answers && (
                           <div className="mb-8 space-y-4">
-                             {project.custom_data.audit_questions.map((q: string, qIdx: number) => (
+                             {project.custom_data.audit_config.questions.map((q: string, qIdx: number) => (
                                 <div key={qIdx} className="bg-white/[0.03] rounded-2xl p-5 border border-white/5 group-hover:bg-white/[0.05] transition-colors">
                                    <div className="flex items-start gap-3 mb-2">
                                       <span className="text-[10px] font-black text-slate-500 pt-0.5">Q{qIdx + 1}</span>
                                       <p className="text-xs font-bold text-slate-300 leading-relaxed">{q}</p>
                                    </div>
                                    <p className="text-sm font-medium text-white pl-7 border-l border-white/10 ml-1.5 py-1">
-                                      {r.custom_answers[q] || <span className="text-slate-600 italic">답변이 없습니다.</span>}
+                                      {(r.custom_answers as any)[q] || <span className="text-slate-600 italic">답변이 없습니다.</span>}
                                    </p>
                                 </div>
                              ))}

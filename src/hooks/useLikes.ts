@@ -10,7 +10,7 @@ import { toast } from "sonner";
 export function useLikes(projectId?: string, initialLikes: number = 0) {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const userId = user?.uid || null;
+  const userId = user?.id || null;
 
   // 1. 좋아요 여부 조회
   const { data: isLiked = false } = useQuery({

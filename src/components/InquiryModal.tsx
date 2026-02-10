@@ -43,7 +43,7 @@ export function InquiryModal({ open, onOpenChange, project }: InquiryModalProps)
   useEffect(() => {
     if (open && user) {
         // Pre-fill user info
-        setContactName(user.displayName || "");
+        setContactName(user.user_metadata?.full_name || "");
         setContactEmail(user.email || "");
         setTitle("");
         setContent("");
@@ -68,7 +68,7 @@ export function InquiryModal({ open, onOpenChange, project }: InquiryModalProps)
             projectTitle: project.title,
             receiverUid: receiverUid,
             receiverEmail: project.author_email || null,
-            senderUid: user.uid,
+            senderUid: user.id,
             senderEmail: user.email,
             senderName: contactName.trim(),
             senderPhone: contactPhone.trim() || null,

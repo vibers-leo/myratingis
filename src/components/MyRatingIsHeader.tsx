@@ -22,9 +22,9 @@ export function MyRatingIsHeader() {
     setMounted(true);
   }, []);
 
-  // Firebase fallback for profile data
-  const displayName = userProfile?.nickname || user?.displayName || user?.email?.split('@')[0] || "Guest";
-  const displayImage = userProfile?.profile_image_url || user?.photoURL || "/globe.svg";
+  // Supabase fallback for profile data
+  const displayName = userProfile?.nickname || user?.user_metadata?.full_name || user?.email?.split('@')[0] || "Guest";
+  const displayImage = userProfile?.profile_image_url || user?.user_metadata?.avatar_url || "/globe.svg";
 
   const handleLogout = async () => {
     try {
@@ -112,7 +112,7 @@ export function MyRatingIsHeader() {
                   <div className="absolute top-full right-0 mt-4 w-60 bg-chef-card border border-chef-border py-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-3xl animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
                     <div className="px-5 py-4 border-b border-chef-border/50 mb-2 bg-chef-panel/30">
                         <p className="text-[10px] font-black text-chef-text opacity-30 uppercase tracking-widest mb-1">My Account</p>
-                        <p className="text-sm font-black text-chef-text truncate">{(userProfile as any)?.nickname || userProfile?.username || "Chef"}</p>
+                        <p className="text-sm font-black text-chef-text truncate">{(userProfile as any)?.nickname || userProfile?.username || user?.user_metadata?.full_name || "Chef"}</p>
                         <p className="text-[10px] font-bold text-chef-text opacity-40 truncate">{user.email}</p>
                     </div>
                     <button
@@ -202,7 +202,7 @@ export function MyRatingIsHeader() {
                            {userProfile?.username?.charAt(0) || "U"}
                         </div>
                         <div className="overflow-hidden">
-                           <p className="text-xl font-black text-white truncate">{(userProfile as any)?.nickname || userProfile?.username || "CHEF"}</p>
+                           <p className="text-xl font-black text-white truncate">{(userProfile as any)?.nickname || userProfile?.username || user?.user_metadata?.full_name || "CHEF"}</p>
                            <p className="text-xs text-white/40 font-bold truncate">{user.email}</p>
                         </div>
                     </div>

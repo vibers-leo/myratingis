@@ -74,7 +74,7 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
     if (isDemo) return;
     try {
       const headers: any = {};
-      if (user) headers['X-Firebase-UID'] = user.uid;
+      if (user) headers['X-Firebase-UID'] = user.id;
       
       let url = `/api/projects/${projectId}/rating`;
       if (guestId) url += `?guest_id=${guestId}`;

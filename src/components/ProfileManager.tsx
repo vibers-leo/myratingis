@@ -197,7 +197,16 @@ export function ProfileManager({ user, onUpdate }: ProfileManagerProps) {
           throw new Error("프로필 저장 중 오류가 발생했습니다. (DB)");
       }
 
-      // 2. Update Firebase Auth Profile (DisplayName)
+      // 2. Update Supabase Auth Profile (full_name)
+      try {
+        await supabase.auth.updateUser({
+          data: { full_name: formData.nickname }
+        });
+      } catch (sbAuthErr) {
+        console.warn("Supabase auth update failed:", sbAuthErr);
+      }
+
+      // 3. Update Firebase Auth Profile (DisplayName) - Legacy support
       if (auth.currentUser) {
           try {
               await updateProfile(auth.currentUser, {
@@ -209,7 +218,7 @@ export function ProfileManager({ user, onUpdate }: ProfileManagerProps) {
           }
       }
 
-      // Legacy: Attempt Supabase update but ignore errors (since ID mismatch is expected)
+      // 4. Update Supabase 'profiles' table
       try {
         const { id, ...dataToSave } = updateData as any;
         await supabase.from('profiles').update(dataToSave).eq('id', user.id);

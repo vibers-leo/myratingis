@@ -67,7 +67,7 @@ export default function ReportPage() {
 
   useEffect(() => {
     if (ratings.length > 0 && user) {
-        setMyRating(ratings.find((r: any) => r.user_uid === user.uid));
+        setMyRating(ratings.find((r: any) => r.user_uid === user.id || (r.user_email && user.email && r.user_email === user.email)));
     }
   }, [ratings, user]);
 
@@ -308,13 +308,19 @@ export default function ReportPage() {
 
     // --- Access Control Logic ---
     // --- Access Control Logic ---
-    const isOwner = user?.uid && (user.uid === project.user_id || user.uid === project.author_uid || user.uid === project.userId);
+    const isOwner = user?.id && (
+        user.id === project.user_id || 
+        user.id === project.author_uid || 
+        user.id === project.userId || 
+        (user.email && project.author_email && user.email === project.author_email) ||
+        (user.email && project.user_email && user.email === project.user_email)
+    );
     // Check 'result_visibility' in custom_data (Default to public if undefined)
     const resultVisibility = project.custom_data?.result_visibility || 'public';
     const isResultPublic = resultVisibility === 'public';
 
     // Check if current user has participated
-    const myRating = ratings.find(r => r.user_uid === user?.uid); 
+    const myRating = ratings.find(r => r.user_uid === user?.id); 
     
     // Determine which ratings to show
     let targetRatings = ratings;
@@ -914,7 +920,7 @@ export default function ReportPage() {
                     <tbody>
                          {currentTableData && currentTableData.length > 0 ? (
                           currentTableData.map((r, i) => {
-                            const isMyReview = r.user_uid === user?.uid;
+                            const isMyReview = r.user_uid === user?.id;
                             const displayNo = (currentPage - 1) * itemsPerPage + i + 1;
                             const demographics = [r.age_group, r.gender, (r.occupation || r.user_job)].filter(Boolean).join(' · ');
 
@@ -1040,7 +1046,25 @@ export default function ReportPage() {
                          
                          <div className="space-y-6 flex-1">
                             {/* Custom Answers */}
-                            {hasCustomAnswers ? (
+                            {project.custom_data?.audit_config?.questions && Array.isArray(project.custom_data.audit_config.questions) && project.custom_data.audit_config.questions.length > 0 ? (
+                                project.custom_data.audit_config.questions.map((q: string, qIdx: number) => {
+                                    const a = r.custom_answers?.[q];
+                                    if (!a) return null; // Skip if no answer for this specific question
+                                    
+                                    return (
+                                        <div key={qIdx} className="space-y-2 group/q">
+                                           <div className="flex items-center gap-2">
+                                              <span className="text-[10px] font-black text-orange-500/60 uppercase tracking-widest px-2 py-0.5 bg-orange-500/5 rounded border border-orange-500/10">질문 {qIdx + 1}</span>
+                                              <div className="h-px flex-1 bg-white/5" />
+                                           </div>
+                                           <p className="text-xs font-bold text-white/60 leading-relaxed italic group-hover/q:text-white/80 transition-colors">"{q}"</p>
+                                           <div className="bg-white/5 border border-white/5 p-5 rounded-lg">
+                                              <p className="text-sm font-medium text-white/90 leading-relaxed">{String(a)}</p>
+                                           </div>
+                                        </div>
+                                    );
+                                })
+                            ) : hasCustomAnswers ? (
                                 Object.entries(r.custom_answers || {}).map(([q, a], qIdx) => (
                                     <div key={qIdx} className="space-y-2 group/q">
                                        <div className="flex items-center gap-2">

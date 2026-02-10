@@ -79,11 +79,11 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
           if (user) {
               try {
                   const [likeSnap, evalSnaps] = await Promise.all([
-                      getDoc(doc(db, "projects", data.id, "likes", user.uid)),
+                      getDoc(doc(db, "projects", data.id, "likes", user.id)),
                       getDocs(query(
                           collection(db, "evaluations"),
                           where("projectId", "==", data.id),
-                          where("user_uid", "==", user.uid),
+                          where("user_uid", "==", user.id),
                           limit(1)
                       ))
                   ]);
@@ -150,7 +150,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
     ));
 
     try {
-        const likeRef = doc(db, "projects", project.project_id, "likes", user.uid);
+        const likeRef = doc(db, "projects", project.project_id, "likes", user.id);
         const projectRef = doc(db, "projects", project.project_id);
         
         if (originalLiked) {
@@ -165,7 +165,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
         } else {
             // Like
             await setDoc(likeRef, {
-                user_id: user.uid,
+                user_id: user.id,
                 created_at: serverTimestamp()
             });
             // Update project document's like count
@@ -439,13 +439,13 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                         </Button>
                       )}
                       
-                      {((showCumulative && !p.has_rated) || (p.user_id === user?.uid && !p.has_rated)) && (
+                      {((showCumulative && !p.has_rated) || (p.user_id === user?.id && !p.has_rated)) && (
                          <Button 
                            variant="outline" 
                            onClick={() => router.push(`/report/${p.project_id}`)}
                            className="h-12 rounded-2xl border-chef-border bg-chef-panel text-chef-text opacity-60 hover:opacity-100 font-bold text-[10px] uppercase tracking-widest transition-all"
                          >
-                           {p.user_id === user?.uid ? "내 프로젝트 통계" : "전체 평가 통계"}
+                           {p.user_id === user?.id ? "내 프로젝트 통계" : "전체 평가 통계"}
                          </Button>
                       )}
 

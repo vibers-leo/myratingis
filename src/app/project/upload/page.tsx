@@ -229,7 +229,7 @@ export default function ProjectUploadPage() {
         visibility: visibility,
         audit_deadline: auditDeadline,
         is_growth_requested: true,
-        author_uid: user.uid,
+        author_uid: user.id,
         author_email: user.email,
         custom_data: {
           result_visibility: resultVisibility,
@@ -279,7 +279,7 @@ export default function ProjectUploadPage() {
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-12">
       <section className="space-y-6">
         <div className="flex items-center gap-4 border-l-4 border-orange-500 pl-4 py-1">
-          <h3 className="text-3xl font-black text-chef-text tracking-tighter uppercase italic">평가 의뢰 정보</h3>
+          <h3 className="text-3xl font-black text-chef-text tracking-tighter uppercase italic">0. 프로젝트 기본 정보</h3>
         </div>
 
         <div className="bg-orange-500/5 border border-orange-500/10 p-10 rounded-sm space-y-6 bevel-sm relative overflow-hidden group">

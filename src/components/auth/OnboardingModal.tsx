@@ -33,7 +33,7 @@ export function OnboardingModal() {
     if (loading || !user) return;
     
     // 1. Check if user already skipped/completed in this browser
-    const skipKey = `onboarding_skipped_${user.uid}`;
+    const skipKey = `onboarding_skipped_${user.id}`;
     if (localStorage.getItem(skipKey) === 'true') return;
 
     // Don't show on specific paths if needed, generally show everywhere if logged in & missing info
@@ -57,7 +57,7 @@ export function OnboardingModal() {
            if (!formData.nickname) {
                setFormData(prev => ({
                    ...prev,
-                   nickname: (userProfile as any).nickname || user.displayName || ""
+                   nickname: (userProfile as any).nickname || user.user_metadata?.full_name || ""
                }));
            }
        } else {
@@ -91,7 +91,7 @@ export function OnboardingModal() {
   const handleClose = (isOpen: boolean) => {
       if (!isOpen && user) {
           // User dismissed the modal (ESC, backdrop click, etc.)
-          localStorage.setItem(`onboarding_skipped_${user.uid}`, 'true');
+          localStorage.setItem(`onboarding_skipped_${user.id}`, 'true');
       }
       setOpen(isOpen);
   };
@@ -117,13 +117,13 @@ export function OnboardingModal() {
       console.log("Onboarding Saving to Firestore:", updatePayload);
 
       // Save directly to Firestore
-      const userRef = doc(db, "users", user.uid);
+      const userRef = doc(db, "users", user.id);
       await setDoc(userRef, updatePayload, { merge: true });
       
       console.log("Onboarding Save Success");
 
       // Mark as completed in local storage
-      localStorage.setItem(`onboarding_skipped_${user.uid}`, 'true');
+      localStorage.setItem(`onboarding_skipped_${user.id}`, 'true');
 
       toast.success("프로필 설정이 완료되었습니다!");
       

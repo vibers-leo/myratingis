@@ -53,7 +53,7 @@ export function ProposalModal({
     }
 
     // 자기 자신에게 제안 불가
-    if (receiverId === user.uid) {
+    if (receiverId === user.id) {
       toast.error("본인에게는 제안할 수 없습니다.");
       return;
     }
@@ -64,10 +64,10 @@ export function ProposalModal({
       const proposalData = {
         projectId: projectId,
         projectTitle: projectTitle,
-        senderUid: user.uid,
+        senderUid: user.id,
         senderEmail: user.email,
-        senderName: user.displayName || 'Anonymous',
-        senderPhoto: user.photoURL || null,
+        senderName: user.user_metadata?.full_name || 'Anonymous',
+        senderPhoto: user.user_metadata?.avatar_url || null,
         receiverUid: receiverId,
         title: formData.title || `[협업 제안] ${projectTitle} 관련 문의`,
         content: formData.content,
