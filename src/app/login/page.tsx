@@ -104,10 +104,7 @@ function LoginContent() {
       // Success handled by AuthContext router push
     } catch (error: any) {
       console.error(error);
-      let msg = "이메일 또는 비밀번호를 확인해주세요.";
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-          msg = "계정이 없거나 비밀번호가 다릅니다. \n이전 사용자는 같은 이메일로 [회원가입]을 진행해주세요. (데이터가 자동 연동됩니다)";
-      }
+      let msg = error.message || "이메일 또는 비밀번호를 확인해주세요.";
       toast.error("로그인 실패", { description: msg, duration: 5000 });
       setLoading(false);
     }

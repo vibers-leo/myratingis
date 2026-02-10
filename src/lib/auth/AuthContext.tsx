@@ -1,17 +1,10 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { User, signInWithPopup, signInWithRedirect, getRedirectResult, signOut as firebaseSignOut, signInWithEmailAndPassword } from "firebase/auth";
-import { auth, googleProvider, db } from "@/lib/firebase/client"; 
-import { doc, setDoc, serverTimestamp, getDoc } from "firebase/firestore";
+import { supabase } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
-// Detect mobile device
-const isMobileDevice = () => {
-  if (typeof window === 'undefined') return false;
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-};
+import { User } from "@supabase/supabase-js";
 
 interface AuthContextType {
   user: User | null;
@@ -35,122 +28,73 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("[AuthContext] 🔥 Firebase Auth Initializing...");
-    
-    // Handle redirect result (for mobile Google login)
-    getRedirectResult(auth).then((result) => {
-      if (result?.user) {
-        console.log("[AuthContext] 📱 Redirect login successful:", result.user.email);
-        router.push("/");
-      }
-    }).catch((error) => {
-      if (error.code !== 'auth/popup-closed-by-user') {
-        console.error("[AuthContext] ❌ Redirect result error:", error);
-      }
-    });
-    
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-      console.log(`[AuthContext] 🔥 Auth State Changed: ${currentUser ? currentUser.email : "No User"}`);
-      
-      if (currentUser) {
-        // Sync user to Firestore
-        try {
-          const userRef = doc(db, "users", currentUser.uid);
-          const userSnap = await getDoc(userRef);
-          
-          const profileData = {
-            uid: currentUser.uid,
-            email: currentUser.email,
-            displayName: currentUser.displayName,
-            photoURL: currentUser.photoURL,
-            lastLogin: serverTimestamp(),
-          };
-
-          if (!userSnap.exists()) {
-             // 1. Check for legacy migration data
-             let legacyData: any = {};
-             if (currentUser.email) {
-                try {
-                    const legacySnap = await getDoc(doc(db, "legacy_users", currentUser.email));
-                    if (legacySnap.exists()) {
-                        console.log(`[AuthContext] ♻️ Restore legacy user data found for ${currentUser.email}`);
-                        legacyData = legacySnap.data();
-                    }
-                } catch (err) {
-                    console.warn("[AuthContext] Legacy check failed", err);
-                }
-             }
-
-             // 2. Create new user record with merged data
-             const newUserData = {
-               ...profileData,
-               createdAt: serverTimestamp(),
-               role: legacyData.role || 'user',
-               points: legacyData.points || 0,
-               nickname: legacyData.nickname || currentUser.displayName || "",
-               ...legacyData
-             };
-
-             await setDoc(userRef, newUserData);
-             setUserProfile(newUserData);
-             
-             if (Object.keys(legacyData).length > 0) {
-                 toast("기존 회원 정보를 성공적으로 불러왔습니다! 🎉");
-             }
-
-          } else {
-             // Update existing user (sync latest info)
-             await setDoc(userRef, profileData, { merge: true });
-             setUserProfile(userSnap.data());
-          }
-        } catch (e) {
-          console.error("Error syncing user to Firestore:", e);
+    // Check active sessions and sets up the observer
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setUser(session.user);
+          await fetchUserProfile(session.user.id);
         }
+      } catch (error) {
+        console.error("[AuthContext] Initialization error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log(`[AuthContext] Auth State Event: ${event}`);
+      
+      if (session) {
+        setUser(session.user);
+        await fetchUserProfile(session.user.id);
       } else {
+        setUser(null);
         setUserProfile(null);
       }
-
-      setUser(currentUser);
-      setLoading(false);
-    }, (error) => {
-      console.error("[AuthContext] 🔥 Auth Error:", error);
-      setAuthError(error.message);
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
+
+  const fetchUserProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching user profile:", error);
+      } else {
+        setUserProfile(data);
+      }
+    } catch (e) {
+      console.error("Profile fetch error:", e);
+    }
+  };
 
   const signInWithGoogle = async () => {
     try {
       setLoading(true);
-      
-      // Use redirect on mobile, popup on desktop
-      if (isMobileDevice()) {
-        console.log("[AuthContext] 📱 Mobile detected, using signInWithRedirect");
-        await signInWithRedirect(auth, googleProvider);
-        // Note: After redirect, the page reloads and getRedirectResult handles the login
-      } else {
-        console.log("[AuthContext] 💻 Desktop detected, using signInWithPopup");
-        await signInWithPopup(auth, googleProvider);
-        router.push("/");
-      }
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+      if (error) throw error;
     } catch (error: any) {
-      console.error("Login Failed", error);
+      console.error("Google Login Failed", error);
       setAuthError(error.message);
-      
-      // Fallback: If popup fails (e.g., blocked), try redirect
-      if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
-        console.log("[AuthContext] ⚠️ Popup blocked, falling back to redirect");
-        try {
-          await signInWithRedirect(auth, googleProvider);
-        } catch (redirectError) {
-          console.error("Redirect also failed:", redirectError);
-          throw redirectError;
-        }
-      } else {
-        throw error;
-      }
+      toast.error("Google 로그인에 실패했습니다.");
     } finally {
       setLoading(false);
     }
@@ -159,8 +103,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithEmail = async (email: string, password: string) => {
     try {
       setLoading(true);
-      // Ensure auth is initialized
-      await signInWithEmailAndPassword(auth, email, password);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) throw error;
+      
+      console.log("[AuthContext] Sign-in successful:", data.user?.email);
       router.push("/");
     } catch (error: any) {
        console.error("Email Login Failed", error);
@@ -173,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     try {
-      await firebaseSignOut(auth);
+      await supabase.auth.signOut();
       router.push("/login");
     } catch (error: any) {
       console.error("Logout Failed", error);

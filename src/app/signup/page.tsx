@@ -40,21 +40,28 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      // Firebase Signup
-      await createUserWithEmailAndPassword(auth, email, password);
+      // Supabase Signup
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        }
+      });
       
-      toast.success("회원가입이 완료되었습니다! 환영합니다.");
-      // AuthContext will detect the new user and create the Firestore document.
-      // We redirect to onboarding to ensure profile setup.
-      router.push("/onboarding");
+      if (error) throw error;
+
+      if (data.user && data.session) {
+        toast.success("회원가입이 완료되었습니다! 환영합니다.");
+        router.push("/onboarding");
+      } else {
+        toast.success("인증 메일이 발송되었습니다. 메일함을 확인해주세요!");
+        router.push("/login?message=check-email");
+      }
       
     } catch (error: any) {
       console.error("[Signup] Error:", error);
-      let msg = "회원가입 중 오류가 발생했습니다.";
-      if (error.code === 'auth/email-already-in-use') {
-          msg = "이미 가입된 이메일입니다. 로그인해주세요.";
-      }
-      setError(msg);
+      setError(error.message || "회원가입 중 오류가 발생했습니다.");
       setLoading(false);
     }
   };
