@@ -81,8 +81,8 @@ export default function AdvancedProjectUploadPage() {
 
       // 사용자 관심사 로드
       try {
-        const { data: userData } = await supabase
-          .from('users')
+        const { data: userData } = await (supabase as any)
+          .from('profiles')
           .select('interests')
           .eq('id', user.id)
           .single();

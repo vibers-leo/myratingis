@@ -30,7 +30,8 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
       setShowContent(true);
     } else {
       // 충분히 기다린 후에도 관리자가 아니면 리다이렉트
-      if (checkCount >= 2) {
+      if (checkCount >= 4) { // Increase to 4 (~2.5 seconds total)
+        console.warn("[AdminGuard] Access denied. Redirecting...");
         router.replace("/");
       } else {
         // 한 번 더 체크

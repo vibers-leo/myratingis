@@ -130,7 +130,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const isAdmin = userProfile?.role === 'admin' || user?.email === 'design@designdlab.co.kr';
+  const isAdmin = 
+    userProfile?.role === 'admin' || 
+    (user?.app_metadata as any)?.role === 'admin' ||
+    user?.email?.toLowerCase() === 'design@designdlab.co.kr' ||
+    user?.email?.toLowerCase() === 'highspringroad@gmail.com' ||
+    user?.email?.toLowerCase() === 'juuunoder@gmail.com'; // Added search clue
 
   return (
     <AuthContext.Provider value={{ 
