@@ -12,9 +12,8 @@ import { toast } from 'sonner';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { OptimizedImage } from '@/components/ui/optimized-image';
-// Firebase Imports
-import { db } from '@/lib/firebase/client';
-import { collection, query, where, orderBy, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp, limit, getCountFromServer, updateDoc, increment } from "firebase/firestore";
+// Supabase Client (타입 체크 우회)
+import { supabase } from '@/lib/supabase/client';
 
 // Lazy loaded modals for performance
 const InquiryModal = dynamic(() => import('@/components/InquiryModal').then(mod => mod.InquiryModal), { ssr: false });
@@ -43,15 +42,18 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
   const fetchProjects = async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      // 1. Fetch Projects Base Data
-      const q = query(
-          collection(db, "projects"), 
-          where("visibility", "==", "public"),
-          limit(50)
-      );
+      // 1. Fetch Projects Base Data from Supabase
+      const { data: rawProjects, error } = await (supabase as any)
+        .from('projects')
+        .select('*')
+        .eq('visibility', 'public')
+        .limit(50);
 
-      const querySnapshot = await getDocs(q);
-      const rawProjects = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      if (error) throw error;
+      if (!rawProjects) {
+        setProjects([]);
+        return;
+      }
 
       // 2. Filter & Parallel Process Enrichment
       const enrichedProjects = await Promise.all(rawProjects.map(async (data: any) => {
@@ -59,18 +61,8 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
           const isAudit = data.custom_data?.audit_config || data.audit_deadline || data.type === 'audit';
           if (!isAudit) return null;
 
-          // Determine Rating Count
-          let realRatingCount = data.rating_count || data.evaluations_count || 0;
-          if (!realRatingCount) {
-             try {
-                 // Optimization: Only count if missing. 
-                 // Consider moving this to a separate trigger or batch job if scale increases.
-                 const countSnap = await getCountFromServer(
-                    query(collection(db, "evaluations"), where("projectId", "==", data.id))
-                 );
-                 realRatingCount = countSnap.data().count;
-             } catch(e) {}
-          }
+          // Determine Rating Count (Supabase에서는 이미 트리거로 관리됨)
+          let realRatingCount = data.evaluations_count || 0;
 
           // User Interaction (Parallel)
           let isLiked = false;
@@ -78,25 +70,41 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
 
           if (user) {
               try {
-                  const [likeSnap, evalSnaps] = await Promise.all([
-                      getDoc(doc(db, "projects", data.id, "likes", user.id)),
-                      getDocs(query(
-                          collection(db, "evaluations"),
-                          where("projectId", "==", data.id),
-                          where("user_uid", "==", user.id),
-                          limit(1)
-                      ))
+                  const [likeResult, evalResult] = await Promise.all([
+                      // 좋아요 여부 확인
+                      (supabase as any)
+                        .from('project_likes')
+                        .select('id')
+                        .eq('project_id', data.id)
+                        .eq('user_id', user.id)
+                        .single(),
+                      // 평가 여부 확인
+                      (supabase as any)
+                        .from('evaluations')
+                        .select('id')
+                        .eq('project_id', data.id)
+                        .eq('user_id', user.id)
+                        .limit(1)
+                        .single()
                   ]);
-                  isLiked = likeSnap.exists();
-                  hasRated = !evalSnaps.empty;
-              } catch(e) {}
+
+                  isLiked = !likeResult.error && !!likeResult.data;
+                  hasRated = !evalResult.error && !!evalResult.data;
+              } catch(e) {
+                  // 에러 무시 (데이터 없을 수 있음)
+              }
           }
 
-          // View Count Correction (Wayo)
-          if (data.title?.includes("와요") && ((data.views || 0) < 135)) {
+          // View Count Correction (Wayo) - Supabase 버전
+          if (data.title?.includes("와요") && ((data.views_count || 0) < 135)) {
               // Fire and forget update
-              updateDoc(doc(db, "projects", data.id), { views: 135, views_count: 135, view_count: 135 }).catch(() => {});
-              data.views = 135;
+              (supabase as any)
+                .from('projects')
+                .update({ views_count: 135 })
+                .eq('id', data.id)
+                .then(() => {})
+                .catch(() => {});
+              data.views_count = 135;
           }
 
           return {
@@ -104,11 +112,11 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
               ...data,
               is_liked: isLiked,
               has_rated: hasRated,
-              likes_count: data.likes_count || data.like_count || data.likes || 0,
-              views_count: data.views_count || data.view_count || data.views || 0,
+              likes_count: data.likes_count || 0,
+              views_count: data.views_count || 0,
               rating_count: realRatingCount,
               User: { username: data.author_email?.split('@')[0] || "Unknown" },
-              createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.created_at ? new Date(data.created_at) : new Date())
+              createdAt: data.created_at ? new Date(data.created_at) : new Date()
           };
       }));
 
@@ -121,7 +129,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
           // Default: Latest
           validProjects.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
       }
-      
+
       setProjects(validProjects);
     } catch (e) {
       console.error("Failed to fetch audit projects", e);
@@ -143,44 +151,46 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
     const originalCount = project.likes_count || 0;
 
     // Optimistic Update
-    setProjects(prev => prev.map(p => 
-        p.project_id === project.project_id 
-            ? { ...p, is_liked: !originalLiked, likes_count: originalLiked ? originalCount - 1 : originalCount + 1 } 
+    setProjects(prev => prev.map(p =>
+        p.project_id === project.project_id
+            ? { ...p, is_liked: !originalLiked, likes_count: originalLiked ? originalCount - 1 : originalCount + 1 }
             : p
     ));
 
     try {
-        const likeRef = doc(db, "projects", project.project_id, "likes", user.id);
-        const projectRef = doc(db, "projects", project.project_id);
-        
         if (originalLiked) {
-            // Unlike
-            await deleteDoc(likeRef);
-            // Update project document's like count
-            await updateDoc(projectRef, { 
-                likes: increment(-1),
-                likes_count: increment(-1),
-                like_count: increment(-1)
-            });
+            // Unlike - Supabase에서 삭제
+            const { error } = await (supabase as any)
+              .from('project_likes')
+              .delete()
+              .eq('project_id', project.project_id)
+              .eq('user_id', user.id);
+
+            if (error) throw error;
+
+            // 트리거가 자동으로 likes_count를 감소시킴
         } else {
-            // Like
-            await setDoc(likeRef, {
-                user_id: user.id,
-                created_at: serverTimestamp()
-            });
-            // Update project document's like count
-            await updateDoc(projectRef, { 
-                likes: increment(1),
-                likes_count: increment(1),
-                like_count: increment(1)
-            });
+            // Like - Supabase에 추가
+            const { error } = await (supabase as any)
+              .from('project_likes')
+              .insert({
+                project_id: project.project_id,
+                user_id: user.id
+              });
+
+            if (error) throw error;
+
+            // 트리거가 자동으로 likes_count를 증가시킴
         }
+
+        // 성공 시 최신 데이터로 갱신 (선택적)
+        fetchProjects(true);
     } catch (err) {
         console.error("Like error", err);
         // Revert
-        setProjects(prev => prev.map(p => 
-            p.project_id === project.project_id 
-                ? { ...p, is_liked: originalLiked, likes_count: originalCount } 
+        setProjects(prev => prev.map(p =>
+            p.project_id === project.project_id
+                ? { ...p, is_liked: originalLiked, likes_count: originalCount }
                 : p
         ));
         toast.error("요청 처리에 실패했습니다.");

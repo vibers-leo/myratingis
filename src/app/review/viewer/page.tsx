@@ -21,8 +21,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn, linkify } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { db } from '@/lib/firebase/client';
-import { doc, getDoc, collection, addDoc, serverTimestamp, updateDoc, increment } from "firebase/firestore";
+import { supabase } from '@/lib/supabase/client';
 
 // ... (existing code)
 
@@ -166,13 +165,15 @@ function ViewerContent() {
     const fetchProject = async () => {
       try {
         setLoading(true);
-        // Changed to Firestore getDoc
-        const docRef = doc(db, "projects", projectId);
-        const docSnap = await getDoc(docRef);
+        // Fetch from Supabase
+        const { data, error } = await (supabase as any)
+          .from('projects')
+          .select('*')
+          .eq('id', projectId)
+          .single();
 
-        if (!docSnap.exists()) throw new Error("Project not found");
-        
-        const data = docSnap.data();
+        if (error || !data) throw new Error("Project not found");
+
         let parsedCustom = data.custom_data;
         if (typeof parsedCustom === 'string') {
             try { parsedCustom = JSON.parse(parsedCustom); } catch (e) { parsedCustom = {}; }
@@ -181,18 +182,19 @@ function ViewerContent() {
         // --- View Count Increment Logic ---
         const viewKey = `viewed_${projectId}`;
         const hasViewed = sessionStorage.getItem(viewKey);
-        
+
         if (!hasViewed) {
             try {
-                await updateDoc(docRef, { 
-                    views: increment(1),
-                    view_count: increment(1),
-                    views_count: increment(1) // Cover all bases
-                });
+                // Increment view count in Supabase
+                const currentViews = data.views || 0;
+                await (supabase as any)
+                  .from('projects')
+                  .update({ views: currentViews + 1 })
+                  .eq('id', projectId);
+
                 sessionStorage.setItem(viewKey, 'true');
                 // Optimistic update
-                data.views = (data.views || 0) + 1;
-                data.view_count = (data.view_count || 0) + 1;
+                data.views = currentViews + 1;
             } catch (err) {
                 console.warn("Failed to increment view count", err);
             }
@@ -202,9 +204,11 @@ function ViewerContent() {
         // --- View Count Correction (Only for '와요' project, Min 135) ---
         if (data.title?.includes("와요") && (data.views || 0) < 135) {
              try {
-                updateDoc(docRef, { views: 135, views_count: 135, view_count: 135 });
+                await (supabase as any)
+                  .from('projects')
+                  .update({ views: 135 })
+                  .eq('id', projectId);
                 data.views = 135;
-                data.views_count = 135;
              } catch(e) {}
         }
         // ----------------------------------------------------------------
@@ -287,7 +291,7 @@ function ViewerContent() {
       });
       
       const evaluationData = {
-        projectId,
+        project_id: projectId,
         scores: michelinScores,
         score: avgScore,
         custom_answers: customAnswers,
@@ -299,34 +303,34 @@ function ViewerContent() {
         user_job: userProfile?.job || null,
         user_bio: userProfile?.bio || null,
         vote_type: pollSelection,
-        createdAt: serverTimestamp()
+        created_at: new Date().toISOString()
       };
 
       console.log("[Viewer] Full evaluation data:", evaluationData);
 
-      // --- 1. Save to Firestore (Existing) ---
-      await addDoc(collection(db, "evaluations"), evaluationData);
+      // Save to Supabase via API
+      const supabasePayload = {
+          projectId,
+          scores: michelinScores,
+          score: avgScore,
+          vote_type: pollSelection,
+          guest_id: !user ? guestId : null,
+          custom_answers: customAnswers,
+          user_email: user ? user.email : null,
+          user_nickname: userProfile?.nickname || user?.user_metadata?.full_name || null,
+      };
 
-      // --- 2. Save to Supabase (New - Fixes Reports/Aggregates) ---
-      try {
-          const supabasePayload = {
-              projectId,
-              scores: michelinScores,
-              score: avgScore,
-              vote_type: pollSelection,
-              guest_id: !user ? guestId : null,
-              custom_answers: customAnswers
-          };
-          
-          await fetch(`/api/projects/${projectId}/rating`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(supabasePayload)
-          });
-          console.log("[Viewer] Successfully synced to Supabase");
-      } catch (supaErr) {
-          console.warn("[Viewer] Supabase sync failed, but Firestore saved.", supaErr);
+      const response = await fetch(`/api/projects/${projectId}/rating`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(supabasePayload)
+      });
+
+      if (!response.ok) {
+          throw new Error('Failed to save evaluation');
       }
+
+      console.log("[Viewer] Successfully saved evaluation");
 
       setIsSubmitted(true);
       setCurrentStep(steps.length - 1); // Move to summary

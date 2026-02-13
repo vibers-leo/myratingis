@@ -3,8 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { db } from "@/lib/firebase/client";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
+import { supabase } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -110,15 +109,19 @@ export function OnboardingModal() {
         age_group: formData.age_group,
         occupation: formData.occupation,
         expertise: { fields: formData.expertise },
-        onboardingCompleted: true,
-        updatedAt: serverTimestamp()
+        onboarding_completed: true,
+        updated_at: new Date().toISOString()
       };
 
-      console.log("Onboarding Saving to Firestore:", updatePayload);
+      console.log("Onboarding Saving to Supabase:", updatePayload);
 
-      // Save directly to Firestore
-      const userRef = doc(db, "users", user.id);
-      await setDoc(userRef, updatePayload, { merge: true });
+      // Save to Supabase profiles table
+      const { error } = await (supabase as any)
+        .from('profiles')
+        .update(updatePayload)
+        .eq('id', user.id);
+
+      if (error) throw error;
       
       console.log("Onboarding Save Success");
 

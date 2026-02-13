@@ -18,9 +18,7 @@ import {
   faCalculator
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { collection, addDoc, serverTimestamp, doc, getDoc, updateDoc } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db, storage } from "@/lib/firebase/client"; 
+import { supabase } from "@/lib/supabase/client"; 
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChefHat, Sparkles, Info, Globe, Link, X, Lock, Eye, EyeOff } from "lucide-react";
@@ -47,13 +45,22 @@ const STICKER_PRESETS: Record<string, any[]> = {
   ]
 };
 
-/* Helper: Firebase Image Upload */
+/* Helper: Supabase Storage Image Upload */
 const uploadImage = async (file: File) => {
   const ext = file.name.split('.').pop();
   const filename = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${ext}`;
-  const storageRef = ref(storage, `uploads/${filename}`);
-  const snapshot = await uploadBytes(storageRef, file);
-  return await getDownloadURL(snapshot.ref);
+
+  const { data, error } = await (supabase as any).storage
+    .from('uploads')
+    .upload(filename, file);
+
+  if (error) throw error;
+
+  const { data: { publicUrl } } = (supabase as any).storage
+    .from('uploads')
+    .getPublicUrl(filename);
+
+  return publicUrl;
 };
 
 export default function ProjectUploadPage() {
@@ -131,22 +138,26 @@ export default function ProjectUploadPage() {
     }
   }, []);
 
-  // [Firebase] Edit Mode Data Fetching
+  // [Supabase] Edit Mode Data Fetching
   const editId = searchParams.get('edit');
   useEffect(() => {
     if (editId) {
       const fetchProject = async () => {
         try {
-          const docRef = doc(db, "projects", editId);
-          const docSnap = await getDoc(docRef);
-          
-          if (docSnap.exists()) {
-            const p = docSnap.data();
+          const { data: p, error } = await (supabase as any)
+            .from('projects')
+            .select('*')
+            .eq('id', editId)
+            .single();
+
+          if (error) throw error;
+
+          if (p) {
             setTitle(p.title || "");
             setSummary(p.summary || "");
             setVisibility(p.visibility as any || 'public');
             if (p.audit_deadline) setAuditDeadline(p.audit_deadline);
-            
+
             const config = p.custom_data?.audit_config;
             if (config) {
               setAuditType(config.type || 'link');
@@ -229,7 +240,7 @@ export default function ProjectUploadPage() {
         visibility: visibility,
         audit_deadline: auditDeadline,
         is_growth_requested: true,
-        author_uid: user.id,
+        author_id: user.id,
         author_email: user.email,
         custom_data: {
           result_visibility: resultVisibility,
@@ -247,22 +258,27 @@ export default function ProjectUploadPage() {
                method: distributeMethod
              }
           }
-        },
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-        view_count: 0,
-        feedback_count: 0,
-        like_count: 0
+        }
       };
 
       let projectId = editId;
 
       if (editId) {
-        const docRef = doc(db, "projects", editId);
-        await updateDoc(docRef, { ...projectData, updatedAt: serverTimestamp() });
+        const { error } = await (supabase as any)
+          .from('projects')
+          .update(projectData)
+          .eq('id', editId);
+
+        if (error) throw error;
       } else {
-        const docRef = await addDoc(collection(db, "projects"), projectData);
-        projectId = docRef.id;
+        const { data, error } = await (supabase as any)
+          .from('projects')
+          .insert([projectData])
+          .select('id')
+          .single();
+
+        if (error) throw error;
+        projectId = data.id;
       }
 
       toast.success(editId ? "수정이 완료되었습니다!" : "평가 의뢰가 성공적으로 등록되었습니다!");

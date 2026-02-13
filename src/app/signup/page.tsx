@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { auth } from "@/lib/firebase/client"; // Firebase Auth
-import { createUserWithEmailAndPassword } from "firebase/auth"; // Firebase Methods
 import { useAuth } from "@/lib/auth/AuthContext";
+import { supabase } from "@/lib/supabase/client";
 import { FcGoogle } from "react-icons/fc";
 import { toast } from "sonner";
 import { MyRatingIsHeader } from "@/components/MyRatingIsHeader";

@@ -10,8 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { Send, Lock, Loader2, Sparkles, MessageCircle } from "lucide-react";
-import { db } from "@/lib/firebase/client";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { supabase } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/auth/AuthContext";
 
 interface InquiryModalProps {
@@ -62,27 +61,31 @@ export function InquiryModal({ open, onOpenChange, project }: InquiryModalProps)
     try {
         const projectId = project.project_id || project.id;
         const receiverUid = project.author_uid || project.user_id;
-        
+
         const inquiryData = {
-            projectId: projectId,
-            projectTitle: project.title,
-            receiverUid: receiverUid,
-            receiverEmail: project.author_email || null,
-            senderUid: user.id,
-            senderEmail: user.email,
-            senderName: contactName.trim(),
-            senderPhone: contactPhone.trim() || null,
+            project_id: String(projectId),
+            project_title: project.title,
+            receiver_uid: receiverUid,
+            receiver_email: project.author_email || null,
+            sender_uid: user.id,
+            sender_email: user.email,
+            sender_name: contactName.trim(),
+            sender_phone: contactPhone.trim() || null,
             title: title.trim(),
             content: content.trim(),
-            inquiryType: inquiryType,
-            isPrivate: isPrivate,
+            inquiry_type: inquiryType,
+            is_private: isPrivate,
             status: 'pending',
-            createdAt: serverTimestamp(),
-            readAt: null,
-            repliedAt: null,
+            created_at: new Date().toISOString(),
+            read_at: null,
+            replied_at: null,
         };
 
-        await addDoc(collection(db, "inquiries"), inquiryData);
+        const { error } = await supabase
+            .from('inquiries')
+            .insert(inquiryData);
+
+        if (error) throw error;
 
         toast.success(inquiryType === 'proposal' ? "제안서가 전달되었습니다." : "문의가 등록되었습니다.");
         onOpenChange(false);

@@ -11,8 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import { db } from "@/lib/firebase/client";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { supabase } from "@/lib/supabase/client";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { toast } from "sonner";
 
@@ -62,23 +61,27 @@ export function ProposalModal({
 
     try {
       const proposalData = {
-        projectId: projectId,
-        projectTitle: projectTitle,
-        senderUid: user.id,
-        senderEmail: user.email,
-        senderName: user.user_metadata?.full_name || 'Anonymous',
-        senderPhoto: user.user_metadata?.avatar_url || null,
-        receiverUid: receiverId,
+        project_id: projectId,
+        project_title: projectTitle,
+        sender_uid: user.id,
+        sender_email: user.email,
+        sender_name: user.user_metadata?.full_name || 'Anonymous',
+        sender_photo: user.user_metadata?.avatar_url || null,
+        receiver_uid: receiverId,
         title: formData.title || `[협업 제안] ${projectTitle} 관련 문의`,
         content: formData.content,
         contact: formData.contact || user.email,
         status: 'pending',
-        createdAt: serverTimestamp(),
-        readAt: null,
-        repliedAt: null,
+        created_at: new Date().toISOString(),
+        read_at: null,
+        replied_at: null,
       };
 
-      await addDoc(collection(db, "proposals"), proposalData);
+      const { error } = await (supabase as any)
+        .from('proposals')
+        .insert(proposalData);
+
+      if (error) throw error;
 
       toast.success("제안이 성공적으로 전송되었습니다!");
       setFormData({ title: "", content: "", contact: "" });
