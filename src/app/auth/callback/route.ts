@@ -9,10 +9,18 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/'
 
+  console.log('[Auth Callback] 🔍 Request received:', {
+    hasCode: !!code,
+    next,
+    origin,
+    fullUrl: request.url,
+    allParams: Object.fromEntries(searchParams.entries())
+  });
+
   if (code) {
     const cookieStore = cookies()
     const response = NextResponse.redirect(`${origin}${next}`)
-    
+
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -31,17 +39,26 @@ export async function GET(request: Request) {
         },
       }
     )
-    
+
     // Official exchange pattern
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    
-    if (!error) {
-      console.log('[Auth Callback] ✅ Session exchanged success. Cookies attached to response.');
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+
+    if (!error && data.session) {
+      console.log('[Auth Callback] ✅ Session exchanged successfully:', {
+        userId: data.session.user.id,
+        email: data.session.user.email,
+        provider: data.session.user.app_metadata.provider,
+        redirectTo: `${origin}${next}`
+      });
       return response
     }
-    
-    console.error('[Auth Callback] ❌ Exchange error:', error.message)
-    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error.message)}`)
+
+    console.error('[Auth Callback] ❌ Exchange error:', {
+      message: error?.message,
+      status: error?.status,
+      code: error?.code
+    });
+    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error?.message || 'Session exchange failed')}`)
   }
 
   // If no code, look for error parameters from Supabase redirect

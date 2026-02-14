@@ -84,19 +84,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signInWithOAuth({
+      setAuthError(null);
+
+      console.log("[AuthContext] 🔑 Starting Google OAuth login...");
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
       });
-      if (error) throw error;
+
+      if (error) {
+        console.error("[AuthContext] ❌ Google OAuth error:", error);
+        throw error;
+      }
+
+      console.log("[AuthContext] ✅ Google OAuth redirect initiated:", data);
+      // Note: Page will redirect, so loading state will be reset
     } catch (error: any) {
-      console.error("Google Login Failed", error);
+      console.error("[AuthContext] ❌ Google Login Failed:", {
+        message: error.message,
+        status: error.status,
+        code: error.code
+      });
       setAuthError(error.message);
       toast.error("Google 로그인에 실패했습니다.");
-    } finally {
-      setLoading(false);
+      setLoading(false); // Only set false on error, since redirect will happen on success
     }
   };
 
