@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { persistSession: false } }
-);
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,7 +10,7 @@ export async function POST(req: NextRequest) {
 
     const token = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    
+
     if (!user || authError) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -27,41 +21,44 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Find all ratings belonging to this guest_id
-    const { data: guestRatings } = await supabaseAdmin
+    // guest_id 컬럼은 text 타입이므로 직접 쿼리 가능
+    const { data: guestRatings } = await (supabaseAdmin as any)
       .from('ProjectRating')
       .select('id, project_id')
       .eq('guest_id', guest_id);
 
     if (guestRatings && guestRatings.length > 0) {
       for (const rating of guestRatings) {
-        // Check if user already has a rating for this project
-        const { data: userRating } = await supabaseAdmin
-          .from('ProjectRating')
-          .select('id')
-          .eq('project_id', rating.project_id)
-          .eq('user_id', user.id)
-          .maybeSingle();
+        // Check if user already has a rating for this project via RPC
+        const { data: userRatings } = await supabaseAdmin
+          .rpc('get_user_rating', {
+            p_project_id: rating.project_id,
+            p_user_id: user.id,
+            p_guest_id: null
+          });
+
+        const userRating = userRatings?.[0] || null;
 
         if (userRating) {
-          // User already has a rating, delete the guest one (user's logged in rating wins)
-          await supabaseAdmin
+          // User already has a rating, delete the guest one
+          await (supabaseAdmin as any)
             .from('ProjectRating')
             .delete()
             .eq('id', rating.id);
         } else {
           // Claim the guest rating
-          await supabaseAdmin
+          await (supabaseAdmin as any)
             .from('ProjectRating')
-            .update({ 
+            .update({
               user_id: user.id,
-              guest_id: null 
+              guest_id: null
             })
             .eq('id', rating.id);
         }
       }
     }
 
-    // 2. [Optional] Same for Comments if needed, but usually ratings are enough
+    // 2. Same for Comments
     await supabaseAdmin
       .from('Comment')
       .update({ user_id: user.id })

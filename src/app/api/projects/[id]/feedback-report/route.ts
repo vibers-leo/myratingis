@@ -1,21 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { persistSession: false } }
-);
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const projectId = params.id;
 
   try {
-    // 1. Fetch Ratings with profiles for expertise distribution
+    // 1. Fetch Ratings with profiles via RPC (PostgREST 스키마 캐시 우회)
     const { data: allRatings, error: ratingError } = await supabaseAdmin
-      .from('ProjectRating')
-      .select('score, score_1, score_2, score_3, score_4, profile:profiles(expertise)')
-      .eq('project_id', projectId);
+      .rpc('get_ratings_with_profiles', { p_project_id: projectId });
 
     if (ratingError) throw ratingError;
 
@@ -43,8 +35,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
           const s = Math.round(Number(r.score) || 0);
           if (s >= 1 && s <= 5) scoreDistribution[5 - s]++; 
           
-          // Expertise distribution
-          const fields = (r.profile as any)?.expertise?.fields || [];
+          // Expertise distribution (RPC returns flat profile_expertise field)
+          const rawExpertise = r.profile_expertise || (r as any).profile?.expertise;
+          const fields = rawExpertise?.fields || (Array.isArray(rawExpertise) ? rawExpertise : []);
           fields.forEach((f: string) => {
               expertiseStats[f] = (expertiseStats[f] || 0) + 1;
           });

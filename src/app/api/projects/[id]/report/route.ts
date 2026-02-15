@@ -47,13 +47,23 @@ export async function GET(
         return NextResponse.json({ error: "Forbidden: You are not the owner." }, { status: 403 });
     }
 
-    // 2. Fetch Ratings with Profiles
-    const { data: ratings, error: ratingError } = await supabaseAdmin
-      .from("ProjectRating")
-      .select("*, profile:profiles(username, expertise, occupation, age_group, gender)")
-      .eq("project_id", projectId);
+    // 2. Fetch Ratings with Profiles via RPC (PostgREST 스키마 캐시 우회)
+    const { data: rawRatings, error: ratingError } = await supabaseAdmin
+      .rpc('get_ratings_with_profiles', { p_project_id: projectId });
 
     if (ratingError) throw ratingError;
+
+    // RPC returns flat fields → reconstruct profile object for compatibility
+    const ratings = (rawRatings || []).map((r: any) => ({
+      ...r,
+      profile: {
+        username: r.profile_username,
+        expertise: r.profile_expertise,
+        occupation: r.profile_occupation,
+        age_group: r.profile_age_group,
+        gender: r.profile_gender
+      }
+    }));
 
     // 3. Fetch Polls
     const { data: votes } = await supabaseAdmin

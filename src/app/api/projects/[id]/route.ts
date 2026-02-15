@@ -83,11 +83,9 @@ export async function GET(
       }
     }
 
-    // 5. Fetch Rating Stats (Counts, My Rating status)
-    const { data: ratingsData } = await (supabaseAdmin as any)
-      .from('ProjectRating')
-      .select('user_id')
-      .eq('project_id', Number(id));
+    // 5. Fetch Rating Stats via RPC (PostgREST 스키마 캐시 우회)
+    const { data: ratingsData } = await supabaseAdmin
+      .rpc('get_ratings_by_project', { p_project_id: String(id) });
 
     data.rating_count = ratingsData?.length || 0;
     data.has_rated = user ? ratingsData?.some((r: any) => r.user_id === user.id) : false;

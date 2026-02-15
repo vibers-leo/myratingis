@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
+// UUID 형식 감지
+const isUUID = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
 // GET: 투표 현황 조회
 export async function GET(
   req: NextRequest,
@@ -12,8 +15,7 @@ export async function GET(
 
   const authHeader = req.headers.get('authorization');
   let currentUserId: string | null = null;
-  
-  // Try to extract user from token if present
+
   if (authHeader) {
       const token = authHeader.replace('Bearer ', '');
       const { data: { user } } = await supabaseAdmin.auth.getUser(token);
@@ -21,11 +23,11 @@ export async function GET(
   }
 
   try {
-    // 1. Get Vote Counts
+    // 1. Get Vote Counts (project_id를 문자열로 전달)
     const { data: countsData, error: countsError } = await supabaseAdmin
       .from('ProjectPoll')
       .select('vote_type')
-      .eq('project_id', parseInt(projectId));
+      .eq('project_id', projectId);
 
     if (countsError) throw countsError;
 
@@ -34,22 +36,32 @@ export async function GET(
         counts[item.vote_type] = (counts[item.vote_type] || 0) + 1;
     });
 
-    // 2. Get Project Data
-    const { data: project } = await supabaseAdmin
-      .from('Project')
-      .select('custom_data')
-      .eq('project_id', parseInt(projectId))
-      .single();
+    // 2. Get Project Data (UUID면 projects 테이블, 정수면 Project 테이블)
+    let project: any = null;
+    if (isUUID(projectId)) {
+        const { data } = await supabaseAdmin
+            .from('projects')
+            .select('custom_data')
+            .eq('id', projectId)
+            .single();
+        project = data;
+    } else {
+        const { data } = await supabaseAdmin
+            .from('Project')
+            .select('custom_data')
+            .eq('project_id', Number(projectId))
+            .single();
+        project = data;
+    }
 
     // 3. Get My Vote (User or Guest)
     let myVote = null;
-    
-    // Condition: User ID OR Guest ID
+
     if (currentUserId) {
         const { data: myData } = await supabaseAdmin
             .from('ProjectPoll')
             .select('vote_type')
-            .eq('project_id', parseInt(projectId))
+            .eq('project_id', projectId)
             .eq('user_id', currentUserId)
             .single();
         if (myData) myVote = myData.vote_type;
@@ -57,7 +69,7 @@ export async function GET(
         const { data: myData } = await supabaseAdmin
             .from('ProjectPoll')
             .select('vote_type')
-            .eq('project_id', parseInt(projectId))
+            .eq('project_id', projectId)
             .eq('guest_id', guestId)
             .single();
         if (myData) myVote = myData.vote_type;
@@ -77,8 +89,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   const projectId = params.id;
-  
-  // Auth Check (Optional now)
+
   const authHeader = req.headers.get('authorization');
   let userId: string | null = null;
 
@@ -89,9 +100,9 @@ export async function POST(
   }
 
   try {
-    const { voteType, guest_id } = await req.json(); // voteType: 'launch' | 'more' | 'research' | null
-    const targetUserId = userId; // Logged in user
-    const targetGuestId = !userId ? guest_id : null; // Guest only if not logged in
+    const { voteType, guest_id } = await req.json();
+    const targetUserId = userId;
+    const targetGuestId = !userId ? guest_id : null;
 
     if (!targetUserId && !targetGuestId) {
          return NextResponse.json({ error: '로그인 또는 게스트 식별이 필요합니다.' }, { status: 400 });
@@ -102,8 +113,8 @@ export async function POST(
         let query = supabaseAdmin
             .from('ProjectPoll')
             .delete()
-            .eq('project_id', parseInt(projectId));
-            
+            .eq('project_id', projectId);
+
         if (targetUserId) query = query.eq('user_id', targetUserId);
         else query = query.eq('guest_id', targetGuestId);
 
@@ -113,7 +124,7 @@ export async function POST(
     } else {
         // Upsert Vote
         const upsertData: any = {
-            project_id: parseInt(projectId),
+            project_id: projectId,
             vote_type: voteType,
             updated_at: new Date().toISOString()
         };
@@ -122,7 +133,7 @@ export async function POST(
 
         if (targetUserId) {
             upsertData.user_id = targetUserId;
-            upsertData.guest_id = null; // Clear guest id if somehow present
+            upsertData.guest_id = null;
             conflictTarget = 'project_id, user_id';
         } else {
             upsertData.user_id = null;
@@ -144,7 +155,7 @@ export async function POST(
                   .select('*', { count: 'exact', head: true })
                   .eq('user_id', targetUserId)
                   .eq('reason', `스티커 투표 보상 (Project ${projectId})`);
-                
+
                 if ((count || 0) === 0) {
                     const REWARD = 50;
                     const { data: profile } = await supabaseAdmin.from('profiles').select('points').eq('id', targetUserId).single();
