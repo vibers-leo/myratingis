@@ -96,7 +96,7 @@ export function PopupModal() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className="max-w-lg bg-white rounded-3xl p-0 overflow-hidden">
+      <DialogContent className="max-w-lg bg-white rounded-xl p-0 overflow-hidden">
         {/* Image */}
         {popup.image_url && (
           <div className="relative w-full h-64 bg-gradient-to-br from-purple-100 to-blue-100">

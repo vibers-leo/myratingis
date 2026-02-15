@@ -1315,7 +1315,7 @@ export function ProjectDetailModalV2({
                  {/* Audit Expert Section */}
                  {isAuditMode && (
                    <div className="max-w-4xl mx-auto px-6 mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                     <div className="bg-slate-950 rounded-[2.5rem] p-10 text-white relative overflow-hidden shadow-2xl border border-white/10">
+                     <div className="bg-slate-950 rounded-xl p-10 text-white relative overflow-hidden shadow-2xl border border-white/10">
                         <div className="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
                            <FontAwesomeIcon icon={faStar} className="text-9xl text-orange-500" />
                         </div>
@@ -1345,7 +1345,7 @@ export function ProjectDetailModalV2({
                   {/* Participate in Evaluation CTA */}
                   {isFeedbackRequested && !isAuthor && (
                     <div className="max-w-4xl mx-auto px-6 mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
-                       <div className="bg-orange-50/50 rounded-[2.5rem] p-10 border border-dashed border-orange-200 text-center">
+                       <div className="bg-orange-50/50 rounded-xl p-10 border border-dashed border-orange-200 text-center">
                           <h4 className="text-2xl font-black text-orange-950 mb-3 italic flex items-center justify-center gap-3">
                              <Sparkles className="text-orange-500 w-6 h-6" /> 당신의 전문적인 평가를 남겨주세요
                           </h4>

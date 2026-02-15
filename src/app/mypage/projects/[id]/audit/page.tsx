@@ -176,7 +176,7 @@ export default function AuditReportPage() {
                  { label: 'Completion', value: '98%', icon: TrendingUp, color: 'text-emerald-400' },
                  { label: 'Active Period', value: dayjs().diff(dayjs(project?.created_at), 'day') + ' Days', icon: Rocket, color: 'text-green-400' },
                ].map((stat, i) => (
-                 <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-[2rem] hover:bg-white/[0.08] transition-colors">
+                 <div key={i} className="bg-white/5 border border-white/10 p-6 rounded-xl hover:bg-white/[0.08] transition-colors">
                     <stat.icon className={cn("w-5 h-5 mb-4", stat.color)} />
                     <p className="text-slate-500 text-xs font-bold mb-1 uppercase tracking-tight">{stat.label}</p>
                     <h3 className="text-2xl font-black">{stat.value}</h3>
@@ -340,7 +340,7 @@ export default function AuditReportPage() {
                           <h5 className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center gap-2">
                              <MessageSquare className="w-3 h-3" /> 종합 개선 제안
                           </h5>
-                          <div className="text-slate-300 text-sm leading-relaxed bg-white/5 p-6 rounded-3xl border border-white/5 italic">
+                          <div className="text-slate-300 text-sm leading-relaxed bg-white/5 p-6 rounded-xl border border-white/5 italic">
                              "{r.proposal || r.comment || "별도의 총평 제안이 없습니다."}"
                           </div>
                        </div>

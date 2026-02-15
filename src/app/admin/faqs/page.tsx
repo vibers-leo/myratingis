@@ -274,7 +274,7 @@ export default function AdminFAQsPage() {
               </Card>
             ))
           ) : (
-            <div className="bg-white border border-dashed border-slate-200 rounded-[32px] py-32 text-center">
+            <div className="bg-white border border-dashed border-slate-200 rounded-xl py-32 text-center">
               <HelpCircle size={48} className="mx-auto text-slate-200 mb-6" />
               <p className="text-slate-400 text-lg">등록된 FAQ가 없습니다.</p>
             </div>
@@ -284,7 +284,7 @@ export default function AdminFAQsPage() {
 
       {/* Editor Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl bg-white rounded-3xl p-8 max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl bg-white rounded-xl p-8 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold">
               {editingFaq ? "FAQ 수정" : "새 FAQ 등록"}

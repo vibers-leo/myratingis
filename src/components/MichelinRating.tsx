@@ -368,7 +368,7 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
       <div className="w-full space-y-10 animate-in fade-in slide-in-from-right-8 duration-500">
          <div className="flex flex-col items-center gap-6">
            <div className="relative group">
-              <div className="w-32 h-32 rounded-[2.5rem] bg-chef-text text-chef-bg flex items-center justify-center shadow-2xl transition-transform group-hover:scale-110 duration-500">
+              <div className="w-32 h-32 rounded-xl bg-chef-text text-chef-bg flex items-center justify-center shadow-2xl transition-transform group-hover:scale-110 duration-500">
                  {activeCategory.sticker ? (
                    <Image src={activeCategory.sticker} alt={activeCategory.label} width={80} height={80} className="object-contain" />
                  ) : (

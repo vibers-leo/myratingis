@@ -123,7 +123,7 @@ export default function SignupPage() {
         </div>
 
         <div className="w-full max-w-md relative z-10">
-          <div className="rounded-[2.5rem] border border-white/5 p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] backdrop-blur-3xl">
+          <div className="rounded-xl border border-white/5 p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] backdrop-blur-3xl">
             {/* 로고 영역 */}
             <div className="flex justify-center mb-10">
               <Image

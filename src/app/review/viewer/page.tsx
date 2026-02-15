@@ -373,7 +373,7 @@ function ViewerContent() {
              <h3 className="text-3xl md:text-4xl font-black heading-font text-chef-text leading-tight break-keep tracking-tight">{project.title}</h3>
           </div>
           
-          <div className="bg-chef-panel/50 p-6 rounded-3xl border border-chef-border/50 shadow-inner">
+          <div className="bg-chef-panel/50 p-6 rounded-xl border border-chef-border/50 shadow-inner">
              <div 
                className="text-base font-medium text-chef-text leading-relaxed break-keep opacity-90 linkified-content"
                dangerouslySetInnerHTML={{ __html: linkify(project.summary || project.description || "프로젝트 소개가 없습니다.") }}
@@ -456,7 +456,7 @@ function ViewerContent() {
         <div className="flex flex-col items-center justify-center text-center h-full px-6 animate-in fade-in zoom-in duration-500">
             <div className="mb-8 relative">
                 <div className="absolute inset-0 bg-orange-500 blur-2xl opacity-20 rounded-full" />
-                <div className="relative bg-gradient-to-br from-orange-400 to-orange-600 w-24 h-24 rounded-[2rem] flex items-center justify-center shadow-2xl rotate-3 transform transition-transform hover:rotate-6">
+                <div className="relative bg-gradient-to-br from-orange-400 to-orange-600 w-24 h-24 rounded-xl flex items-center justify-center shadow-2xl rotate-3 transform transition-transform hover:rotate-6">
                     <CheckCircle2 size={48} className="text-white drop-shadow-md" />
                 </div>
             </div>
@@ -533,9 +533,9 @@ function ViewerContent() {
           )}
         </div>
       </div>
-      <Dialog open={confirmModal.isOpen} onOpenChange={o => setConfirmModal(p => ({ ...p, isOpen: o }))}><DialogContent className="max-w-md bg-chef-card rounded-3xl p-8"><DialogHeader><DialogTitle>{confirmModal.title}</DialogTitle><DialogDescription>{confirmModal.description}</DialogDescription></DialogHeader><DialogFooter className="mt-6"><Button variant="outline" onClick={() => setConfirmModal(p => ({ ...p, isOpen: false }))}>취소</Button><Button onClick={confirmModal.onConfirm} className="bg-orange-600 text-white">확인</Button></DialogFooter></DialogContent></Dialog>
+      <Dialog open={confirmModal.isOpen} onOpenChange={o => setConfirmModal(p => ({ ...p, isOpen: o }))}><DialogContent className="max-w-md bg-chef-card rounded-xl p-8"><DialogHeader><DialogTitle>{confirmModal.title}</DialogTitle><DialogDescription>{confirmModal.description}</DialogDescription></DialogHeader><DialogFooter className="mt-6"><Button variant="outline" onClick={() => setConfirmModal(p => ({ ...p, isOpen: false }))}>취소</Button><Button onClick={confirmModal.onConfirm} className="bg-orange-600 text-white">확인</Button></DialogFooter></DialogContent></Dialog>
       <Dialog open={isLoginGuidanceOpen} onOpenChange={setIsLoginGuidanceOpen}>
-        <DialogContent className="max-w-md bg-chef-card border-chef-border text-chef-text rounded-[2rem] p-8">
+        <DialogContent className="max-w-md bg-chef-card border-chef-border text-chef-text rounded-xl p-8">
           <DialogHeader className="space-y-3">
             <DialogTitle className="text-2xl font-black italic uppercase tracking-tighter flex items-center gap-2">
                 <ChefHat className="text-orange-500" /> 평가 위원 로그인

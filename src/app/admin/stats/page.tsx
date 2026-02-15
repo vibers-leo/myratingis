@@ -269,7 +269,7 @@ export default function AdminStatsPage() {
           { label: "홍보 아이템", value: stats.totalRecruits, icon: Briefcase, color: "text-green-600", bg: "bg-green-50" },
           { label: "활성 배너", value: stats.activeBanners, icon: TrendingUp, color: "text-purple-600", bg: "bg-purple-50" },
         ].map((item, i) => (
-          <Card key={i} className="border-none shadow-sm rounded-[28px] overflow-hidden group">
+          <Card key={i} className="border-none shadow-sm rounded-lg overflow-hidden group">
             <CardContent className="p-7">
               <div className="flex items-center justify-between mb-5">
                 <div className={`${item.bg} ${item.color} p-3.5 rounded-2xl group-hover:scale-110 transition-transform`}>
@@ -306,7 +306,7 @@ export default function AdminStatsPage() {
       </div>
 
       {activeTab === 'daily' && (
-        <Card className="border-none shadow-sm rounded-[32px] overflow-hidden bg-white">
+        <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white">
           <div className="p-8 pb-4 flex items-center justify-between">
              <CardTitle className="text-xl font-black italic">DAILY STATISTICS</CardTitle>
              <Button variant="outline" size="sm" onClick={handleExportCSV} className="text-xs">
@@ -351,7 +351,7 @@ export default function AdminStatsPage() {
       {activeTab === 'analytics' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
            {/* Device Ratio */}
-           <Card className="lg:col-span-1 border-none shadow-sm rounded-[32px] overflow-hidden bg-white p-8">
+           <Card className="lg:col-span-1 border-none shadow-sm rounded-xl overflow-hidden bg-white p-8">
               <CardTitle className="text-xl font-black italic mb-6">Device Share</CardTitle>
               <div className="flex flex-col items-center justify-center h-64">
                 <div className="flex gap-8 items-end mb-8 w-full px-8 h-40">
@@ -379,7 +379,7 @@ export default function AdminStatsPage() {
            </Card>
 
            {/* Referrer Ranking */}
-           <Card className="lg:col-span-2 border-none shadow-sm rounded-[32px] overflow-hidden bg-white">
+           <Card className="lg:col-span-2 border-none shadow-sm rounded-xl overflow-hidden bg-white">
               <div className="p-8 pb-4 flex items-center justify-between">
                  <CardTitle className="text-xl font-black italic">TOP REFERRERS</CardTitle>
               </div>
@@ -416,7 +416,7 @@ export default function AdminStatsPage() {
       )}
 
       {activeTab === 'logs' && (
-        <Card className="border-none shadow-sm rounded-[32px] overflow-hidden bg-white">
+        <Card className="border-none shadow-sm rounded-xl overflow-hidden bg-white">
           <div className="p-8 pb-4 flex items-center justify-between">
              <CardTitle className="text-xl font-black italic">SYSTEM ACTIVITY LOGS</CardTitle>
              <Badge variant="secondary" className="text-[10px] font-bold">최근 50건</Badge>

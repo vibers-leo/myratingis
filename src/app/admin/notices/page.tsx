@@ -259,7 +259,7 @@ export default function AdminNoticesPage() {
               );
             })
           ) : (
-            <div className="bg-white border-2 border-dashed border-slate-200 rounded-[32px] py-32 text-center">
+            <div className="bg-white border-2 border-dashed border-slate-200 rounded-xl py-32 text-center">
               <Megaphone size={48} className="mx-auto text-slate-200 mb-6" />
               <p className="text-slate-400 text-lg">등록된 공지사항이 없습니다.</p>
             </div>
@@ -429,7 +429,7 @@ function NoticeEditor({ initialData, onBack, onSave }: { initialData: Notice | n
             </div>
 
             {/* Cover Image */}
-            <div className="group relative w-full aspect-[21/9] bg-slate-100 rounded-3xl overflow-hidden border-2 border-dashed border-slate-200 hover:border-blue-400 transition-colors">
+            <div className="group relative w-full aspect-[21/9] bg-slate-100 rounded-xl overflow-hidden border-2 border-dashed border-slate-200 hover:border-blue-400 transition-colors">
                {coverPreview ? (
                   <>
                      <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
@@ -455,7 +455,7 @@ function NoticeEditor({ initialData, onBack, onSave }: { initialData: Notice | n
          </div>
 
          {/* 2. Editor Section */}
-         <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 min-h-[600px] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 relative z-0">
+         <div className="bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 min-h-[600px] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 relative z-0">
             <TiptapEditor 
                content={content} 
                onChange={setContent}
@@ -467,7 +467,7 @@ function NoticeEditor({ initialData, onBack, onSave }: { initialData: Notice | n
          {/* 3. Settings Cards */}
          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300">
             {/* Visibility Settings */}
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+            <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm space-y-4">
                <h3 className="font-bold text-slate-900 flex items-center gap-2">
                   <Eye size={18} /> 공개 설정
                </h3>
@@ -490,7 +490,7 @@ function NoticeEditor({ initialData, onBack, onSave }: { initialData: Notice | n
             </div>
 
             {/* Popup Settings */}
-            <div className={`p-6 rounded-3xl border shadow-sm space-y-4 transition-all ${isPopup ? 'bg-indigo-50 border-indigo-100' : 'bg-white border-slate-100'}`}>
+            <div className={`p-6 rounded-xl border shadow-sm space-y-4 transition-all ${isPopup ? 'bg-indigo-50 border-indigo-100' : 'bg-white border-slate-100'}`}>
                <div className="flex items-center justify-between">
                   <h3 className={`font-bold flex items-center gap-2 ${isPopup ? 'text-indigo-900' : 'text-slate-900'}`}>
                      <AlertCircle size={18} /> 메인 팝업 설정

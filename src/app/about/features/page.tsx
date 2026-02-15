@@ -38,7 +38,7 @@ function InteractivePreview() {
             <p className="text-chef-text opacity-50 max-w-lg mx-auto">실제 프로젝트에 적용될 피드백 기능들을 직접 체험해보세요.</p>
          </div>
 
-         <div className="bg-chef-card rounded-[2.5rem] shadow-2xl border border-chef-border/50 overflow-hidden dark:border-slate-800">
+         <div className="bg-chef-card rounded-xl shadow-2xl border border-chef-border/50 overflow-hidden dark:border-slate-800">
             {/* Tabs */}
             <div className="flex border-b border-chef-border/10 overflow-x-auto scrollbar-hide bg-gray-50/50 dark:bg-slate-900/50">
                {[
@@ -70,7 +70,7 @@ function InteractivePreview() {
                
                {activeTab === 'rating' && (
                   <div className="w-full max-w-2xl animate-in fade-in slide-in-from-bottom-4 duration-500 flex flex-col items-center gap-6">
-                     <div className="w-full bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-800">
+                     <div className="w-full bg-white dark:bg-slate-900 p-8 rounded-xl shadow-lg border border-gray-100 dark:border-slate-800">
                         <MichelinRating projectId="demo" isDemo={true} />
                      </div>
                      <p className="text-center text-xs text-chef-text opacity-40 font-mono text-[10px] tracking-widest uppercase">* 체험 모드: 데이터는 저장되지 않습니다 (Demo)</p>
@@ -78,7 +78,7 @@ function InteractivePreview() {
                )}
                {activeTab === 'poll' && (
                   <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8 transform scale-110 origin-center my-10">
-                     <div className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-lg border border-gray-100 dark:border-slate-800">
+                     <div className="bg-white dark:bg-slate-900 p-8 rounded-xl shadow-lg border border-gray-100 dark:border-slate-800">
                         <FeedbackPoll 
                            projectId="demo" 
                            initialCounts={{ launch: 120, research: 45, more: 12 }} 
@@ -96,7 +96,7 @@ function InteractivePreview() {
                )}
                {activeTab === 'proposal' && (
                   <div className="w-full max-w-lg text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-                     <div className="bg-white dark:bg-slate-900 p-10 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-slate-800 relative overflow-hidden group">
+                     <div className="bg-white dark:bg-slate-900 p-10 rounded-xl shadow-2xl border border-gray-100 dark:border-slate-800 relative overflow-hidden group">
                         <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-400 to-pink-500"></div>
                         <div className="mb-8 w-20 h-20 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded-full flex items-center justify-center mx-auto text-3xl group-hover:scale-110 transition-transform duration-300 shadow-sm">
                            💌
@@ -253,7 +253,7 @@ export default function FeaturesPage() {
                      whileInView={{ opacity: 1, y: 0 }}
                      viewport={{ once: true }}
                      transition={{ delay: i * 0.1 }}
-                     className="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] space-y-6 hover:shadow-xl transition-all hover:-translate-y-2 border border-gray-100 dark:border-slate-800 hover:border-orange-500/20"
+                     className="bg-white dark:bg-slate-900 p-10 rounded-xl space-y-6 hover:shadow-xl transition-all hover:-translate-y-2 border border-gray-100 dark:border-slate-800 hover:border-orange-500/20"
                    >
                       <div className={`w-14 h-14 ${f.bgColor} ${f.color} rounded-2xl flex items-center justify-center`}>
                          <f.icon className="w-7 h-7" />
@@ -287,7 +287,7 @@ export default function FeaturesPage() {
                 전문가의 진단과 리얼한 시장 반응을 통해 다음 단계로 도약하세요.
               </p>
               <div className="flex justify-center pt-8">
-                  <Button onClick={() => router.push('/signup')} className="h-20 px-16 rounded-3xl bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-orange-600 dark:hover:bg-orange-500 hover:text-white dark:hover:text-white font-black text-xl shadow-2xl gap-4 transition-all hover:scale-105 active:scale-95 group">
+                  <Button onClick={() => router.push('/signup')} className="h-20 px-16 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-orange-600 dark:hover:bg-orange-500 hover:text-white dark:hover:text-white font-black text-xl shadow-2xl gap-4 transition-all hover:scale-105 active:scale-95 group">
                     무료로 시작하기 <ChevronRight size={24} className="group-hover:translate-x-1 transition-transform" />
                   </Button>
               </div>

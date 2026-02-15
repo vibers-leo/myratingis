@@ -735,9 +735,9 @@ export default function MyPage() {
                      {activeTab === 'projects' && (
                         <div 
                           onClick={() => router.push('/project/upload')}
-                          className="bg-chef-card rounded-[2rem] border-2 border-dashed border-chef-border hover:border-orange-500/50 overflow-hidden hover:shadow-2xl transition-all cursor-pointer group flex items-center justify-center p-8 gap-6 shadow-sm"
+                          className="bg-chef-card rounded-xl border-2 border-dashed border-chef-border hover:border-orange-500/50 overflow-hidden hover:shadow-2xl transition-all cursor-pointer group flex items-center justify-center p-8 gap-6 shadow-sm"
                         >
-                          <div className="w-16 h-16 rounded-3xl bg-chef-panel flex items-center justify-center transition-all shadow-sm group-hover:shadow-2xl group-hover:bg-orange-600">
+                          <div className="w-16 h-16 rounded-xl bg-chef-panel flex items-center justify-center transition-all shadow-sm group-hover:shadow-2xl group-hover:bg-orange-600">
                             <Plus className="w-8 h-8 text-chef-text opacity-20 group-hover:text-white group-hover:opacity-100 transition-all" />
                           </div>
                           <div>
@@ -751,7 +751,7 @@ export default function MyPage() {
                       if (activeTab === 'projects' && projectFilter === 'active') return p.visibility === 'public';
                       return true;
                     }).map((project) => (
-                       <div key={project.id} className="bg-chef-card rounded-[2.5rem] border border-chef-border shadow-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 relative group transition-all">
+                       <div key={project.id} className="bg-chef-card rounded-xl border border-chef-border shadow-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 relative group transition-all">
                          {/* Left: Project Image */}
                          <div className="w-full md:w-72 h-48 md:h-52 bg-chef-panel rounded-[1.5rem] relative overflow-hidden shrink-0 border border-chef-border/50">
                             {/* V-Audit Status Badge */}
@@ -896,7 +896,7 @@ export default function MyPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-24 bg-chef-card rounded-[2.5rem] border border-dashed border-chef-border">
+                  <div className="flex flex-col items-center justify-center py-24 bg-chef-card rounded-xl border border-dashed border-chef-border">
                     <ChefHat className="w-16 h-16 text-chef-text opacity-10 mb-4" />
                     <h3 className="text-xl font-black text-chef-text uppercase tracking-widest">
                         {activeTab === 'comments' ? '참여한 평가가 없습니다' : (activeTab === 'audit_requests' ? '진행 중인 의뢰가 없습니다' : '등록된 프로젝트가 없습니다')}
@@ -916,7 +916,7 @@ export default function MyPage() {
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-20 bg-chef-card rounded-[2rem] border border-chef-border border-dashed">
+                <div className="flex flex-col items-center justify-center py-20 bg-chef-card rounded-xl border border-chef-border border-dashed">
                   {activeTab === 'likes' ? <Heart className="w-16 h-16 text-chef-text opacity-10 mb-4" /> : <Folder className="w-16 h-16 text-chef-text opacity-10 mb-4" />}
                   <h3 className="text-xl font-black text-chef-text uppercase tracking-widest">
                     {activeTab === 'likes' ? '찜해둔 요리가 없습니다' : '스크랩북이 비어 있습니다'}
@@ -935,7 +935,7 @@ export default function MyPage() {
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-20 bg-chef-card rounded-[2rem] border border-chef-border border-dashed">
+                <div className="flex flex-col items-center justify-center py-20 bg-chef-card rounded-xl border border-chef-border border-dashed">
                   <Send className="w-16 h-16 text-chef-text opacity-10 mb-4" />
                   <h3 className="text-xl font-black text-chef-text uppercase tracking-widest">받은 제안이 없습니다</h3>
                 </div>
@@ -993,7 +993,7 @@ export default function MyPage() {
                 </div>
 
                 {/* 오른쪽 콘텐츠 영역 */}
-                <div className="flex-1 bg-chef-card rounded-[2.5rem] border border-chef-border shadow-sm p-0 md:p-0 relative overflow-hidden group">
+                <div className="flex-1 bg-chef-card rounded-xl border border-chef-border shadow-sm p-0 md:p-0 relative overflow-hidden group">
                   {/* Futuristic Background Decor */}
                   <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl opacity-20 -mr-32 -mt-32 transition-all group-hover:opacity-40 pointer-events-none" />
                   <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl opacity-20 -ml-16 -mb-16 transition-all group-hover:opacity-40 pointer-events-none" />
@@ -1034,7 +1034,7 @@ export default function MyPage() {
                    ) : (
                     <div className="relative z-10 flex flex-col items-center justify-center h-full text-center max-w-xl mx-auto space-y-6 py-20 px-8">
                         {/* Fallback Intro or Empty State */}
-                        <div className="w-20 h-20 rounded-3xl bg-chef-panel flex items-center justify-center text-chef-text opacity-20">
+                        <div className="w-20 h-20 rounded-xl bg-chef-panel flex items-center justify-center text-chef-text opacity-20">
                              <Sparkles className="w-10 h-10" />
                         </div>
                         <p className="text-chef-text opacity-40">도구를 선택해주세요.</p>
@@ -1044,28 +1044,28 @@ export default function MyPage() {
               </div>
             )}
             {activeTab === 'settings' && userProfile && (
-               <div className="bg-chef-card rounded-[2.5rem] border border-chef-border p-8 shadow-sm">
+               <div className="bg-chef-card rounded-xl border border-chef-border p-8 shadow-sm">
                   <ProfileManager user={userProfile} onUpdate={initStats} />
                </div>
             )}
             {activeTab === 'dashboard' && isAdmin && (
                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="bg-chef-card p-8 rounded-[2rem] border border-chef-border shadow-sm space-y-2">
+                      <div className="bg-chef-card p-8 rounded-xl border border-chef-border shadow-sm space-y-2">
                           <p className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest">Total Impressions</p>
                           <h4 className="text-4xl font-black italic tracking-tighter text-chef-text">24,802</h4>
                           <div className="text-xs font-bold text-green-600 flex items-center gap-1">
                              <Rocket size={14} /> +12% from last week
                           </div>
                       </div>
-                      <div className="bg-chef-card p-8 rounded-[2rem] border border-chef-border shadow-sm space-y-2">
+                      <div className="bg-chef-card p-8 rounded-xl border border-chef-border shadow-sm space-y-2">
                           <p className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest">Feedback Rate</p>
                           <h4 className="text-4xl font-black italic tracking-tighter text-chef-text">4.8%</h4>
                           <div className="text-xs font-bold text-orange-600 flex items-center gap-1">
                              <Sparkles size={14} /> High Engagement
                           </div>
                       </div>
-                      <div className="bg-chef-card p-8 rounded-[2rem] border border-chef-border shadow-sm space-y-2">
+                      <div className="bg-chef-card p-8 rounded-xl border border-chef-border shadow-sm space-y-2">
                           <p className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest">Conversion Point</p>
                           <h4 className="text-4xl font-black italic tracking-tighter text-chef-text">860P</h4>
                           <div className="text-xs font-bold text-blue-600 flex items-center gap-1">
@@ -1074,7 +1074,7 @@ export default function MyPage() {
                       </div>
                   </div>
                   
-                  <div className="bg-chef-card p-10 rounded-[2.5rem] border border-chef-border shadow-sm min-h-[400px] flex flex-col items-center justify-center text-center space-y-6">
+                  <div className="bg-chef-card p-10 rounded-xl border border-chef-border shadow-sm min-h-[400px] flex flex-col items-center justify-center text-center space-y-6">
                       <div className="w-20 h-20 bg-orange-600/10 rounded-full flex items-center justify-center text-orange-600">
                          <BarChart size={40} />
                       </div>
@@ -1197,14 +1197,14 @@ export default function MyPage() {
       )}
       {/* Share Modal */}
       <Dialog open={shareModalOpen} onOpenChange={setShareModalOpen}>
-        <DialogContent className="max-w-md bg-chef-card border-chef-border text-chef-text rounded-[2.5rem] p-10 overflow-hidden">
+        <DialogContent className="max-w-md bg-chef-card border-chef-border text-chef-text rounded-xl p-10 overflow-hidden">
           <div className="space-y-8">
             <div className="text-center space-y-2">
               <h3 className="text-3xl font-black tracking-tighter uppercase italic">프로젝트 공유</h3>
               <p className="text-xs font-bold text-chef-text opacity-40 uppercase tracking-widest">링크 또는 QR코드로 공유하세요</p>
             </div>
 
-            <div className="flex flex-col items-center gap-6 p-8 bg-chef-panel rounded-[2rem] border border-chef-border/50">
+            <div className="flex flex-col items-center gap-6 p-8 bg-chef-panel rounded-xl border border-chef-border/50">
                <div className="p-4 bg-white rounded-2xl shadow-2xl">
                    <QRCodeCanvas 
                     value={`${typeof window !== 'undefined' ? window.location.origin : ''}/review/viewer?projectId=${sharingProject?.id}`} 

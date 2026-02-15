@@ -510,7 +510,7 @@ export default function ReportPage() {
             <motion.section 
                 initial={{ y: -20, opacity: 0 }} 
                 animate={{ y: 0, opacity: 1 }}
-                className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 p-8 rounded-[2rem] border border-indigo-500/30 mb-12 relative overflow-hidden ring-1 ring-inset ring-white/10"
+                className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 p-8 rounded-xl border border-indigo-500/30 mb-12 relative overflow-hidden ring-1 ring-inset ring-white/10"
             >
                  <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
                  

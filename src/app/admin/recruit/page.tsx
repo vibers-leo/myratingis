@@ -894,7 +894,7 @@ export default function AdminRecruitPage() {
                     return (
                       <div
                         key={item.id}
-                        className={`flex items-start gap-4 p-5 bg-white border border-gray-100 rounded-[24px] shadow-sm hover:shadow-md transition-all ${
+                        className={`flex items-start gap-4 p-5 bg-white border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition-all ${
                           isExpired ? "opacity-60" : ""
                         }`}
                       >

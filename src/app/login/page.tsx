@@ -123,7 +123,7 @@ function LoginContent() {
 
         <div className="w-full max-w-md relative z-10">
           <div 
-            className="rounded-[2.5rem] p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] border-2 border-white/5 backdrop-blur-3xl"
+            className="rounded-xl p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] border-2 border-white/5 backdrop-blur-3xl"
           >
             {/* 로고 영역 */}
             <div className="flex justify-center mb-10">

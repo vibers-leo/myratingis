@@ -96,7 +96,7 @@ export function ProposalModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md rounded-[2rem] border-none shadow-2xl p-0 overflow-hidden">
+      <DialogContent className="max-w-md rounded-xl border-none shadow-2xl p-0 overflow-hidden">
         <div className="bg-gradient-to-r from-emerald-500 to-teal-600 h-2 w-full" />
         
         <div className="p-8">

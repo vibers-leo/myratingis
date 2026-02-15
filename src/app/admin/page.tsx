@@ -391,7 +391,7 @@ export default function AdminPage() {
           { label: "프로젝트 등록수", value: stats.totalProjects, icon: FileText, color: "text-indigo-600", bg: "bg-indigo-50" },
           { label: "채용/공모 등록수", value: stats.totalRecruitItems, icon: Briefcase, color: "text-green-600", bg: "bg-green-50" },
         ].map((item, i) => (
-          <Card key={i} className="border-none shadow-sm hover:shadow-md transition-shadow duration-300 rounded-[24px] overflow-hidden">
+          <Card key={i} className="border-none shadow-sm hover:shadow-md transition-shadow duration-300 rounded-lg overflow-hidden">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className={`${item.bg} ${item.color} p-3 rounded-2xl`}>
@@ -416,7 +416,7 @@ export default function AdminPage() {
       </div>
 
       {/* Full Width Chart Section */}
-      <Card className="border-none shadow-sm rounded-[32px] overflow-hidden p-8 flex flex-col justify-between min-h-[500px] bg-white">
+      <Card className="border-none shadow-sm rounded-xl overflow-hidden p-8 flex flex-col justify-between min-h-[500px] bg-white">
           <div>
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-4">
@@ -510,7 +510,7 @@ export default function AdminPage() {
       {/* Recent Activities Split View */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Projects */}
-          <Card className="border-none shadow-sm rounded-[32px] overflow-hidden p-6 flex flex-col bg-white min-h-[400px]">
+          <Card className="border-none shadow-sm rounded-xl overflow-hidden p-6 flex flex-col bg-white min-h-[400px]">
             <div className="flex items-center justify-between mb-6">
                 <CardTitle className="text-lg font-black italic flex items-center gap-2">
                     <span className="w-1.5 h-6 bg-indigo-500 rounded-full inline-block"></span>
@@ -541,7 +541,7 @@ export default function AdminPage() {
           </Card>
 
           {/* Inquiries */}
-          <Card className="border-none shadow-sm rounded-[32px] overflow-hidden p-6 flex flex-col bg-white min-h-[400px]">
+          <Card className="border-none shadow-sm rounded-xl overflow-hidden p-6 flex flex-col bg-white min-h-[400px]">
              <div className="flex items-center justify-between mb-6">
                 <CardTitle className="text-lg font-black italic flex items-center gap-2">
                     <span className="w-1.5 h-6 bg-orange-500 rounded-full inline-block"></span>

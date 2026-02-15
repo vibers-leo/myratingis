@@ -61,16 +61,20 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
           const isAudit = data.custom_data?.audit_config || data.audit_deadline || data.type === 'audit';
           if (!isAudit) return null;
 
-          // Determine Rating Count (Supabase에서는 이미 트리거로 관리됨)
-          let realRatingCount = data.evaluations_count || 0;
-
-          // User Interaction (Parallel)
+          // User Interaction + Rating Count (Parallel)
           let isLiked = false;
           let hasRated = false;
+          let realRatingCount = 0;
+
+          // ProjectRating에서 실제 평가 수 조회
+          const ratingCountPromise = (supabase as any)
+            .from('ProjectRating')
+            .select('id', { count: 'exact', head: true })
+            .eq('project_id', data.id);
 
           if (user) {
               try {
-                  const [likeResult, evalResult] = await Promise.all([
+                  const [likeResult, evalResult, countResult] = await Promise.all([
                       // 좋아요 여부 확인
                       (supabase as any)
                         .from('project_likes')
@@ -78,21 +82,28 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                         .eq('project_id', data.id)
                         .eq('user_id', user.id)
                         .single(),
-                      // 평가 여부 확인
+                      // 평가 여부 확인 (ProjectRating 테이블에서)
                       (supabase as any)
-                        .from('evaluations')
+                        .from('ProjectRating')
                         .select('id')
                         .eq('project_id', data.id)
                         .eq('user_id', user.id)
                         .limit(1)
-                        .single()
+                        .single(),
+                      ratingCountPromise
                   ]);
 
                   isLiked = !likeResult.error && !!likeResult.data;
                   hasRated = !evalResult.error && !!evalResult.data;
+                  realRatingCount = countResult?.count || 0;
               } catch(e) {
                   // 에러 무시 (데이터 없을 수 있음)
               }
+          } else {
+              try {
+                  const countResult = await ratingCountPromise;
+                  realRatingCount = countResult?.count || 0;
+              } catch(e) {}
           }
 
           // View Count Correction (Wayo) - Supabase 버전
@@ -259,7 +270,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="mb-12 p-8 rounded-[2rem] bg-gradient-to-r from-orange-600 to-orange-500 text-white relative overflow-hidden shadow-2xl"
+            className="mb-12 p-8 rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 text-white relative overflow-hidden shadow-2xl"
           >
             <div className="absolute top-0 right-0 p-8 opacity-10">
                <ChefHat size={120} />
@@ -272,8 +283,8 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                   <p className="text-white/80 font-bold">로그인하고 셰프가 되어 프로젝트를 평가해보세요. <br className="hidden md:block" />참여 시 다양한 리워드와 전문성 배지가 제공됩니다.</p>
                </div>
                <div className="flex gap-3">
-                  <Button onClick={() => router.push('/login')} variant="secondary" className="h-14 px-8 rounded-2xl font-black bg-white text-orange-600 hover:bg-white/90">로그인하기</Button>
-                  <Button onClick={() => router.push('/signup')} variant="outline" className="h-14 px-8 rounded-2xl font-black border-2 border-white text-white bg-transparent hover:bg-white/10">회원가입</Button>
+                  <Button onClick={() => router.push('/login')} variant="secondary" className="h-14 px-8 rounded-lg font-black bg-white text-orange-600 hover:bg-white/90">로그인하기</Button>
+                  <Button onClick={() => router.push('/signup')} variant="outline" className="h-14 px-8 rounded-lg font-black border-2 border-white text-white bg-transparent hover:bg-white/10">회원가입</Button>
                </div>
             </div>
           </motion.div>
@@ -296,11 +307,11 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   whileHover={{ x: 4 }}
-                  className="group relative flex flex-col md:flex-row gap-8 bg-chef-card border border-chef-border p-6 md:p-8 rounded-[2.5rem] shadow-xl hover:shadow-2xl transition-all duration-300"
+                  className="group relative flex flex-col md:flex-row gap-8 bg-chef-card border border-chef-border p-6 md:p-8 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300"
                 >
                    {/* Left: Thumbnail Section */}
                    <div 
-                     className="w-full md:w-80 aspect-video md:aspect-[16/10] rounded-3xl overflow-hidden bg-chef-panel shrink-0 border border-chef-border relative cursor-pointer group"
+                     className="w-full md:w-80 aspect-video md:aspect-[16/10] rounded-lg overflow-hidden bg-chef-panel shrink-0 border border-chef-border relative cursor-pointer group"
                      onClick={() => handleProjectRoute(p)}
                    >
                       {(() => {
@@ -383,11 +394,9 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                         <div className="flex items-center gap-1.5 ml-auto md:ml-0">
                            <Clock className="w-3.5 h-3.5 text-chef-text opacity-20" />
                            <span className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest leading-none">
-                            {p.audit_deadline 
-                                ? (p.audit_deadline.toDate 
-                                    ? p.audit_deadline.toDate().toLocaleDateString() 
-                                    : new Date(p.audit_deadline).toLocaleDateString())
-                                : "Ongoing"}
+                            {p.created_at
+                                ? new Date(p.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
+                                : "N/A"}
                            </span>
                         </div>
                       </div>
@@ -434,7 +443,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                       {p.has_rated && isAuthenticated ? (
                         <Button 
                           onClick={() => router.push(`/report/${p.project_id}`)}
-                          className="h-14 rounded-2xl bevel-cta bg-green-600 hover:bg-green-700 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-green-600/10"
+                          className="h-14 rounded-lg bevel-cta bg-green-600 hover:bg-green-700 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-green-600/10"
                         >
                           {showCumulative ? "평가 결과 리포트" : "내 평가 결과 보기"}
                         </Button>

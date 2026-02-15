@@ -73,7 +73,7 @@ export default function FeedbackFeaturesPage() {
                   </ul>
                </div>
                <div className="flex-1 order-1 md:order-2 flex justify-center">
-                  <div className="w-full max-w-md aspect-square bg-gradient-to-br from-red-500 to-orange-400 rounded-3xl shadow-2xl flex items-center justify-center relative p-8 transform hover:scale-105 transition-transform duration-500">
+                  <div className="w-full max-w-md aspect-square bg-gradient-to-br from-red-500 to-orange-400 rounded-xl shadow-2xl flex items-center justify-center relative p-8 transform hover:scale-105 transition-transform duration-500">
                       <div className="bg-white/90 backdrop-blur rounded-2xl p-6 w-full shadow-lg">
                           <div className="flex justify-center gap-2 mb-2">
                              {[1,2,3].map(i => (
@@ -98,7 +98,7 @@ export default function FeedbackFeaturesPage() {
          <div className="container mx-auto px-6">
             <div className="flex flex-col md:flex-row items-center gap-16">
                <div className="flex-1 flex justify-center">
-                  <div className="w-full max-w-md aspect-square bg-gradient-to-br from-blue-400 to-indigo-500 rounded-3xl shadow-2xl flex items-center justify-center p-8 transform hover:rotate-3 transition-transform duration-500">
+                  <div className="w-full max-w-md aspect-square bg-gradient-to-br from-blue-400 to-indigo-500 rounded-xl shadow-2xl flex items-center justify-center p-8 transform hover:rotate-3 transition-transform duration-500">
                       <div className="grid grid-cols-2 gap-4 w-full">
                           <div className="bg-white rounded-2xl p-4 flex flex-col items-center gap-2 shadow-sm hover:-translate-y-2 transition-transform">
                               <span className="text-4xl">🎨</span>
@@ -161,7 +161,7 @@ export default function FeedbackFeaturesPage() {
                   </Button>
                </div>
                <div className="flex-1 order-1 md:order-2 flex justify-center">
-                  <div className="w-full max-w-md p-8 bg-gray-900 text-white rounded-3xl shadow-2xl relative overflow-hidden group">
+                  <div className="w-full max-w-md p-8 bg-gray-900 text-white rounded-xl shadow-2xl relative overflow-hidden group">
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 to-green-500"></div>
                       <div className="flex items-center gap-3 mb-6">
                           <FontAwesomeIcon icon={faLock} className="text-emerald-400" />

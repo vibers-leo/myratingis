@@ -149,7 +149,7 @@ function IntroContent() {
               <Button 
                 disabled={!isDataLoaded}
                 onClick={handleStartReview}
-                className="h-20 px-16 rounded-[2.5rem] bg-white text-black hover:bg-orange-500 hover:text-white text-2xl font-black shadow-2xl transition-all hover:scale-105 active:scale-95 flex items-center gap-4 group"
+                className="h-20 px-16 rounded-xl bg-white text-black hover:bg-orange-500 hover:text-white text-2xl font-black shadow-2xl transition-all hover:scale-105 active:scale-95 flex items-center gap-4 group"
               >
                 <Rocket className="w-8 h-8 group-hover:animate-bounce" />
                 평가 시작하기

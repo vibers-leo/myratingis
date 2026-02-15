@@ -32,10 +32,10 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="min-h-screen bg-slate-50 py-20 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-[40px] p-8 md:p-20 shadow-xl shadow-slate-200/50 border border-slate-100 font-sans">
+        <div className="bg-white rounded-xl p-8 md:p-20 shadow-xl shadow-slate-200/50 border border-slate-100 font-sans">
           {/* Header */}
           <header className="mb-20 text-center">
-            <div className="w-20 h-20 bg-blue-100 rounded-[28px] flex items-center justify-center mx-auto mb-8 shadow-inner">
+            <div className="w-20 h-20 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-8 shadow-inner">
               <Lock className="w-10 h-10 text-blue-600" />
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 tracking-tight">개인정보처리방침</h1>
@@ -47,7 +47,7 @@ export default function PrivacyPolicyPage() {
           {/* Quick Summary Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-20">
             {sections.map(s => (
-              <div key={s.id} className="p-8 rounded-3xl bg-slate-50/70 border border-slate-100 hover:bg-white hover:shadow-lg transition-all">
+              <div key={s.id} className="p-8 rounded-xl bg-slate-50/70 border border-slate-100 hover:bg-white hover:shadow-lg transition-all">
                 <div className="mb-4">{s.icon}</div>
                 <h3 className="text-xl font-bold text-slate-900 mb-3">{s.title}</h3>
                 <p className="text-slate-600 leading-relaxed text-sm">
@@ -99,7 +99,7 @@ export default function PrivacyPolicyPage() {
           </div>
 
           {/* Contact Representative */}
-          <div className="mt-20 p-8 rounded-3xl bg-blue-50 flex items-center gap-6">
+          <div className="mt-20 p-8 rounded-xl bg-blue-50 flex items-center gap-6">
             <img src="/logo.svg" alt="MyRatingIs" className="w-16 h-16 opacity-50 hidden sm:block" />
             <div>
               <h4 className="font-bold text-blue-900 mb-2">개인정보 보호 책임자</h4>

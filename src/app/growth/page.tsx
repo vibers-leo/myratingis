@@ -50,13 +50,13 @@ function GrowthOnboardingModal({ onAgree }: { onAgree: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-       <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 max-w-md w-full shadow-2xl scale-100 animate-in zoom-in-95 duration-300 relative overflow-hidden border border-orange-500/20">
+       <div className="bg-white dark:bg-slate-900 rounded-xl p-10 max-w-md w-full shadow-2xl scale-100 animate-in zoom-in-95 duration-300 relative overflow-hidden border border-orange-500/20">
           <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-orange-500">
              <Trophy className="w-40 h-40 -rotate-12" />
           </div>
 
           <div className="text-center mb-8 relative z-10">
-             <div className="w-20 h-20 bg-orange-50 dark:bg-orange-950/30 text-orange-600 rounded-3xl flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner border border-orange-100 dark:border-orange-900/30">
+             <div className="w-20 h-20 bg-orange-50 dark:bg-orange-950/30 text-orange-600 rounded-xl flex items-center justify-center mx-auto mb-6 text-3xl shadow-inner border border-orange-100 dark:border-orange-900/30">
                 👑
              </div>
              <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4 tracking-tighter italic uppercase">명예로운 참여</h2>

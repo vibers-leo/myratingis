@@ -99,7 +99,7 @@ export default function ServicePage() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="group bg-white p-10 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-xl hover:-translate-y-2">
+            <div className="group bg-white p-10 rounded-xl border border-slate-100 shadow-sm transition-all hover:shadow-xl hover:-translate-y-2">
               <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-green-600 transition-colors">
                 <Palette className="w-7 h-7 text-green-600 group-hover:text-white transition-colors" />
               </div>
@@ -110,7 +110,7 @@ export default function ServicePage() {
               </p>
             </div>
             
-            <div className="group bg-white p-10 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-xl hover:-translate-y-2">
+            <div className="group bg-white p-10 rounded-xl border border-slate-100 shadow-sm transition-all hover:shadow-xl hover:-translate-y-2">
               <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-blue-600 transition-colors">
                 <Users className="w-7 h-7 text-blue-600 group-hover:text-white transition-colors" />
               </div>
@@ -121,7 +121,7 @@ export default function ServicePage() {
               </p>
             </div>
             
-            <div className="group bg-white p-10 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-xl hover:-translate-y-2">
+            <div className="group bg-white p-10 rounded-xl border border-slate-100 shadow-sm transition-all hover:shadow-xl hover:-translate-y-2">
               <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-purple-600 transition-colors">
                 <Zap className="w-7 h-7 text-purple-600 group-hover:text-white transition-colors" />
               </div>
@@ -156,14 +156,14 @@ export default function ServicePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-24">
              {/* Feature 1 */}
              <div className="group">
-                <div className="relative aspect-[16/10] bg-slate-50 rounded-[40px] overflow-hidden shadow-sm border border-slate-100 mb-8 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-purple-500/10 group-hover:-translate-y-2">
+                <div className="relative aspect-[16/10] bg-slate-50 rounded-xl overflow-hidden shadow-sm border border-slate-100 mb-8 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-purple-500/10 group-hover:-translate-y-2">
                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-white to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                    
                    {/* Visual Placeholder */}
                    <div className="absolute inset-0 flex items-center justify-center">
                       <div className="relative">
                         <div className="absolute inset-0 bg-purple-400 blur-[60px] opacity-20 animate-pulse"></div>
-                        <div className="w-32 h-32 bg-white rounded-[2rem] shadow-xl flex items-center justify-center relative z-10 border border-slate-50 group-hover:scale-110 transition-transform duration-500">
+                        <div className="w-32 h-32 bg-white rounded-xl shadow-xl flex items-center justify-center relative z-10 border border-slate-50 group-hover:scale-110 transition-transform duration-500">
                           <Palette className="w-12 h-12 text-purple-600" strokeWidth={1.5} />
                         </div>
                         {/* Decor elements */}
@@ -191,12 +191,12 @@ export default function ServicePage() {
 
              {/* Feature 2: Staggered on Desktop */}
              <div className="group md:mt-24">
-                <div className="relative aspect-[16/10] bg-slate-50 rounded-[40px] overflow-hidden shadow-sm border border-slate-100 mb-8 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-green-500/10 group-hover:-translate-y-2">
+                <div className="relative aspect-[16/10] bg-slate-50 rounded-xl overflow-hidden shadow-sm border border-slate-100 mb-8 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-green-500/10 group-hover:-translate-y-2">
                    <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-white to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                    <div className="absolute inset-0 flex items-center justify-center">
                       <div className="relative">
                         <div className="absolute inset-0 bg-green-400 blur-[60px] opacity-20 animate-pulse"></div>
-                        <div className="w-32 h-32 bg-white rounded-[2rem] shadow-xl flex items-center justify-center relative z-10 border border-slate-50 group-hover:scale-110 transition-transform duration-500">
+                        <div className="w-32 h-32 bg-white rounded-xl shadow-xl flex items-center justify-center relative z-10 border border-slate-50 group-hover:scale-110 transition-transform duration-500">
                           <Globe className="w-12 h-12 text-green-600" strokeWidth={1.5} />
                         </div>
                          <div className="absolute top-1/2 -right-12 -translate-y-1/2 bg-white px-4 py-2 rounded-xl shadow-lg border border-slate-100 text-xs font-bold text-slate-600 animate-pulse delay-75">
@@ -220,12 +220,12 @@ export default function ServicePage() {
 
              {/* Feature 3 */}
              <div className="group">
-                <div className="relative aspect-[16/10] bg-slate-50 rounded-[40px] overflow-hidden shadow-sm border border-slate-100 mb-8 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-orange-500/10 group-hover:-translate-y-2">
+                <div className="relative aspect-[16/10] bg-slate-50 rounded-xl overflow-hidden shadow-sm border border-slate-100 mb-8 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-orange-500/10 group-hover:-translate-y-2">
                    <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 via-white to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                    <div className="absolute inset-0 flex items-center justify-center">
                       <div className="relative">
                         <div className="absolute inset-0 bg-orange-400 blur-[60px] opacity-20 animate-pulse"></div>
-                        <div className="w-32 h-32 bg-white rounded-[2rem] shadow-xl flex items-center justify-center relative z-10 border border-slate-50 group-hover:scale-110 transition-transform duration-500">
+                        <div className="w-32 h-32 bg-white rounded-xl shadow-xl flex items-center justify-center relative z-10 border border-slate-50 group-hover:scale-110 transition-transform duration-500">
                           <Users className="w-12 h-12 text-orange-500" strokeWidth={1.5} />
                         </div>
                         {/* Chat bubbles */}
@@ -255,12 +255,12 @@ export default function ServicePage() {
 
              {/* Feature 4: Staggered on Desktop */}
              <div className="group md:mt-24">
-                <div className="relative aspect-[16/10] bg-slate-50 rounded-[40px] overflow-hidden shadow-sm border border-slate-100 mb-8 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-blue-500/10 group-hover:-translate-y-2">
+                <div className="relative aspect-[16/10] bg-slate-50 rounded-xl overflow-hidden shadow-sm border border-slate-100 mb-8 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-blue-500/10 group-hover:-translate-y-2">
                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-white to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                    <div className="absolute inset-0 flex items-center justify-center">
                       <div className="relative">
                         <div className="absolute inset-0 bg-blue-400 blur-[60px] opacity-20 animate-pulse"></div>
-                        <div className="w-32 h-32 bg-white rounded-[2rem] shadow-xl flex items-center justify-center relative z-10 border border-slate-50 group-hover:scale-110 transition-transform duration-500">
+                        <div className="w-32 h-32 bg-white rounded-xl shadow-xl flex items-center justify-center relative z-10 border border-slate-50 group-hover:scale-110 transition-transform duration-500">
                           <BarChart3 className="w-12 h-12 text-blue-600" strokeWidth={1.5} />
                         </div>
                         {/* Graph visual */}

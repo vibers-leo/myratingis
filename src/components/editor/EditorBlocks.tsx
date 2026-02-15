@@ -295,7 +295,7 @@ export function AssetModal({ isOpen, onClose, assets = [], onAssetsChange }: Ass
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl mx-4 animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[90vh]">
         <div className="flex items-start justify-between p-8 border-b border-gray-50 bg-white sticky top-0 z-10">
           <div>
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">다운로드 가능한 자산 첨부</h2>
@@ -618,7 +618,7 @@ export function SettingsModal({ isOpen, onClose, onSave }: SettingsModalProps) {
 
   return (
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="bg-white rounded-[32px] shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden flex flex-col animate-in zoom-in-95 duration-300">
         {/* Header */}
         <div className="flex items-center justify-between p-8 border-b border-gray-50 flex-shrink-0">
           <div>
@@ -739,7 +739,7 @@ export function SettingsModal({ isOpen, onClose, onSave }: SettingsModalProps) {
             </div>
 
             {/* 5. 성인 콘텐츠 설정 */}
-            <div className="flex items-center justify-between p-6 bg-gray-50 rounded-3xl border border-gray-100">
+            <div className="flex items-center justify-between p-6 bg-gray-50 rounded-xl border border-gray-100">
               <div>
                 <p className="font-bold text-gray-900 text-sm">민감한 콘텐츠 포함</p>
                 <p className="text-[11px] text-gray-500 mt-0.5">성인물 또는 폭력적인 내용이 포함되어 있나요?</p>

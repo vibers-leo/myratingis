@@ -102,7 +102,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl bg-chef-card border border-chef-border rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row h-[80vh]">
+      <div className="w-full max-w-4xl bg-chef-card border border-chef-border rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-[80vh]">
         {/* Left Side: Progress & Info */}
         <div className="w-full md:w-1/3 bg-chef-panel border-r border-chef-border p-8 flex flex-col">
             <h1 className="font-black text-2xl italic tracking-tighter text-chef-text mb-8">

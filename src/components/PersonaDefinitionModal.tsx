@@ -104,7 +104,7 @@ ${personaData.frustrations}
 
         <div className="flex-1 overflow-y-auto p-6 scrollbar-thin bg-gray-50">
           {/* Persona Card Layout */}
-          <div className="max-w-6xl mx-auto bg-white rounded-3xl overflow-hidden shadow-xl border border-gray-200 flex flex-col md:flex-row min-h-[600px]">
+          <div className="max-w-6xl mx-auto bg-white rounded-xl overflow-hidden shadow-xl border border-gray-200 flex flex-col md:flex-row min-h-[600px]">
              {/* Left Column: Profile Image & Basic Info */}
              <div className="md:w-1/3 bg-gray-900 text-white p-8 flex flex-col gap-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500 rounded-full blur-3xl opacity-20 -mr-32 -mt-32"></div>

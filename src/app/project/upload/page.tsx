@@ -909,7 +909,7 @@ export default function ProjectUploadPage() {
               initial={{ scale: 0.9, y: 20 }} 
               animate={{ scale: 1, y: 0 }} 
               exit={{ scale: 0.9, y: 20 }} 
-              className="bg-[#0a0a0a] border border-white/10 w-full max-w-md rounded-[2rem] p-8 relative shadow-2xl"
+              className="bg-[#0a0a0a] border border-white/10 w-full max-w-md rounded-xl p-8 relative shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
                <button 

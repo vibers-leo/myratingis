@@ -420,13 +420,13 @@ export default function AdminBannersPage() {
         <TabsContent value="dedicated">
           <div className="grid grid-cols-1 gap-6">
             {loading && banners.length === 0 ? (
-              <div className="text-center py-24 bg-white rounded-[32px] border border-dashed border-slate-200">
+              <div className="text-center py-24 bg-white rounded-xl border border-dashed border-slate-200">
                 <Loader2 className="animate-spin mx-auto text-slate-200 mb-4" size={40} />
                 <p className="text-slate-300 font-bold">배너 목록을 불러오는 중...</p>
               </div>
             ) : banners.length > 0 ? (
               banners.map(banner => (
-                <Card key={banner.id} className={`group overflow-hidden transition-all duration-300 hover:shadow-xl border-none p-1 rounded-[32px] ${!banner.is_active ? "opacity-50 grayscale" : "bg-white shadow-sm"}`}>
+                <Card key={banner.id} className={`group overflow-hidden transition-all duration-300 hover:shadow-xl border-none p-1 rounded-xl ${!banner.is_active ? "opacity-50 grayscale" : "bg-white shadow-sm"}`}>
                   <CardHeader className="flex flex-row items-center justify-between p-6 pr-8">
                     <div className="flex items-center gap-6 flex-1">
                       <div 
@@ -475,7 +475,7 @@ export default function AdminBannersPage() {
                 </Card>
               ))
             ) : (
-              <div className="bg-white border border-dashed border-slate-200 rounded-[40px] py-32 text-center shadow-sm">
+              <div className="bg-white border border-dashed border-slate-200 rounded-xl py-32 text-center shadow-sm">
                 <ImageIcon size={56} className="mx-auto text-slate-100 mb-6" />
                 <p className="text-slate-400 font-bold text-lg tracking-tighter italic">등록된 전용 배너가 없습니다.</p>
               </div>
@@ -493,7 +493,7 @@ export default function AdminBannersPage() {
               </h3>
               <div className="grid grid-cols-1 gap-4">
                 {allPromotedItems.filter(i => i.show_as_banner).map(item => (
-                  <Card key={item.id} className="border-none bg-white shadow-sm rounded-[24px] overflow-hidden group">
+                  <Card key={item.id} className="border-none bg-white shadow-sm rounded-lg overflow-hidden group">
                      <div className="p-4 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                           <div className="relative group/img">
@@ -551,7 +551,7 @@ export default function AdminBannersPage() {
                   </Card>
                 ))}
                 {allPromotedItems.filter(i => i.show_as_banner).length === 0 && (
-                   <div className="py-12 text-center bg-slate-50/50 rounded-[24px] border border-dashed border-slate-200">
+                   <div className="py-12 text-center bg-slate-50/50 rounded-lg border border-dashed border-slate-200">
                      <p className="text-slate-300 font-bold text-sm italic">노출 중인 홍보 항목이 없습니다.</p>
                    </div>
                 )}
@@ -563,7 +563,7 @@ export default function AdminBannersPage() {
               <h3 className="text-sm font-black text-slate-400 mb-4 px-2 uppercase tracking-widest">추가 가능한 항목</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                  {allPromotedItems.filter(i => !i.show_as_banner).map(item => (
-                    <Card key={item.id} className="border-none bg-white shadow-sm rounded-[28px] p-5 hover:shadow-xl transition-all group">
+                    <Card key={item.id} className="border-none bg-white shadow-sm rounded-lg p-5 hover:shadow-xl transition-all group">
                        <div className="w-full h-32 rounded-2xl bg-slate-100 bg-cover bg-center mb-4 shadow-inner" style={{ backgroundImage: `url(${item.thumbnail})` }} />
                        <Badge variant="outline" className="text-[9px] font-black uppercase mb-2">{item.type}</Badge>
                        <h4 className="font-bold text-slate-900 group-hover:text-[#16A34A] transition-colors mb-2 line-clamp-1">{item.title}</h4>
@@ -614,7 +614,7 @@ function EditorModal({
 }: any) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl bg-white rounded-3xl p-8 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl bg-white rounded-xl p-8 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">
             {editingBanner ? "배너 수정" : "새 배너 등록"}
@@ -662,7 +662,7 @@ function EditorModal({
               onChange={(e) => setFormData({...formData, image_url: e.target.value})}
             />
             {formData.image_url && (
-              <div className="relative w-full aspect-[16/6] rounded-3xl overflow-hidden bg-slate-100 border border-slate-200 group">
+              <div className="relative w-full aspect-[16/6] rounded-xl overflow-hidden bg-slate-100 border border-slate-200 group">
                 <div 
                   className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" 
                   style={{ backgroundImage: `url(${formData.image_url})` }} 
@@ -820,7 +820,7 @@ function ImportModal({
 }: any) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl bg-white rounded-3xl p-8 max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl bg-white rounded-xl p-8 max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             <Zap className="text-yellow-500 fill-yellow-500" />

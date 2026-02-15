@@ -109,7 +109,7 @@ export function MyRatingIsHeader() {
                 </button>
 
                 {isMenuOpen && (
-                  <div className="absolute top-full right-0 mt-4 w-60 bg-chef-card border border-chef-border py-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-3xl animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
+                  <div className="absolute top-full right-0 mt-4 w-60 bg-chef-card border border-chef-border py-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-xl animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
                     <div className="px-5 py-4 border-b border-chef-border/50 mb-2 bg-chef-panel/30">
                         <p className="text-[10px] font-black text-chef-text opacity-30 uppercase tracking-widest mb-1">My Account</p>
                         <p className="text-sm font-black text-chef-text truncate">{(userProfile as any)?.nickname || userProfile?.username || user?.user_metadata?.full_name || "Chef"}</p>
@@ -197,7 +197,7 @@ export function MyRatingIsHeader() {
               {/* User Section */}
               {isAuthenticated && user ? (
                  <div className="mb-10 space-y-6">
-                    <div className="flex items-center gap-4 p-4 rounded-[2rem] bg-white/5 border border-white/10 shadow-inner">
+                    <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 shadow-inner">
                         <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-2xl font-black text-white shadow-lg shrink-0">
                            {userProfile?.username?.charAt(0) || "U"}
                         </div>
@@ -273,7 +273,7 @@ export function MyRatingIsHeader() {
                          animate={{ opacity: 1, x: 0 }}
                          transition={{ delay: 0.1 * i }}
                          className={cn(
-                           "group flex items-center justify-between p-6 rounded-[2rem] border transition-all active:scale-95",
+                           "group flex items-center justify-between p-6 rounded-xl border transition-all active:scale-95",
                            link.highlight 
                              ? "bg-orange-600 border-orange-500 shadow-[0_10px_30px_rgba(234,88,12,0.3)]" 
                              : "bg-white/5 border-white/5 hover:bg-white/10"

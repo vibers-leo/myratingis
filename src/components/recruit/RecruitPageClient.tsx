@@ -785,7 +785,7 @@ export default function RecruitPage() {
                       </label>
                       
                       <div 
-                        className={`relative group h-48 rounded-[32px] border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center overflow-hidden bg-slate-50 cursor-pointer ${
+                        className={`relative group h-48 rounded-xl border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center overflow-hidden bg-slate-50 cursor-pointer ${
                           formData.thumbnail ? 'border-[#16A34A] bg-[#16A34A]/5' : 'border-slate-200 hover:border-[#16A34A] hover:bg-slate-100'
                         }`}
                         onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-[#16A34A]', 'bg-[#16A34A]/5'); }}
@@ -860,7 +860,7 @@ export default function RecruitPage() {
                         </label>
                         
                         <div 
-                          className={`relative group h-40 rounded-[32px] border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center overflow-hidden bg-slate-50 cursor-pointer ${
+                          className={`relative group h-40 rounded-xl border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center overflow-hidden bg-slate-50 cursor-pointer ${
                             formData.banner_image_url ? 'border-amber-500 bg-amber-50/10' : 'border-slate-200 hover:border-amber-500 hover:bg-slate-100'
                           }`}
                           onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-amber-500', 'bg-amber-50/10'); }}
@@ -1302,7 +1302,7 @@ function ItemCard({
   const isExpired = dday === '마감';
 
   return (
-    <Card className={`group border-none shadow-sm hover:shadow-xl transition-all duration-500 rounded-[24px] overflow-hidden bg-white dark:bg-slate-900 flex flex-col h-full ${isExpired ? 'opacity-60' : ''}`}>
+    <Card className={`group border-none shadow-sm hover:shadow-xl transition-all duration-500 rounded-lg overflow-hidden bg-white dark:bg-slate-900 flex flex-col h-full ${isExpired ? 'opacity-60' : ''}`}>
       {/* Thumbnail Area - Aspect Ratio (3:4) with Full Bleed Image (No Zoom) */}
       <div 
         className="relative aspect-[3/4] overflow-hidden bg-slate-100 flex items-center justify-center cursor-pointer group/image"

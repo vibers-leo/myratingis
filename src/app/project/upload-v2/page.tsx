@@ -218,7 +218,7 @@ export default function AdvancedProjectUploadPage() {
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-xl border border-gray-200 p-8 md:p-12 space-y-8">
+          <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-8 md:p-12 space-y-8">
             {/* 커버 이미지 */}
             <div className="space-y-3">
               <label className="text-lg font-bold text-gray-900">커버 이미지</label>

@@ -220,7 +220,7 @@ ${persona.frustrations.map(f => `- ${f}`).join('\n')}
             </div>
 
             {/* Persona ID Card Design */}
-            <div ref={cardRef} className="max-w-5xl mx-auto bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px]">
+            <div ref={cardRef} className="max-w-5xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row min-h-[600px]">
                 
                  {/* Left: Profile Image & Basic Info */}
                  <div className="md:w-[38%] bg-slate-50 border-r border-gray-100 p-12 flex flex-col items-center text-center relative justify-center">

@@ -92,7 +92,7 @@ export function FeedbackRequestModal({ open, onOpenChange, projectId, projectTit
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="max-w-2xl bg-white rounded-3xl p-0 overflow-hidden" 
+        className="max-w-2xl bg-white rounded-xl p-0 overflow-hidden" 
         onClick={(e) => e.stopPropagation()}
       >
         <div className="bg-gradient-to-r from-orange-500 to-red-500 p-8 text-white text-center">
@@ -292,7 +292,7 @@ export function FeedbackRequestModal({ open, onOpenChange, projectId, projectTit
                             </label>
                         </div>
 
-                        <div className="pt-4 p-5 bg-slate-950 rounded-[2rem] text-white">
+                        <div className="pt-4 p-5 bg-slate-950 rounded-xl text-white">
                             <div className="flex justify-between items-center mb-3">
                                 <p className="text-xs font-bold text-slate-400">최종 소요 내공</p>
                                 <div className="text-right">

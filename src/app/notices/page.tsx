@@ -104,7 +104,7 @@ export default function NoticesPage() {
                return (
               <Dialog key={notice.id}>
                 <DialogTrigger asChild>
-                  <div className="group flex items-center justify-between p-6 rounded-3xl border border-slate-100 bg-white transition-all hover:bg-slate-50 hover:border-slate-200 cursor-pointer hover:shadow-sm">
+                  <div className="group flex items-center justify-between p-6 rounded-xl border border-slate-100 bg-white transition-all hover:bg-slate-50 hover:border-slate-200 cursor-pointer hover:shadow-sm">
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center gap-3">
                         <span className="text-sm text-slate-400 flex items-center gap-1 font-medium font-mono">
@@ -130,7 +130,7 @@ export default function NoticesPage() {
                     </div>
                   </div>
                 </DialogTrigger>
-                <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-white rounded-3xl p-8 border-0 shadow-2xl custom-scrollbar">
+                <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-white rounded-xl p-8 border-0 shadow-2xl custom-scrollbar">
                   <DialogHeader className="mb-8 border-b border-slate-50 pb-6">
                     <div className="flex items-center gap-2 mb-3">
                        <span className="text-sm text-slate-400 font-medium flex items-center gap-2">
@@ -155,7 +155,7 @@ export default function NoticesPage() {
             )})}
             
             {notices.length === 0 && (
-              <div className="text-center py-32 bg-slate-50 rounded-3xl border border-dashed border-slate-200">
+              <div className="text-center py-32 bg-slate-50 rounded-xl border border-dashed border-slate-200">
                 <Megaphone size={40} className="mx-auto text-slate-300 mb-4" />
                 <p className="text-slate-400 text-lg">새로운 공지사항이 대기 중입니다.</p>
                 <p className="text-slate-400 text-sm mt-2">프로젝트 작성 시 태그에 '공지사항'을 입력하면 이곳에 표시됩니다.</p>

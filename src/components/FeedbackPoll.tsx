@@ -138,7 +138,7 @@ export const FeedbackPoll = React.forwardRef<FeedbackPollRef, FeedbackPollProps>
                 key={opt.id}
                 onClick={() => handleVoteLocal(opt.id)}
                 className={cn(
-                  "relative group flex flex-row items-center p-2 rounded-[2rem] border-2 transition-all duration-200 w-full shadow-sm bg-white",
+                  "relative group flex flex-row items-center p-2 rounded-xl border-2 transition-all duration-200 w-full shadow-sm bg-white",
                   isSelected 
                     ? cn(opt.activeBorder, "bg-slate-50/50") 
                     : cn("border-slate-100 hover:border-slate-200")

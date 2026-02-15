@@ -38,7 +38,7 @@ export default function AdsPage() {
       {/* Product Section */}
       <section className="py-20 px-6 -mt-20 relative z-20">
         <div className="max-w-5xl mx-auto">
-          <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 flex flex-col md:flex-row">
+          <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-slate-100 flex flex-col md:flex-row">
             {/* Left: Product Info */}
             <div className="p-8 md:p-12 md:w-2/3">
               <h2 className="text-3xl font-bold mb-6 text-slate-900">Premium Top Banner</h2>

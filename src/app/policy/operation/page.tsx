@@ -82,7 +82,7 @@ export default function OperationPolicyPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sticky Quick Nav */}
           <aside className="lg:w-1/4 hidden lg:block">
-            <div className="sticky top-32 p-8 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50">
+            <div className="sticky top-32 p-8 bg-white rounded-xl border border-slate-100 shadow-xl shadow-slate-200/50">
               <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-6 border-b pb-4">Index</h4>
               <nav className="space-y-4">
                 {sections.map(s => (
@@ -105,7 +105,7 @@ export default function OperationPolicyPage() {
               <div 
                 key={section.id} 
                 id={section.id}
-                className="bg-white p-10 md:p-16 rounded-[40px] border border-slate-100 shadow-sm scroll-mt-32 transition-all hover:shadow-md"
+                className="bg-white p-10 md:p-16 rounded-xl border border-slate-100 shadow-sm scroll-mt-32 transition-all hover:shadow-md"
               >
                 <div className="flex items-center gap-4 mb-8">
                   <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center border border-slate-100">

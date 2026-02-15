@@ -97,7 +97,7 @@ function VerifyEmailContent() {
         </div>
 
         <div className="w-full max-w-lg relative z-10">
-          <div className="rounded-[2.5rem] p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] border-2 border-white/5 backdrop-blur-3xl">
+          <div className="rounded-xl p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] border-2 border-white/5 backdrop-blur-3xl">
             {/* Logo Area */}
             <div className="flex justify-center mb-10">
               <Image

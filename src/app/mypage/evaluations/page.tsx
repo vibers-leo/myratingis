@@ -110,12 +110,12 @@ export default function MyEvaluationsPage() {
             <div className="w-10 h-10 border-4 border-slate-900 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : error ? (
-          <div className="text-center py-20 bg-white rounded-3xl border border-red-100">
+          <div className="text-center py-20 bg-white rounded-xl border border-red-100">
             <p className="text-red-500 mb-4 font-bold">{error}</p>
             <Button variant="outline" onClick={() => window.location.reload()}>다시 시도</Button>
           </div>
         ) : evaluations.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-200 shadow-sm">
+          <div className="text-center py-20 bg-white rounded-xl border-2 border-dashed border-slate-200 shadow-sm">
             <Star className="w-16 h-16 text-slate-200 mx-auto mb-4" />
             <h2 className="text-xl font-bold text-slate-900 mb-2">아직 남긴 평가가 없습니다</h2>
             <p className="text-slate-500 mb-8 max-w-xs mx-auto">새로운 프로젝트들을 평가하고 나만의 인사이트를 공유해보세요!</p>
@@ -126,7 +126,7 @@ export default function MyEvaluationsPage() {
         ) : (
           <div className="grid grid-cols-1 gap-6">
             {evaluations.map((ev) => (
-              <div key={ev.rating_id} className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden hover:shadow-xl transition-all group flex flex-col md:flex-row">
+              <div key={ev.rating_id} className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-xl transition-all group flex flex-col md:flex-row">
                 {/* Image Section */}
                 <div className="w-full md:w-64 h-48 md:h-auto bg-slate-100 shrink-0 relative overflow-hidden">
                   <Image 

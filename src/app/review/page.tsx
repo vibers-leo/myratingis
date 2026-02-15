@@ -96,7 +96,7 @@ function ReviewLanding() {
                  initial={{ opacity: 0, scale: 0.9 }}
                  whileInView={{ opacity: 1, scale: 1 }}
                  viewport={{ once: true }}
-                 className="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm space-y-4"
+                 className="bg-white p-10 rounded-xl border border-slate-100 shadow-sm space-y-4"
                >
                   <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest">{f.title}</span>
                   <h3 className="text-2xl font-black text-slate-900">{f.label}</h3>

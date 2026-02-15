@@ -41,7 +41,7 @@ export default function ProjectSharePage() {
         className="relative z-10 w-full max-w-lg bg-[#0a0a0a] border border-white/10 rounded-[3rem] p-10 text-center space-y-10 shadow-2xl"
       >
         <div className="space-y-4">
-          <div className="w-20 h-20 mx-auto bg-orange-600 rounded-[2rem] flex items-center justify-center text-white shadow-xl mb-6">
+          <div className="w-20 h-20 mx-auto bg-orange-600 rounded-xl flex items-center justify-center text-white shadow-xl mb-6">
             <Share2 size={40} />
           </div>
           <h1 className="text-3xl md:text-4xl font-black tracking-tighter">

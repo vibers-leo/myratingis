@@ -67,7 +67,7 @@ function ContactForm() {
   };
 
   return (
-    <Card className="w-full max-w-2xl bg-chef-card border-chef-border text-chef-text shadow-2xl rounded-[2rem] overflow-hidden">
+    <Card className="w-full max-w-2xl bg-chef-card border-chef-border text-chef-text shadow-2xl rounded-xl overflow-hidden">
         <CardHeader className="text-center pt-10 pb-6">
           <CardTitle className="text-4xl font-black italic uppercase tracking-tighter">문의하기</CardTitle>
           <CardDescription className="text-chef-text opacity-60 text-lg mt-3 font-medium break-keep">

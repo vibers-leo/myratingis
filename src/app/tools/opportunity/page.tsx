@@ -171,7 +171,7 @@ export default function OpportunityFinderPage() {
           )}
 
           {!loading && searched && results.length === 0 && (
-            <div className="text-center py-20 bg-white rounded-3xl shadow-sm">
+            <div className="text-center py-20 bg-white rounded-xl shadow-sm">
               <span className="text-6xl mb-4 block">😅</span>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">검색 결과가 없습니다</h3>
               <p className="text-gray-500">

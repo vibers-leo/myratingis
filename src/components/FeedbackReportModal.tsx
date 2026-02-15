@@ -105,7 +105,7 @@ export function FeedbackReportModal({ open, onOpenChange, projectTitle, projectI
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl p-0 bg-transparent border-none shadow-none text-left">
-         <div className="bg-white rounded-[2.5rem] overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+         <div className="bg-white rounded-xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-300">
             {/* Header */}
             <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 p-8 md:p-12 text-white relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-10 opacity-10">
@@ -122,7 +122,7 @@ export function FeedbackReportModal({ open, onOpenChange, projectTitle, projectI
                    <Button 
                      onClick={handleExportCSV}
                      variant="outline" 
-                     className="bg-white/5 hover:bg-white text-white hover:text-slate-950 border-white/20 gap-3 font-bold px-8 py-8 h-auto rounded-[2rem] transition-all group shrink-0"
+                     className="bg-white/5 hover:bg-white text-white hover:text-slate-950 border-white/20 gap-3 font-bold px-8 py-8 h-auto rounded-xl transition-all group shrink-0"
                     >
                       <FontAwesomeIcon icon={faFileCsv} className="text-2xl group-hover:scale-110 transition-transform" />
                       <div className="text-left">
@@ -149,7 +149,7 @@ export function FeedbackReportModal({ open, onOpenChange, projectTitle, projectI
                      <FontAwesomeIcon icon={faStar} className="text-amber-500" /> 평가단 정밀 분석 리포트
                   </h3>
                   <div className="bg-slate-50 p-8 rounded-[3rem] grid grid-cols-1 lg:grid-cols-2 gap-12 items-center border border-slate-100 shadow-inner">
-                     <div className="h-80 w-full bg-white rounded-[2.5rem] p-4 shadow-sm border border-slate-100">
+                     <div className="h-80 w-full bg-white rounded-xl p-4 shadow-sm border border-slate-100">
                         <ResponsiveContainer width="100%" height="100%">
                             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
                                 <PolarGrid stroke="#f1f5f9" />
@@ -204,7 +204,7 @@ export function FeedbackReportModal({ open, onOpenChange, projectTitle, projectI
                            <motion.div 
                             key={i} 
                             whileHover={{ scale: 1.05, y: -5 }}
-                            className="bg-white rounded-3xl flex flex-col items-center justify-center p-5 text-center shadow-md border border-blue-50"
+                            className="bg-white rounded-xl flex flex-col items-center justify-center p-5 text-center shadow-md border border-blue-50"
                            >
                               <span className="text-4xl mb-2">{sticker.icon}</span>
                               <span className="text-2xl font-black text-slate-950">{sticker.count}</span>

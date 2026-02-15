@@ -165,7 +165,7 @@ export default function AdminSettingsPage() {
 
       <div className="grid grid-cols-1 gap-8">
         {/* SEO Settings */}
-        <Card className="border-none shadow-sm rounded-[32px] overflow-hidden">
+        <Card className="border-none shadow-sm rounded-xl overflow-hidden">
           <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-8">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 bg-blue-50 text-blue-600 rounded-xl">
