@@ -19,7 +19,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Plus, X as XIcon } from "lucide-react";
 import { GENRE_CATEGORIES_WITH_ICONS as GENRE_CATEGORIES, FIELD_CATEGORIES_WITH_ICONS as FIELD_CATEGORIES } from "@/lib/ui-constants";
+import { isCustomExpertise, getCustomExpertiseLabel, createCustomExpertiseId } from "@/lib/constants";
 
 interface UserProfile {
   username: string;
@@ -303,6 +305,38 @@ export default function ProfileSettingsPage() {
     });
   };
 
+  // 커스텀 장르/분야 직접 입력
+  const [customGenreInput, setCustomGenreInput] = useState("");
+  const [customFieldInput, setCustomFieldInput] = useState("");
+
+  const addCustomGenre = () => {
+    const trimmed = customGenreInput.trim();
+    if (!trimmed) return;
+    const customId = createCustomExpertiseId(trimmed);
+    const genres = profile.interests.genres || [];
+    if (genres.includes(customId)) return;
+    if (genres.length >= 5) return;
+    setProfile(prev => ({
+      ...prev,
+      interests: { ...prev.interests, genres: [...(prev.interests.genres || []), customId] }
+    }));
+    setCustomGenreInput("");
+  };
+
+  const addCustomField = () => {
+    const trimmed = customFieldInput.trim();
+    if (!trimmed) return;
+    const customId = createCustomExpertiseId(trimmed);
+    const fields = profile.interests.fields || [];
+    if (fields.includes(customId)) return;
+    if (fields.length >= 3) return;
+    setProfile(prev => ({
+      ...prev,
+      interests: { ...prev.interests, fields: [...(prev.interests.fields || []), customId] }
+    }));
+    setCustomFieldInput("");
+  };
+
   // 회원탈퇴 처리
   const handleDeleteAccount = async () => {
     if (deleteConfirmText !== "회원탈퇴") {
@@ -520,6 +554,36 @@ export default function ProfileSettingsPage() {
                     </button>
                   );
                 })}
+                {/* 커스텀 장르 칩 */}
+                {(profile.interests?.genres || []).filter(isCustomExpertise).map(id => (
+                  <button
+                    type="button"
+                    key={id}
+                    onClick={() => toggleGenre(id)}
+                    className="flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all border-emerald-600 text-emerald-600 bg-emerald-50"
+                  >
+                    <XIcon className="w-4 h-4 mb-1" />
+                    <span className="text-sm font-medium">{getCustomExpertiseLabel(id)}</span>
+                  </button>
+                ))}
+              </div>
+              {/* 장르 직접 입력 */}
+              <div className="flex gap-2 mt-3">
+                <Input
+                  value={customGenreInput}
+                  onChange={(e) => setCustomGenreInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addCustomGenre();
+                    }
+                  }}
+                  placeholder="직접 입력 (예: 음악, 무용 등)"
+                  className="flex-1"
+                />
+                <Button onClick={addCustomGenre} disabled={!customGenreInput.trim()} variant="outline" size="sm" className="h-10">
+                  <Plus size={16} className="mr-1" /> 추가
+                </Button>
               </div>
             </div>
 
@@ -548,6 +612,36 @@ export default function ProfileSettingsPage() {
                     </button>
                   );
                 })}
+                {/* 커스텀 분야 칩 */}
+                {(profile.interests?.fields || []).filter(isCustomExpertise).map(id => (
+                  <button
+                    type="button"
+                    key={id}
+                    onClick={() => toggleField(id)}
+                    className="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-emerald-600 text-white flex items-center gap-1"
+                  >
+                    {getCustomExpertiseLabel(id)}
+                    <XIcon size={14} />
+                  </button>
+                ))}
+              </div>
+              {/* 분야 직접 입력 */}
+              <div className="flex gap-2 mt-3">
+                <Input
+                  value={customFieldInput}
+                  onChange={(e) => setCustomFieldInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      addCustomField();
+                    }
+                  }}
+                  placeholder="직접 입력 (예: 스포츠, 음악 등)"
+                  className="flex-1"
+                />
+                <Button onClick={addCustomField} disabled={!customFieldInput.trim()} variant="outline" size="sm" className="h-10">
+                  <Plus size={16} className="mr-1" /> 추가
+                </Button>
               </div>
             </div>
           </CardContent>

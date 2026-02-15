@@ -10,6 +10,7 @@ import { useLikes } from "@/hooks/useLikes";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { cn } from "@/lib/utils";
+import { getExpertiseLabel } from "@/lib/constants";
 import dayjs from "dayjs";
 import { FeedbackReportModal } from "./FeedbackReportModal";
 import { FeedbackRequestModal } from "./FeedbackRequestModal";
@@ -249,7 +250,7 @@ export const ImageCard = forwardRef<HTMLDivElement, ImageCardProps>(
                  {props.user?.expertise?.fields && props.user.expertise.fields.length > 0 && (
                    <span 
                      className="inline-flex items-center justify-center w-3.5 h-3.5 bg-orange-600/10 text-orange-600 rounded-full"
-                     title={`전문가: ${props.user.expertise.fields.join(', ')}`}
+                     title={`전문가: ${props.user.expertise.fields.map((f: string) => getExpertiseLabel(f)).join(', ')}`}
                    >
                       <Rocket className="w-2.5 h-2.5 fill-current" />
                    </span>

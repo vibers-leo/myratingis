@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { GENRE_CATEGORIES_WITH_ICONS, FIELD_CATEGORIES_WITH_ICONS } from "@/lib/ui-constants";
 import { FontAwesomeIcon } from "@/components/FaIcon";
+import { isCustomExpertise, getCustomExpertiseLabel, createCustomExpertiseId } from "@/lib/constants";
 
 interface ProfileManagerProps {
   user: any; 
@@ -241,10 +242,34 @@ export function ProfileManager({ user, onUpdate }: ProfileManagerProps) {
           fields: prev.fields.includes(id) ? prev.fields.filter(f => f !== id) : [...prev.fields, id]
       }));
   };
+  const [customExpertiseInput, setCustomExpertiseInput] = useState("");
+
   const toggleExpertise = (id: string) => {
       setExpertise(prev => ({
           ...prev,
           fields: prev.fields.includes(id) ? prev.fields.filter(f => f !== id) : [...prev.fields, id]
+      }));
+  };
+
+  const addCustomExpertise = () => {
+      const trimmed = customExpertiseInput.trim();
+      if (!trimmed) return;
+      const customId = createCustomExpertiseId(trimmed);
+      if (expertise.fields.includes(customId)) {
+          toast.error("이미 추가된 분야입니다.");
+          return;
+      }
+      setExpertise(prev => ({
+          ...prev,
+          fields: [...prev.fields, customId]
+      }));
+      setCustomExpertiseInput("");
+  };
+
+  const removeCustomExpertise = (id: string) => {
+      setExpertise(prev => ({
+          ...prev,
+          fields: prev.fields.filter(f => f !== id)
       }));
   };
 
@@ -404,6 +429,41 @@ export function ProfileManager({ user, onUpdate }: ProfileManagerProps) {
                                 {item.label}
                             </button>
                         ))}
+                        {/* 커스텀 전문분야 칩 */}
+                        {expertise.fields.filter(isCustomExpertise).map(id => (
+                            <button
+                                key={id}
+                                onClick={() => removeCustomExpertise(id)}
+                                className="px-3 py-2 rounded-full text-xs font-bold transition-all border flex items-center gap-1.5 bg-emerald-600 border-emerald-600 text-white shadow-md"
+                            >
+                                {getCustomExpertiseLabel(id)}
+                                <X className="w-3 h-3" />
+                            </button>
+                        ))}
+                    </div>
+                    {/* 직접 입력 */}
+                    <div className="flex gap-2 items-center mt-3">
+                        <Input
+                            value={customExpertiseInput}
+                            onChange={(e) => setCustomExpertiseInput(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    addCustomExpertise();
+                                }
+                            }}
+                            placeholder="목록에 없는 분야 직접 입력"
+                            className="flex-1 h-10 rounded-xl bg-chef-panel border-chef-border text-chef-text font-bold text-sm"
+                        />
+                        <Button
+                            onClick={addCustomExpertise}
+                            disabled={!customExpertiseInput.trim()}
+                            size="sm"
+                            className="h-10 bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+                        >
+                            <Plus className="w-4 h-4 mr-1" />
+                            추가
+                        </Button>
                     </div>
                 </div>
             </div>

@@ -66,6 +66,31 @@ export const FIELD_CATEGORIES = [
   { id: "other", label: "기타" },
 ];
 
+// 커스텀 전문분야 처리
+export const CUSTOM_EXPERTISE_PREFIX = 'custom:';
+
+export function isCustomExpertise(id: string): boolean {
+  return id.startsWith(CUSTOM_EXPERTISE_PREFIX);
+}
+
+export function getCustomExpertiseLabel(id: string): string {
+  return id.slice(CUSTOM_EXPERTISE_PREFIX.length);
+}
+
+export function createCustomExpertiseId(label: string): string {
+  return `${CUSTOM_EXPERTISE_PREFIX}${label.trim()}`;
+}
+
+/** ID를 표시용 라벨로 변환 (기본 카테고리 + 커스텀) */
+export function getExpertiseLabel(id: string): string {
+  if (isCustomExpertise(id)) {
+    return getCustomExpertiseLabel(id);
+  }
+  const allCategories = [...GENRE_CATEGORIES, ...FIELD_CATEGORIES];
+  const found = allCategories.find(c => c.id === id);
+  return found?.label || id;
+}
+
 export const ADMIN_EMAILS = [
   "juuuno@naver.com", 
   "designd@designd.co.kr", 

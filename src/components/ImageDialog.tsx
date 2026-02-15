@@ -6,6 +6,7 @@ import React from "react";
 import { Calendar, Grid2X2, Heart, AlignLeft, User, Send, Download, MessageSquare, FolderPlus } from "lucide-react";
 import dayjs from "dayjs";
 import { addCommas } from "@/lib/format/comma";
+import { getExpertiseLabel } from "@/lib/constants";
 
 import { ImageCard } from "@/components/ImageCard";
 import { useLikes } from "@/hooks/useLikes";
@@ -226,7 +227,7 @@ export function ImageDialog({ props }: { props: ImageDialogProps }) {
                    {props.user.expertise?.fields && props.user.expertise.fields.length > 0 && (
                      <span 
                        className="inline-flex items-center justify-center px-1.5 py-0.5 bg-blue-500 text-white text-[9px] font-bold rounded-full uppercase tracking-tighter"
-                       title={`분야: ${props.user.expertise.fields.join(', ')}`}
+                       title={`분야: ${props.user.expertise.fields.map((f: string) => getExpertiseLabel(f)).join(', ')}`}
                      >
                         Expert
                      </span>

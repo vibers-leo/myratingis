@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { ChevronRight, Check, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GENRE_CATEGORIES_WITH_ICONS, FIELD_CATEGORIES_WITH_ICONS } from "@/lib/ui-constants";
+import { isCustomExpertise, getCustomExpertiseLabel, createCustomExpertiseId } from "@/lib/constants";
+import { Plus, X } from "lucide-react";
 
 export function OnboardingModal() {
   const { user, userProfile, loading } = useAuth();
@@ -141,12 +143,36 @@ export function OnboardingModal() {
     }
   };
 
+  const [customExpertiseInput, setCustomExpertiseInput] = useState("");
+
   const toggleExpertise = (id: string) => {
     setFormData((prev: any) => ({
       ...prev,
-      expertise: prev.expertise.includes(id) 
+      expertise: prev.expertise.includes(id)
         ? prev.expertise.filter((item: string) => item !== id)
         : [...prev.expertise, id]
+    }));
+  };
+
+  const addCustomExpertise = () => {
+    const trimmed = customExpertiseInput.trim();
+    if (!trimmed) return;
+    const customId = createCustomExpertiseId(trimmed);
+    if (formData.expertise.includes(customId)) {
+      toast.error("이미 추가된 분야입니다.");
+      return;
+    }
+    setFormData((prev: any) => ({
+      ...prev,
+      expertise: [...prev.expertise, customId]
+    }));
+    setCustomExpertiseInput("");
+  };
+
+  const removeCustomExpertise = (id: string) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      expertise: prev.expertise.filter((item: string) => item !== id)
     }));
   };
 
@@ -382,7 +408,7 @@ export function OnboardingModal() {
                                 </p>
                             </div>
 
-                            <div className="flex flex-wrap gap-2 max-h-[40vh] overflow-y-auto p-1 scrollbar-hide">
+                            <div className="flex flex-wrap gap-2 max-h-[35vh] overflow-y-auto p-1 scrollbar-hide">
                                 {[...GENRE_CATEGORIES_WITH_ICONS, ...FIELD_CATEGORIES_WITH_ICONS].map(item => (
                                     <button
                                         key={item.value}
@@ -396,6 +422,42 @@ export function OnboardingModal() {
                                         {item.label}
                                     </button>
                                 ))}
+                                {/* 커스텀 전문분야 칩 */}
+                                {formData.expertise.filter(isCustomExpertise).map(id => (
+                                    <button
+                                        key={id}
+                                        onClick={() => removeCustomExpertise(id)}
+                                        className="px-3 py-2 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-bold transition-all border-2 bg-emerald-600 border-emerald-600 text-white shadow-md flex items-center gap-1"
+                                    >
+                                        {getCustomExpertiseLabel(id)}
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* 직접 입력 */}
+                            <div className="flex gap-2 items-center">
+                                <input
+                                    type="text"
+                                    value={customExpertiseInput}
+                                    onChange={(e) => setCustomExpertiseInput(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            addCustomExpertise();
+                                        }
+                                    }}
+                                    placeholder="목록에 없는 분야 직접 입력"
+                                    className="flex-1 h-10 px-4 bg-chef-panel rounded-xl border-2 border-transparent focus:border-emerald-500 outline-none text-sm font-bold text-chef-text transition-all placeholder:text-chef-text/20"
+                                />
+                                <button
+                                    onClick={addCustomExpertise}
+                                    disabled={!customExpertiseInput.trim()}
+                                    className="h-10 px-4 rounded-xl bg-emerald-600 text-white font-bold text-sm flex items-center gap-1 hover:bg-emerald-700 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    추가
+                                </button>
                             </div>
 
                             <div className="pt-4 md:pt-8">
