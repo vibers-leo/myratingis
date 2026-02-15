@@ -29,13 +29,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    // Check active sessions and sets up the observer
+    // Safety timeout: never stay in loading state for more than 3 seconds
+    const safetyTimer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           setUser(session.user);
-          await fetchUserProfile(session.user.id);
+          // Don't block loading on profile fetch
+          fetchUserProfile(session.user.id);
         }
       } catch (error) {
         console.error("[AuthContext] Initialization error:", error);
@@ -48,10 +53,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log(`[AuthContext] Auth State Event: ${event}`);
-      
+
       if (session) {
         setUser(session.user);
-        await fetchUserProfile(session.user.id);
+        // Don't block loading on profile fetch
+        fetchUserProfile(session.user.id);
       } else {
         setUser(null);
         setUserProfile(null);
@@ -60,6 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => {
+      clearTimeout(safetyTimer);
       subscription.unsubscribe();
     };
   }, []);

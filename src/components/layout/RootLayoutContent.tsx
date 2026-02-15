@@ -6,18 +6,22 @@ import { Footer } from "@/components/Footer";
 import { Suspense, useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth/AuthContext";
 
-export function RootLayoutContent({ 
+export function RootLayoutContent({
   children,
   isReviewServer = false
-}: { 
+}: {
   children: React.ReactNode;
   isReviewServer?: boolean;
 }) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
+  const [maxWaitReached, setMaxWaitReached] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    // Maximum 2 seconds for auth loading screen
+    const timer = setTimeout(() => setMaxWaitReached(true), 2000);
+    return () => clearTimeout(timer);
   }, []);
 
   const isAdminPage = pathname?.startsWith('/admin');
@@ -38,10 +42,8 @@ export function RootLayoutContent({
     return <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden bg-[#050505]">{children}</div>;
   }
 
-  // Show a professional loading overlay with transparency during auth check
-  if (authLoading && !hideLayout && pathname !== '/login' && pathname !== '/signup') {
-    // User requested to hide the loading screen ("Authentication Center")
-    // We keep the logic to prevent children rendering until auth is done, but show a blank screen.
+  // Show blank screen briefly while auth loads, but never more than 2 seconds
+  if (authLoading && !maxWaitReached && !hideLayout && pathname !== '/login' && pathname !== '/signup') {
     return <div className="min-h-screen bg-[#050505]" />;
   }
 
