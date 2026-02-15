@@ -28,6 +28,7 @@ import {
 import { supabase } from "@/lib/supabase/client";
 import { uploadImage } from "@/lib/supabase/storage";
 import { IconDefinition } from "@fortawesome/fontawesome-svg-core";
+import { toast } from "sonner";
 
 import { GENRE_CATEGORIES as GENRES_CONST, FIELD_CATEGORIES as FIELDS_CONST, GENRE_TO_CATEGORY_ID } from "@/lib/constants";
 
@@ -73,7 +74,7 @@ export default function AdvancedProjectUploadPage() {
     const init = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        alert("프로젝트를 등록하려면 먼저 로그인해주세요.");
+        toast.error("프로젝트를 등록하려면 먼저 로그인해주세요.");
         router.push("/login");
         return;
       }
@@ -110,7 +111,7 @@ export default function AdvancedProjectUploadPage() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
-        alert('이미지 크기는 10MB를 초과할 수 없습니다.');
+        toast.warning('이미지 크기는 10MB를 초과할 수 없습니다.');
         return;
       }
       setCoverImage(file);
@@ -136,15 +137,15 @@ export default function AdvancedProjectUploadPage() {
 
   const handleNext = () => {
     if (!title.trim()) {
-      alert('프로젝트 제목을 입력해주세요.');
+      toast.warning('프로젝트 제목을 입력해주세요.');
       return;
     }
     if (!coverImage) {
-      alert('커버 이미지를 선택해주세요.');
+      toast.warning('커버 이미지를 선택해주세요.');
       return;
     }
     if (selectedGenres.length === 0) {
-      alert('최소 1개의 장르를 선택해주세요.');
+      toast.warning('최소 1개의 장르를 선택해주세요.');
       return;
     }
     setStep('content');
@@ -186,11 +187,11 @@ export default function AdvancedProjectUploadPage() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || '서버 에러');
 
-      alert('프로젝트가 성공적으로 등록되었습니다!');
+      toast.success('프로젝트가 성공적으로 등록되었습니다!');
       router.push('/');
     } catch (error: any) {
       console.error('Submit Error:', error);
-      alert(error.message || '알 수 없는 오류가 발생했습니다.');
+      toast.error(error.message || '알 수 없는 오류가 발생했습니다.');
     } finally {
       setIsSubmitting(false);
     }

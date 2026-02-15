@@ -13,6 +13,7 @@ import { User, Calendar, Mail, Phone, Check, X, Loader2 } from "lucide-react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/ko";
+import { toast } from "sonner";
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
@@ -83,11 +84,11 @@ export function ProposalDetailModal({
         onStatusChange(proposal.proposal_id, newStatus);
       }
       
-      alert(newStatus === 'accepted' ? '제안을 수락했습니다.' : '제안을 거절했습니다.');
+      toast.success(newStatus === 'accepted' ? '제안을 수락했습니다.' : '제안을 거절했습니다.');
       onOpenChange(false);
     } catch (error) {
       console.error('상태 변경 실패:', error);
-      alert('상태 변경에 실패했습니다.');
+      toast.error('상태 변경에 실패했습니다.');
     } finally {
       setLoading(false);
     }

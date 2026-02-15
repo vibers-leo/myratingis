@@ -253,14 +253,14 @@ export default function RecruitPage() {
   // 항목 추가/수정 (API 사용)
   const handleSubmit = async () => {
     if (!formData.title || !formData.description || !formData.date) {
-      alert("제목, 설명, 날짜는 필수 항목입니다.");
+      toast.error("제목, 설명, 날짜는 필수 항목입니다.");
       return;
     }
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        alert("로그인이 필요합니다.");
+        toast.error("로그인이 필요합니다.");
         return;
       }
 
@@ -347,13 +347,13 @@ export default function RecruitPage() {
       handleDialogClose();
       
       if (!isAdmin) {
-        alert("정보가 제보되었습니다. 관리자 승인 후 목록에 표시됩니다. 감사합니다!");
+        toast.success("정보가 제보되었습니다.", { description: "관리자 승인 후 목록에 표시됩니다. 감사합니다!" });
       } else {
-        alert(editingItem ? "수정되었습니다." : "추가되었습니다.");
+        toast.success(editingItem ? "수정되었습니다." : "추가되었습니다.");
       }
     } catch (error) {
       console.error('Error saving item:', error);
-      alert("저장 중 오류가 발생했습니다.");
+      toast.error("저장 중 오류가 발생했습니다.");
     }
   };
 
@@ -403,7 +403,7 @@ export default function RecruitPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        alert("로그인이 필요합니다.");
+        toast.error("로그인이 필요합니다.");
         return;
       }
 
@@ -420,10 +420,10 @@ export default function RecruitPage() {
 
       // 성공 후 목록 새로고침
       await loadItems();
-      alert("삭제되었습니다.");
+      toast.success("삭제되었습니다.");
     } catch (error) {
       console.error('Error deleting item:', error);
-      alert("삭제 중 오류가 발생했습니다.");
+      toast.error("삭제 중 오류가 발생했습니다.");
     }
   };
 

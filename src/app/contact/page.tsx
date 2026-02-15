@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Send } from "lucide-react";
+import { toast } from "sonner";
 
 import { Suspense, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
@@ -55,11 +56,11 @@ function ContactForm() {
         throw new Error(data.error || "문의 전송 중 오류가 발생했습니다.");
       }
 
-      alert("문의가 성공적으로 접수되었습니다.\n담당자가 확인 후 답변드리겠습니다.");
+      toast.success("문의가 성공적으로 접수되었습니다.", { description: "담당자가 확인 후 답변드리겠습니다." });
       router.push("/");
     } catch (error: any) {
       console.error("문의 전송 오류:", error);
-      alert(error.message || "문의 전송에 실패했습니다. 잠시 후 다시 시도해주세요.");
+      toast.error(error.message || "문의 전송에 실패했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setLoading(false);
     }

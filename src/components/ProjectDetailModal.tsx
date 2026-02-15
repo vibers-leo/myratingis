@@ -28,6 +28,7 @@ import "dayjs/locale/ko";
 import { CommentModal } from "./CommentModal";
 import { ShareModal } from "./ShareModal";
 import { supabase } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 dayjs.extend(relativeTime);
 dayjs.locale("ko");
@@ -144,7 +145,7 @@ export function ProjectDetailModal({
 
   const handleLike = async () => {
     if (!isLoggedIn || !currentUserId) {
-      alert('좋아요를 하려면 로그인이 필요합니다.');
+      toast.error('좋아요를 하려면 로그인이 필요합니다.');
       return;
     }
 
@@ -172,7 +173,7 @@ export function ProjectDetailModal({
 
   const handleBookmark = async () => {
     if (!isLoggedIn || !currentUserId) {
-      alert('컬렉션에 저장하려면 로그인이 필요합니다.');
+      toast.error('컬렉션에 저장하려면 로그인이 필요합니다.');
       return;
     }
 
@@ -199,7 +200,7 @@ export function ProjectDetailModal({
 
   const handleFollow = async () => {
     if (!isLoggedIn || !currentUserId) {
-      alert('팔로우하려면 로그인이 필요합니다.');
+      toast.error('팔로우하려면 로그인이 필요합니다.');
       return;
     }
 
@@ -225,7 +226,7 @@ export function ProjectDetailModal({
 
   const handleAddComment = async (text: string) => {
     if (!isLoggedIn || !currentUserId) {
-      alert('댓글을 작성하려면 로그인이 필요합니다.');
+      toast.error('댓글을 작성하려면 로그인이 필요합니다.');
       return;
     }
 

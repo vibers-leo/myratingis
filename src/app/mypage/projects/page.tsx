@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import dayjs from "dayjs";
 import { supabase } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 interface Project {
   id: string;
@@ -83,7 +84,7 @@ export default function MyProjectsPage() {
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        alert('로그인이 필요합니다.');
+        toast.error('로그인이 필요합니다.');
         router.push('/login');
         return;
       }
@@ -101,10 +102,10 @@ export default function MyProjectsPage() {
       }
 
       setProjects(prev => prev.filter(p => p.id !== projectId));
-      alert("프로젝트가 삭제되었습니다.");
+      toast.success("프로젝트가 삭제되었습니다.");
     } catch (err: any) {
       console.error("프로젝트 삭제 실패:", err);
-      alert(err.message || "프로젝트 삭제에 실패했습니다.");
+      toast.error(err.message || "프로젝트 삭제에 실패했습니다.");
     }
   };
 

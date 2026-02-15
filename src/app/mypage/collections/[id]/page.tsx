@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { supabase } from "@/lib/supabase/client";
+import { toast } from "sonner";
 
 interface CollectionProject {
   id: string;
@@ -150,11 +151,11 @@ export default function CollectionDetailPage({ params }: { params: Promise<{ id:
 
       if (error) throw error;
       
-      alert('컬렉션이 삭제되었습니다.');
+      toast.success('컬렉션이 삭제되었습니다.');
       router.push('/mypage?tab=collections');
     } catch (error) {
       console.error('삭제 실패:', error);
-      alert('삭제 중 오류가 발생했습니다.');
+      toast.error('삭제 중 오류가 발생했습니다.');
     }
   };
 
@@ -171,7 +172,7 @@ export default function CollectionDetailPage({ params }: { params: Promise<{ id:
         setProjects(prev => prev.filter(p => p.id !== projectId));
      } catch (e) {
         console.error("제거 실패:", e);
-        alert("제거 실패");
+        toast.error("제거 실패");
      }
   };
 

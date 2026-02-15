@@ -734,11 +734,11 @@ export function ProjectDetailModalV2({
         // 포인트 갱신을 위해 프로필 리프레시
         await refreshUserProfile();
       } else {
-        alert(data.error || '댓글 작성에 실패했습니다.');
+        toast.error(data.error || '댓글 작성에 실패했습니다.');
       }
     } catch (error) {
       console.error('댓글 작성 실패:', error);
-      alert('댓글 작성에 실패했습니다.');
+      toast.error('댓글 작성에 실패했습니다.');
     } finally {
       setLoading(prev => ({ ...prev, comment: false }));
     }
@@ -775,11 +775,11 @@ export function ProjectDetailModalV2({
         });
       } else {
         const data = await res.json();
-        alert(data.error || '댓글 삭제에 실패했습니다.');
+        toast.error(data.error || '댓글 삭제에 실패했습니다.');
       }
     } catch (error) {
       console.error('댓글 삭제 실패:', error);
-      alert('댓글 삭제에 실패했습니다.');
+      toast.error('댓글 삭제에 실패했습니다.');
     }
   };
 

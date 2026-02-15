@@ -3,6 +3,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -87,7 +88,7 @@ export default function ProfileSettingsPage() {
         
         if (authError || !user) {
           console.error('인증 오류:', authError);
-          alert('로그인이 필요합니다.');
+          toast.error('로그인이 필요합니다.');
           window.location.href = '/login';
           return;
         }
@@ -153,13 +154,13 @@ export default function ProfileSettingsPage() {
   // 프로필 저장
   const handleSave = async () => {
     if (!userId) {
-      alert('로그인 정보가 없습니다.');
+      toast.error('로그인 정보가 없습니다.');
       return;
     }
 
     // 유효성 검사
     if (!profile.username || profile.username.trim() === '') {
-      alert('사용자 이름을 입력해주세요.');
+      toast.warning('사용자 이름을 입력해주세요.');
       return;
     }
 
@@ -173,7 +174,7 @@ export default function ProfileSettingsPage() {
           const { uploadImage } = await import("@/lib/supabase/storage");
           imageUrl = await uploadImage(imageFile, 'profiles');
         } catch (uploadError: any) {
-          alert(`프로필 이미지 업로드 실패: ${uploadError.message}`);
+          toast.error(`프로필 이미지 업로드 실패: ${uploadError.message}`);
           return;
         }
       }
@@ -185,7 +186,7 @@ export default function ProfileSettingsPage() {
           // profiles 버킷 사용 (혹은 banners)
           coverUrl = await uploadImage(coverImageFile, 'profiles'); 
         } catch (uploadError: any) {
-          alert(`커버 이미지 업로드 실패: ${uploadError.message}`);
+          toast.error(`커버 이미지 업로드 실패: ${uploadError.message}`);
           return;
         }
       }
@@ -208,7 +209,7 @@ export default function ProfileSettingsPage() {
 
       if (updateError) throw updateError;
 
-      alert('프로필이 저장되었습니다!');
+      toast.success('프로필이 저장되었습니다!');
       setProfile(prev => ({ ...prev, profileImage: imageUrl, coverImage: coverUrl }));
       setImageFile(null);
       setCoverImageFile(null);
@@ -220,7 +221,7 @@ export default function ProfileSettingsPage() {
       
     } catch (error: any) {
       console.error('프로필 저장 실패:', error);
-      alert(`프로필 저장 중 오류가 발생했습니다: ${error.message || error}`);
+      toast.error(`프로필 저장 중 오류가 발생했습니다: ${error.message || error}`);
     }
   };
 
@@ -229,7 +230,7 @@ export default function ProfileSettingsPage() {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        alert("이미지 크기는 5MB 이하여야 합니다.");
+        toast.warning("이미지 크기는 5MB 이하여야 합니다.");
         return;
       }
       setImageFile(file);
@@ -246,7 +247,7 @@ export default function ProfileSettingsPage() {
     const file = e.target.files?.[0];
     if (file) {
        if (file.size > 5 * 1024 * 1024) {
-        alert("이미지 크기는 5MB 이하여야 합니다.");
+        toast.warning("이미지 크기는 5MB 이하여야 합니다.");
         return;
       }
       setCoverImageFile(file);
@@ -340,7 +341,7 @@ export default function ProfileSettingsPage() {
   // 회원탈퇴 처리
   const handleDeleteAccount = async () => {
     if (deleteConfirmText !== "회원탈퇴") {
-      alert("'회원탈퇴'를 정확히 입력해주세요.");
+      toast.warning("'회원탈퇴'를 정확히 입력해주세요.");
       return;
     }
 
@@ -349,7 +350,7 @@ export default function ProfileSettingsPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        alert('로그인이 필요합니다.');
+        toast.error('로그인이 필요합니다.');
         return;
       }
 
@@ -370,12 +371,12 @@ export default function ProfileSettingsPage() {
       // 로그아웃 처리
       await supabase.auth.signOut();
       
-      alert('계정이 성공적으로 삭제되었습니다. 이용해주셔서 감사합니다.');
+      toast.success('계정이 성공적으로 삭제되었습니다.', { description: '이용해주셔서 감사합니다.' });
       window.location.href = '/'; 
       
     } catch (error) {
       console.error('회원탈퇴 실패:', error);
-      alert(error instanceof Error ? error.message : '회원탈퇴에 실패했습니다.');
+      toast.error(error instanceof Error ? error.message : '회원탈퇴에 실패했습니다.');
     } finally {
       setIsDeleting(false);
       setDeleteModalOpen(false);

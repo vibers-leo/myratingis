@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { MessageCircle, Calendar, User, Trash2 } from "lucide-react";
 import { getUserInquiries, deleteInquiry, Inquiry } from "@/lib/inquiries";
 import dayjs from "dayjs";
+import { toast } from "sonner";
 
 export default function InquiriesPage() {
   const { session } = useAuth();
@@ -36,13 +37,13 @@ export default function InquiriesPage() {
 
   const handleDelete = async (id: number) => {
     if (!user) {
-      alert("로그인이 필요합니다.");
+      toast.error("로그인이 필요합니다.");
       return;
     }
     if (confirm("문의를 삭제하시겠습니까?")) {
       const { error } = await deleteInquiry(id, user.id);
       if (error) {
-        alert("문의 삭제에 실패했습니다.");
+        toast.error("문의 삭제에 실패했습니다.");
       } else {
         // Refresh the list after deletion
         fetchInquiries();

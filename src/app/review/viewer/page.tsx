@@ -320,14 +320,24 @@ function ViewerContent() {
           user_nickname: userProfile?.nickname || user?.user_metadata?.full_name || null,
       };
 
+      // Authorization 헤더 구성 (로그인 사용자)
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (user) {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.access_token) {
+              headers['Authorization'] = `Bearer ${session.access_token}`;
+          }
+      }
+
       const response = await fetch(`/api/projects/${projectId}/rating`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify(supabasePayload)
       });
 
       if (!response.ok) {
-          throw new Error('Failed to save evaluation');
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || '평가 저장에 실패했습니다.');
       }
 
       console.log("[Viewer] Successfully saved evaluation");

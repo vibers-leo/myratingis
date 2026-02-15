@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface Item {
   id: number;
@@ -74,7 +75,7 @@ export default function RecruitDetailClient({ item }: { item: Item }) {
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('링크가 복사되었습니다.');
+      toast.success('링크가 복사되었습니다.');
     }
   };
 

@@ -34,6 +34,7 @@ import { supabase } from "@/lib/supabase/client";
 import { ProjectTimeline } from "@/components/ProjectTimeline";
 import { getProjectVersions, ProjectVersion } from "@/lib/versions";
 import { cn, linkify } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Project {
   id: string;
@@ -197,7 +198,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
 
   const handleLike = async () => {
     if (!user) {
-      alert("로그인이 필요합니다.");
+      toast.error("로그인이 필요합니다.");
       return;
     }
     try {
@@ -216,7 +217,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
 
   const handleBookmark = async () => {
     if (!user) {
-      alert("로그인이 필요합니다.");
+      toast.error("로그인이 필요합니다.");
       return;
     }
     try {
@@ -233,11 +234,11 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
 
   const handleAddComment = async () => {
     if (!user) {
-      alert("로그인이 필요합니다.");
+      toast.error("로그인이 필요합니다.");
       return;
     }
     if (!newComment.trim()) {
-      alert("댓글 내용을 입력해주세요.");
+      toast.warning("댓글 내용을 입력해주세요.");
       return;
     }
 
@@ -267,13 +268,13 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       setComments(updatedComments);
     } catch (error) {
       console.error("Failed to add comment:", error);
-      alert("댓글 추가에 실패했습니다.");
+      toast.error("댓글 추가에 실패했습니다.");
     }
   };
 
   const handleDeleteComment = async (commentId: string) => {
     if (!user) {
-      alert("로그인이 필요합니다.");
+      toast.error("로그인이 필요합니다.");
       return;
     }
     if (!confirm("댓글을 삭제하시겠습니까?")) {
@@ -287,7 +288,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       setComments(updatedComments);
     } catch (error) {
       console.error("Failed to delete comment:", error);
-      alert("댓글 삭제에 실패했습니다.");
+      toast.error("댓글 삭제에 실패했습니다.");
     }
   };
 
@@ -299,7 +300,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert("링크가 클립보드에 복사되었습니다!");
+      toast.success("링크가 클립보드에 복사되었습니다!");
     }
   };
 

@@ -513,10 +513,10 @@ export default function MyPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        alert('로그인이 필요합니다.');
+        toast.error('로그인이 필요합니다.');
         return;
       }
-      
+
       const response = await fetch(`/api/projects/${projectId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${session.access_token}` }
@@ -526,9 +526,9 @@ export default function MyPage() {
       
       setProjects(prev => prev.filter(p => String(p.id) !== String(projectId)));
       setStats(prev => ({ ...prev, projects: prev.projects - 1 }));
-      alert("프로젝트가 삭제되었습니다.");
+      toast.success("프로젝트가 삭제되었습니다.");
     } catch (err) {
-      alert("삭제에 실패했습니다.");
+      toast.error("삭제에 실패했습니다.");
     }
   };
 
@@ -550,7 +550,7 @@ export default function MyPage() {
       // toast success (optional)
     } catch (err) {
       console.error(err);
-      alert("상태 변경에 실패했습니다.");
+      toast.error("상태 변경에 실패했습니다.");
     }
   };
   
@@ -561,7 +561,7 @@ export default function MyPage() {
 
     // 용량 제한 (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert("파일 크기는 5MB 이하여야 합니다.");
+      toast.warning("파일 크기는 5MB 이하여야 합니다.");
       return;
     }
 
@@ -593,10 +593,10 @@ export default function MyPage() {
 
       // 4. 상태 업데이트
       setUserProfile((prev: any) => ({ ...prev, cover_image_url: publicUrl }));
-      alert("커버 이미지가 변경되었습니다.");
+      toast.success("커버 이미지가 변경되었습니다.");
     } catch (error) {
       console.error('커버 이미지 업로드 실패:', error);
-      alert("이미지 업로드에 실패했습니다.");
+      toast.error("이미지 업로드에 실패했습니다.");
     } finally {
       setLoading(false);
     }
@@ -605,7 +605,7 @@ export default function MyPage() {
   // 회원탈퇴 처리
   const handleDeleteAccount = async () => {
     if (deleteConfirmText !== "회원탈퇴") {
-      alert("'회원탈퇴'를 정확히 입력해주세요.");
+      toast.warning("'회원탈퇴'를 정확히 입력해주세요.");
       return;
     }
 
@@ -614,7 +614,7 @@ export default function MyPage() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        alert('로그인이 필요합니다.');
+        toast.error('로그인이 필요합니다.');
         return;
       }
 
@@ -635,12 +635,12 @@ export default function MyPage() {
       // 로그아웃 처리
       await supabase.auth.signOut();
       
-      alert('계정이 성공적으로 삭제되었습니다. 이용해주셔서 감사합니다.');
+      toast.success('계정이 성공적으로 삭제되었습니다.', { description: '이용해주셔서 감사합니다.' });
       router.push('/');
       
     } catch (error) {
       console.error('회원탈퇴 실패:', error);
-      alert(error instanceof Error ? error.message : '회원탈퇴에 실패했습니다.');
+      toast.error(error instanceof Error ? error.message : '회원탈퇴에 실패했습니다.');
     } finally {
       setIsDeleting(false);
       setDeleteModalOpen(false);
