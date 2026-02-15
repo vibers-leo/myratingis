@@ -443,7 +443,7 @@ function ViewerContent() {
                     value={customAnswers[q] || ""} 
                     onChange={e => setCustomAnswers({ ...customAnswers, [q]: e.target.value })} 
                     className="w-full h-32 bg-chef-panel rounded-2xl p-5 border border-chef-border/50 focus:border-orange-500 transition-colors outline-none text-chef-text" 
-                    placeholder="셰프님의 진심 어린 의견을 남겨주세요."
+                    placeholder="평가위원님의 진심 어린 의견을 남겨주세요."
                   />
                 </div>
               ))}
