@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
+// UUID 형식 감지
+const isUUID = (id: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -8,7 +11,7 @@ export async function GET(
   const projectId = params.id;
   const authHeader = req.headers.get('Authorization');
   let userId: string | null = null;
-  
+
   if (authHeader) {
       const token = authHeader.replace(/^Bearer\s+/i, '');
       const { data: { user } } = await supabaseAdmin.auth.getUser(token);
@@ -20,15 +23,27 @@ export async function GET(
   }
 
   try {
-    // 1. Verify Ownership
-    const { data: project } = await supabaseAdmin
-        .from('Project')
-        .select('*')
-        .eq('project_id', Number(projectId))
-        .single();
-    
+    // 1. Verify Ownership (UUID면 projects 테이블, 정수면 Project 테이블)
+    let project: any = null;
+    if (isUUID(projectId)) {
+        const { data } = await supabaseAdmin
+            .from('projects')
+            .select('*')
+            .eq('id', projectId)
+            .single();
+        if (data) {
+            project = { ...data, user_id: data.author_id };
+        }
+    } else {
+        const { data } = await supabaseAdmin
+            .from('Project')
+            .select('*')
+            .eq('project_id', Number(projectId))
+            .single();
+        project = data;
+    }
+
     if (!project || project.user_id !== userId) {
-        // Collaborator check logic could be added here
         return NextResponse.json({ error: "Forbidden: You are not the owner." }, { status: 403 });
     }
 
@@ -36,7 +51,7 @@ export async function GET(
     const { data: ratings, error: ratingError } = await supabaseAdmin
       .from("ProjectRating")
       .select("*, profile:profiles(username, expertise, occupation, age_group, gender)")
-      .eq("project_id", Number(projectId));
+      .eq("project_id", projectId);
 
     if (ratingError) throw ratingError;
 
@@ -44,7 +59,7 @@ export async function GET(
     const { data: votes } = await supabaseAdmin
       .from("ProjectPoll")
       .select("*")
-      .eq("project_id", Number(projectId));
+      .eq("project_id", projectId);
 
     // 4. Aggregation Logic
     const totalCount = ratings?.length || 0;
