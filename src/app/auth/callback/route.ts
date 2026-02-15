@@ -9,18 +9,24 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/'
 
-  console.log('[Auth Callback] 🔍 Request received:', {
+  console.log('[Auth Callback] Request received:', {
     hasCode: !!code,
     next,
     origin,
-    allParams: Object.fromEntries(searchParams.entries())
   });
 
   if (code) {
     const cookieStore = cookies()
 
-    // Collect cookies so we can apply them to the final response
+    // Collect cookies so we can apply them to the final response.
+    // IMPORTANT: exchangeCodeForSession fires onAuthStateChange via setTimeout(0),
+    // which means setAll is called AFTER the exchange promise resolves.
+    // We use a promise to wait for setAll to actually be called.
     const collectedCookies: Array<{ name: string; value: string; options: any }> = []
+    let resolveCookiesReady: () => void
+    const cookiesReady = new Promise<void>((resolve) => {
+      resolveCookiesReady = resolve
+    })
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,10 +41,12 @@ export async function GET(request: Request) {
               try {
                 cookieStore.set(name, value, options)
               } catch {
-                // ignore
+                // ignore - route handler context should work
               }
               collectedCookies.push({ name, value, options })
             })
+            // Signal that cookies have been set
+            resolveCookiesReady()
           },
         },
       }
@@ -47,11 +55,25 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.session) {
-      console.log('[Auth Callback] ✅ Session exchanged successfully:', {
+      console.log('[Auth Callback] Session exchanged successfully:', {
         userId: data.session.user.id,
         email: data.session.user.email,
         provider: data.session.user.app_metadata.provider,
       });
+
+      // Wait for the onAuthStateChange callback (fired via setTimeout(0))
+      // to trigger applyServerStorage which calls our setAll.
+      // Safety timeout of 5 seconds to prevent hanging.
+      await Promise.race([
+        cookiesReady,
+        new Promise((resolve) => setTimeout(resolve, 5000))
+      ])
+
+      console.log('[Auth Callback] Cookies collected:', collectedCookies.length);
+
+      if (collectedCookies.length === 0) {
+        console.error('[Auth Callback] WARNING: No cookies were set after exchange!');
+      }
 
       const response = NextResponse.redirect(`${origin}${next}`)
       // Apply all collected cookies to the redirect response
@@ -62,7 +84,7 @@ export async function GET(request: Request) {
     }
 
     const errorMsg = error?.message || 'Session exchange failed'
-    console.error('[Auth Callback] ❌ Exchange error:', {
+    console.error('[Auth Callback] Exchange error:', {
       message: errorMsg,
       status: error?.status,
       code: error?.code,
@@ -76,11 +98,11 @@ export async function GET(request: Request) {
 
   if (errorName || errorDescription) {
     const fullError = errorDescription || errorName || 'Unknown Auth Error';
-    console.error('[Auth Callback] ❌ Supabase returned error:', fullError);
+    console.error('[Auth Callback] Supabase returned error:', fullError);
     return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(fullError)}`)
   }
 
   // No code and no error - something went wrong
-  console.error('[Auth Callback] ❌ No code or error received');
+  console.error('[Auth Callback] No code or error received');
   return NextResponse.redirect(`${origin}/login?error=no_auth_code`)
 }
