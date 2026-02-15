@@ -12,7 +12,6 @@ async function fetchProject(projectId: string) {
       .select('*')
       .eq('id', projectId)
       .single();
-    // projects 테이블의 author_id를 user_id로 매핑 (호환성)
     if (data) {
       return { ...data, user_id: data.author_id, project_id: data.id };
     }
@@ -45,11 +44,9 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     // 1. Fetch Project for categories
     const project = await fetchProject(projectId);
 
-    // 2. Fetch All Ratings (project_id는 text로 저장 - UUID/정수 모두 문자열로)
+    // 2. Fetch All Ratings via RPC (PostgREST 스키마 캐시 우회)
     const { data: allRatings, error } = await supabaseAdmin
-      .from('ProjectRating')
-      .select('*')
-      .eq('project_id', projectId);
+      .rpc('get_ratings_by_project', { p_project_id: projectId });
 
     if (error) throw error;
 
@@ -74,13 +71,14 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     catIds.forEach((id: string) => averages[id] = 0);
 
     let totalAvg = 0;
-    const count = (allRatings || []).length;
+    const ratings = allRatings || [];
+    const count = ratings.length;
 
     if (count > 0) {
       const sums: Record<string, number> = {};
       catIds.forEach((id: string) => sums[id] = 0);
 
-      allRatings!.forEach((curr: any) => {
+      ratings.forEach((curr: any) => {
         catIds.forEach((id: string, idx: number) => {
           const columnName = `score_${idx + 1}`;
           sums[id] += (Number(curr[columnName]) || Number(curr[id]) || 0);
@@ -95,13 +93,13 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       totalAvg = Number((sumAvgs / catIds.length).toFixed(1));
     }
 
-    // 3. Map My Rating to include category ids
+    // 3. Map My Rating
     let myRating: any = null;
     let rawMyRating = null;
     if (userId) {
-      rawMyRating = (allRatings || []).find((r: any) => r.user_id === userId) || null;
+      rawMyRating = ratings.find((r: any) => r.user_id === userId) || null;
     } else if (guestId) {
-      rawMyRating = (allRatings || []).find((r: any) => r.guest_id === guestId) || null;
+      rawMyRating = ratings.find((r: any) => r.guest_id === guestId) || null;
     }
 
     if (rawMyRating) {
@@ -118,13 +116,17 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         const projectOwnerId = project?.user_id || project?.author_id;
         if (project && projectOwnerId === userId) isAuthorized = true;
         if (!isAuthorized) {
-            const { data: collaborator } = await supabaseAdmin
-                .from('project_collaborators')
-                .select('id')
-                .eq('project_id', projectId)
-                .eq('user_id', userId)
-                .single();
-            if (collaborator) isAuthorized = true;
+            try {
+                const { data: collaborator } = await supabaseAdmin
+                    .from('project_collaborators')
+                    .select('id')
+                    .eq('project_id', projectId)
+                    .eq('user_id', userId)
+                    .single();
+                if (collaborator) isAuthorized = true;
+            } catch (e) {
+                // collaborator check failed, skip
+            }
         }
     }
 
@@ -170,21 +172,21 @@ export async function POST(
 
       console.log(`[API/ProjectRating] POST started for Project ${projectId}. GuestID: ${guest_id}, UserID: ${userId}`);
 
-      // Guest Check: If no userId, require guest_id
       if (!userId && !guest_id) {
           console.error('[API/ProjectRating] No User ID and No Guest ID provided');
           return NextResponse.json({ error: 'Guest ID or Login required' }, { status: 400 });
       }
 
-      // 1. Fetch existing rating to merge data
-      const { data: existingRating } = await supabaseAdmin
-        .from('ProjectRating')
-        .select('*')
-        .eq('project_id', projectId)
-        .filter(userId ? 'user_id' : 'guest_id', 'eq', userId || guest_id)
-        .maybeSingle();
+      // 1. Fetch existing rating via RPC
+      const { data: existingRatings } = await supabaseAdmin
+        .rpc('get_user_rating', {
+            p_project_id: projectId,
+            p_user_id: userId || null,
+            p_guest_id: (!userId && guest_id) ? guest_id : null
+        });
+      const existingRating = existingRatings?.[0] || null;
 
-      // 2. Prepare Balanced Update Data (Merge)
+      // 2. Prepare scores
       const project = await fetchProject(projectId);
 
       let rawCustom = project?.custom_data || {};
@@ -204,58 +206,55 @@ export async function POST(
           }
       });
 
-      const updateData: any = {
-          project_id: projectId,
-          user_id: userId,
-          guest_id: userId ? null : guest_id,
+      const finalScores = {
           score_1: mappedScores.score_1 ?? existingRating?.score_1 ?? 3,
           score_2: mappedScores.score_2 ?? existingRating?.score_2 ?? 3,
           score_3: mappedScores.score_3 ?? existingRating?.score_3 ?? 3,
           score_4: mappedScores.score_4 ?? existingRating?.score_4 ?? 3,
           score_5: mappedScores.score_5 ?? existingRating?.score_5 ?? 3,
           score_6: mappedScores.score_6 ?? existingRating?.score_6 ?? 3,
-          proposal: proposal !== undefined ? proposal : existingRating?.proposal,
-          custom_answers: custom_answers !== undefined ? custom_answers : existingRating?.custom_answers,
-          updated_at: new Date().toISOString()
       };
 
-      // Recalculate average score
-      const activeScores = [updateData.score_1, updateData.score_2, updateData.score_3, updateData.score_4, updateData.score_5, updateData.score_6]
-        .filter(s => s > 0);
-      updateData.score = score !== undefined ? score : (activeScores.length > 0
+      // Recalculate average
+      const activeScores = Object.values(finalScores).filter(s => s > 0);
+      const avgScore = score !== undefined ? score : (activeScores.length > 0
         ? Number((activeScores.reduce((a, b) => a + b, 0) / activeScores.length).toFixed(1))
         : 3.0);
 
-      console.log(`[API/ProjectRating] Final updateData:`, {
-        project_id: updateData.project_id,
-        user_id: updateData.user_id,
-        guest_id: updateData.guest_id,
-        score: updateData.score
+      console.log(`[API/ProjectRating] Saving via RPC:`, {
+        project_id: projectId, user_id: userId, guest_id: guest_id, score: avgScore
       });
 
+      // 3. Upsert via RPC (PostgREST 스키마 캐시 우회)
       const { error: ratingError } = await supabaseAdmin
-        .from('ProjectRating')
-        .upsert(updateData, {
-            onConflict: userId ? 'project_id,user_id' : 'project_id,guest_id'
+        .rpc('upsert_rating', {
+            p_project_id: projectId,
+            p_user_id: userId || null,
+            p_guest_id: (!userId && guest_id) ? guest_id : null,
+            p_score: avgScore,
+            p_score_1: finalScores.score_1,
+            p_score_2: finalScores.score_2,
+            p_score_3: finalScores.score_3,
+            p_score_4: finalScores.score_4,
+            p_score_5: finalScores.score_5,
+            p_score_6: finalScores.score_6,
+            p_proposal: proposal !== undefined ? proposal : (existingRating?.proposal || null),
+            p_custom_answers: custom_answers !== undefined ? custom_answers : (existingRating?.custom_answers || {}),
+            p_vote_type: null
         });
 
       if (ratingError) {
-          console.error('[API/ProjectRating] Postgres Error:', {
-              message: ratingError.message,
-              details: ratingError.details,
-              hint: ratingError.hint,
-              code: ratingError.code
-          });
+          console.error('[API/ProjectRating] RPC Error:', ratingError);
           return NextResponse.json({
               success: false,
               error: ratingError.message,
-              code: ratingError.code
+              code: (ratingError as any).code
           }, { status: 500 });
       }
 
       console.log(`[API/ProjectRating] Successfully saved rating for ${userId ? 'User '+userId : 'Guest '+guest_id}`);
 
-      // Comment 추가 (Comment 테이블은 정수형 project_id만 지원하므로 UUID 프로젝트는 건너뜀)
+      // Comment (정수형 project_id 프로젝트만)
       const { data: profile } = userId
           ? await supabaseAdmin.from('profiles').select('username, nickname').eq('id', userId).single()
           : { data: null };
@@ -289,7 +288,7 @@ export async function POST(
           }
       }
 
-      // Notification for Project Owner
+      // Notification
       const projectOwnerId = project?.user_id || project?.author_id;
       const projectTitle = project?.title;
 
@@ -301,7 +300,7 @@ export async function POST(
                     user_id: projectOwnerId,
                     type: 'rating',
                     title: '새로운 미슐랭 평가 도착! 📊',
-                    message: `${maskedName}님이 '${projectTitle}' 프로젝트를 평가했습니다. (평균 ${updateData.score}점)`,
+                    message: `${maskedName}님이 '${projectTitle}' 프로젝트를 평가했습니다. (평균 ${avgScore}점)`,
                     link: `/projects/${projectId}`,
                     read: false,
                     sender_id: userId
@@ -311,7 +310,7 @@ export async function POST(
           }
       }
 
-      // [Point System] Reward for Evaluating (100 Points)
+      // Point System
       if (userId) {
           try {
               const { count } = await supabaseAdmin
