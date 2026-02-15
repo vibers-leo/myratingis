@@ -337,6 +337,7 @@ function ViewerContent() {
 
       if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
+          console.error("[Viewer] API Error Response:", errorData);
           throw new Error(errorData.error || '평가 저장에 실패했습니다.');
       }
 

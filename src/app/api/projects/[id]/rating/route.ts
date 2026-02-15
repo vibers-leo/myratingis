@@ -150,12 +150,14 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   const projectId = params.id;
+  let step = 'init';
 
   if (!projectId) {
       return NextResponse.json({ error: 'Invalid Project ID' }, { status: 400 });
   }
 
   try {
+      step = 'auth';
       const authHeader = req.headers.get('Authorization');
       let userId: string | null = null;
 
@@ -167,28 +169,38 @@ export async function POST(
           }
       }
 
+      step = 'parse_body';
       const body = await req.json();
       const { score, proposal, custom_answers, guest_id, scores: nestedScores } = body;
 
-      console.log(`[API/ProjectRating] POST started for Project ${projectId}. GuestID: ${guest_id}, UserID: ${userId}`);
+      console.log(`[Rating POST] Step: ${step}, Project: ${projectId}, User: ${userId}, Guest: ${guest_id}`);
 
       if (!userId && !guest_id) {
-          console.error('[API/ProjectRating] No User ID and No Guest ID provided');
           return NextResponse.json({ error: 'Guest ID or Login required' }, { status: 400 });
       }
 
       // 1. Fetch existing rating via RPC
-      const { data: existingRatings } = await supabaseAdmin
+      step = 'rpc_get_user_rating';
+      console.log(`[Rating POST] Step: ${step}`);
+      const { data: existingRatings, error: existingError } = await supabaseAdmin
         .rpc('get_user_rating', {
             p_project_id: projectId,
             p_user_id: userId || null,
             p_guest_id: (!userId && guest_id) ? guest_id : null
         });
+      if (existingError) {
+          console.error(`[Rating POST] FAILED at ${step}:`, existingError);
+          return NextResponse.json({ success: false, error: existingError.message, step }, { status: 500 });
+      }
       const existingRating = existingRatings?.[0] || null;
 
-      // 2. Prepare scores
+      // 2. Fetch project
+      step = 'fetch_project';
+      console.log(`[Rating POST] Step: ${step}`);
       const project = await fetchProject(projectId);
 
+      // 3. Prepare scores
+      step = 'prepare_scores';
       let rawCustom = project?.custom_data || {};
       if (typeof rawCustom === 'string') {
         try { rawCustom = JSON.parse(rawCustom); } catch (e) { rawCustom = {}; }
@@ -215,17 +227,14 @@ export async function POST(
           score_6: mappedScores.score_6 ?? existingRating?.score_6 ?? 3,
       };
 
-      // Recalculate average
       const activeScores = Object.values(finalScores).filter(s => s > 0);
       const avgScore = score !== undefined ? score : (activeScores.length > 0
         ? Number((activeScores.reduce((a, b) => a + b, 0) / activeScores.length).toFixed(1))
         : 3.0);
 
-      console.log(`[API/ProjectRating] Saving via RPC:`, {
-        project_id: projectId, user_id: userId, guest_id: guest_id, score: avgScore
-      });
-
-      // 3. Upsert via RPC (PostgREST 스키마 캐시 우회)
+      // 4. Upsert via RPC
+      step = 'rpc_upsert_rating';
+      console.log(`[Rating POST] Step: ${step}, score: ${avgScore}`);
       const { error: ratingError } = await supabaseAdmin
         .rpc('upsert_rating', {
             p_project_id: projectId,
@@ -244,23 +253,24 @@ export async function POST(
         });
 
       if (ratingError) {
-          console.error('[API/ProjectRating] RPC Error:', ratingError);
+          console.error(`[Rating POST] FAILED at ${step}:`, ratingError);
           return NextResponse.json({
               success: false,
               error: ratingError.message,
+              step,
               code: (ratingError as any).code
           }, { status: 500 });
       }
 
-      console.log(`[API/ProjectRating] Successfully saved rating for ${userId ? 'User '+userId : 'Guest '+guest_id}`);
+      console.log(`[Rating POST] Rating saved successfully`);
 
-      // Comment (정수형 project_id 프로젝트만)
+      // 5. Profile & Comment
+      step = 'profile_comment';
       const { data: profile } = userId
           ? await supabaseAdmin.from('profiles').select('username, nickname').eq('id', userId).single()
           : { data: null };
 
       const nickname = profile?.username || profile?.nickname || 'User';
-
       const maskedName = userId
         ? (nickname.length > 2
             ? nickname.substring(0, 2) + '*'.repeat(3) + '(가림)'
@@ -288,7 +298,8 @@ export async function POST(
           }
       }
 
-      // Notification
+      // 6. Notification
+      step = 'notification';
       const projectOwnerId = project?.user_id || project?.author_id;
       const projectTitle = project?.title;
 
@@ -299,18 +310,19 @@ export async function POST(
                 .insert({
                     user_id: projectOwnerId,
                     type: 'rating',
-                    title: '새로운 미슐랭 평가 도착! 📊',
+                    title: '새로운 미슐랭 평가 도착!',
                     message: `${maskedName}님이 '${projectTitle}' 프로젝트를 평가했습니다. (평균 ${avgScore}점)`,
                     link: `/projects/${projectId}`,
                     read: false,
                     sender_id: userId
                 });
           } catch (notiError) {
-              console.warn('[API] Failed to send notification:', notiError);
+              console.warn('[Rating POST] Notification failed (non-critical):', notiError);
           }
       }
 
-      // Point System
+      // 7. Point System
+      step = 'points';
       if (userId) {
           try {
               const { count } = await supabaseAdmin
@@ -321,23 +333,25 @@ export async function POST(
 
               if ((count || 0) === 0) {
                   const REWARD = 100;
-                  const { data: profile } = await supabaseAdmin.from('profiles').select('points').eq('id', userId).single();
-                  await supabaseAdmin.from('profiles').update({ points: (profile?.points || 0) + REWARD }).eq('id', userId);
+                  const { data: profileData } = await supabaseAdmin.from('profiles').select('points').eq('id', userId).single();
+                  await supabaseAdmin.from('profiles').update({ points: (profileData?.points || 0) + REWARD }).eq('id', userId);
                   await supabaseAdmin.from('point_logs').insert({
                       user_id: userId,
                       amount: REWARD,
                       reason: `심사 평가 보상 (Project ${projectId})`
                   });
-                  console.log(`[Point System] Awarded ${REWARD} points to user ${userId} for rating.`);
               }
           } catch (e) {
-              console.error('[Point System] Failed to reward rating points:', e);
+              console.warn('[Rating POST] Points failed (non-critical):', e);
           }
       }
 
+      step = 'done';
+      console.log(`[Rating POST] All steps completed for ${projectId}`);
       return NextResponse.json({ success: true });
 
   } catch (error: any) {
-     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+     console.error(`[Rating POST] UNCAUGHT ERROR at step "${step}":`, error);
+     return NextResponse.json({ success: false, error: error.message, step }, { status: 500 });
   }
 }
