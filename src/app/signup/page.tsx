@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { supabase } from "@/lib/supabase/client";
 import { FcGoogle } from "react-icons/fc";
+import { RiKakaoTalkFill } from "react-icons/ri";
 import { toast } from "sonner";
 import { MyRatingIsHeader } from "@/components/MyRatingIsHeader";
 import Image from "next/image";
@@ -15,7 +16,7 @@ import { cn } from "@/lib/utils";
 
 export default function SignupPage() {
   const router = useRouter();
-  const { signInWithGoogle } = useAuth(); // Use context for Google
+  const { signInWithGoogle, signInWithKakao } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -149,15 +150,28 @@ export default function SignupPage() {
             )}
 
             {/* 소셜 회원가입 */}
-            <Button
-              onClick={handleGoogleSignup}
-              disabled={loading}
-              variant="outline"
-              className="w-full h-16 bg-white/5 border-2 border-white/10 text-chef-text hover:bg-white/10 rounded-2xl font-black text-sm tracking-widest uppercase transition-all mb-8 shadow-xl group"
-            >
-              <FcGoogle className="h-7 w-7 mr-4 group-hover:scale-110 transition-transform" />
-              Continue with Google
-            </Button>
+            <div className="space-y-3 mb-8">
+              <Button
+                onClick={handleGoogleSignup}
+                disabled={loading}
+                variant="outline"
+                className="w-full h-16 bg-white/5 border-2 border-white/10 text-chef-text hover:bg-white/10 rounded-2xl font-black text-sm tracking-widest uppercase transition-all shadow-xl group"
+              >
+                <FcGoogle className="h-7 w-7 mr-4 group-hover:scale-110 transition-transform" />
+                Continue with Google
+              </Button>
+
+              <Button
+                onClick={async () => {
+                  try { setLoading(true); await signInWithKakao(); } catch { setLoading(false); }
+                }}
+                disabled={loading}
+                className="w-full h-16 bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] rounded-2xl font-black text-sm tracking-widest uppercase transition-all shadow-xl group border-0"
+              >
+                <RiKakaoTalkFill className="h-7 w-7 mr-4 group-hover:scale-110 transition-transform" />
+                Continue with Kakao
+              </Button>
+            </div>
 
             <div className="relative mb-8">
               <div className="absolute inset-0 flex items-center">

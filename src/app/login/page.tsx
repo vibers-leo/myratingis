@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import { FcGoogle } from "react-icons/fc";
+import { RiKakaoTalkFill } from "react-icons/ri";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { MyRatingIsHeader } from "@/components/MyRatingIsHeader";
@@ -46,9 +47,9 @@ function LoginContent() {
     }
   }, [searchParams]);
 
-  /* Firebase Migration Updates */
-  const { signInWithGoogle, signInWithEmail } = useAuth(); // Added signInWithEmail
+  const { signInWithGoogle, signInWithKakao, signInWithEmail } = useAuth();
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [kakaoLoading, setKakaoLoading] = useState(false);
 
   // Detect in-app browsers (Naver, Kakao, Instagram, Facebook, etc.)
   const isInAppBrowser = () => {
@@ -236,24 +237,47 @@ function LoginContent() {
               </div>
             </div>
 
-            <Button
-              onClick={handleGoogleLogin}
-              disabled={googleLoading || loading}
-              variant="outline"
-              className="w-full h-16 bg-white/5 border-2 border-white/10 text-chef-text hover:bg-white/10 rounded-2xl font-black text-sm tracking-widest uppercase transition-all shadow-xl group"
-            >
-              {googleLoading ? (
-                <div className="flex items-center gap-3">
-                   <div className="w-5 h-5 border-3 border-orange-500 border-t-transparent rounded-full animate-spin" />
-                   Redirecting...
-                </div>
-              ) : (
-                <>
-                  <FcGoogle className="h-7 w-7 mr-4 group-hover:scale-110 transition-transform" />
-                  Continue with Google
-                </>
-              )}
-            </Button>
+            <div className="space-y-3">
+              <Button
+                onClick={handleGoogleLogin}
+                disabled={googleLoading || kakaoLoading || loading}
+                variant="outline"
+                className="w-full h-16 bg-white/5 border-2 border-white/10 text-chef-text hover:bg-white/10 rounded-2xl font-black text-sm tracking-widest uppercase transition-all shadow-xl group"
+              >
+                {googleLoading ? (
+                  <div className="flex items-center gap-3">
+                    <div className="w-5 h-5 border-3 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                    Redirecting...
+                  </div>
+                ) : (
+                  <>
+                    <FcGoogle className="h-7 w-7 mr-4 group-hover:scale-110 transition-transform" />
+                    Continue with Google
+                  </>
+                )}
+              </Button>
+
+              <Button
+                onClick={async () => {
+                  setKakaoLoading(true);
+                  try { await signInWithKakao(); } catch { setKakaoLoading(false); }
+                }}
+                disabled={googleLoading || kakaoLoading || loading}
+                className="w-full h-16 bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] rounded-2xl font-black text-sm tracking-widest uppercase transition-all shadow-xl group border-0"
+              >
+                {kakaoLoading ? (
+                  <div className="flex items-center gap-3">
+                    <div className="w-5 h-5 border-3 border-[#191919] border-t-transparent rounded-full animate-spin" />
+                    Redirecting...
+                  </div>
+                ) : (
+                  <>
+                    <RiKakaoTalkFill className="h-7 w-7 mr-4 group-hover:scale-110 transition-transform" />
+                    Continue with Kakao
+                  </>
+                )}
+              </Button>
+            </div>
 
             <div className="mt-12 text-center">
               <p className="text-[10px] font-black text-chef-text opacity-30 uppercase tracking-widest">

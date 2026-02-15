@@ -11,6 +11,7 @@ interface AuthContextType {
   loading: boolean;
   isAuthenticated: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInWithKakao: () => Promise<void>;
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   authError: string | null;
@@ -118,6 +119,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const signInWithKakao = async () => {
+    try {
+      setLoading(true);
+      setAuthError(null);
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'kakao',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) throw error;
+    } catch (error: any) {
+      console.error("[AuthContext] Kakao Login Failed:", error.message);
+      setAuthError(error.message);
+      toast.error("카카오 로그인에 실패했습니다.");
+      setLoading(false);
+    }
+  };
+
   const signInWithEmail = async (email: string, password: string) => {
     try {
       setLoading(true);
@@ -160,7 +182,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user, 
       loading, 
       isAuthenticated: !!user, 
-      signInWithGoogle, 
+      signInWithGoogle,
+      signInWithKakao,
       signInWithEmail,
       signOut, 
       authError,
