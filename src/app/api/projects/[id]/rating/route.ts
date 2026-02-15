@@ -171,7 +171,7 @@ export async function POST(
 
       step = 'parse_body';
       const body = await req.json();
-      const { score, proposal, custom_answers, guest_id, scores: nestedScores } = body;
+      const { score, proposal, custom_answers, guest_id, scores: nestedScores, vote_type } = body;
 
       console.log(`[Rating POST] Step: ${step}, Project: ${projectId}, User: ${userId}, Guest: ${guest_id}`);
 
@@ -249,7 +249,7 @@ export async function POST(
             p_score_6: finalScores.score_6,
             p_proposal: proposal !== undefined ? proposal : (existingRating?.proposal || null),
             p_custom_answers: custom_answers !== undefined ? custom_answers : (existingRating?.custom_answers || {}),
-            p_vote_type: null
+            p_vote_type: vote_type || null
         });
 
       if (ratingError) {
