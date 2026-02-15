@@ -6,7 +6,7 @@ import { isAIRelated, getAIRelevanceScore, AI_KEYWORDS } from '../src/lib/crawle
 
 async function main() {
   console.log('='.repeat(60));
-  console.log('🤖 Vibefolio 크롤러 테스트');
+  console.log('🤖 MyRatingIs 크롤러 테스트');
   console.log('='.repeat(60));
   console.log();
   

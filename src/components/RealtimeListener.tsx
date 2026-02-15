@@ -66,7 +66,7 @@ export default function RealtimeListener() {
     if (!user) return;
 
     const channel = supabase
-      .channel('vibefolio_user_notifications')
+      .channel('myratingis_user_notifications')
       .on(
         'postgres_changes',
         { 

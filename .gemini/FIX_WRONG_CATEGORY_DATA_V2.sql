@@ -13,7 +13,7 @@ WHERE title LIKE '%메디엣지%'
    OR title LIKE '%리팩토링%'
    OR title LIKE '%Next.js%'
    OR title LIKE '%React%'
-   OR title LIKE '%Vibefolio%'
+   OR title LIKE '%MyRatingIs%'
    OR title LIKE '%홈페이지%'; -- 홈페이지 리팩토링 포함
 
 -- 확인용: 변경된 결과 조회

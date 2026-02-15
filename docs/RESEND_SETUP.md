@@ -36,13 +36,13 @@ Vercel Dashboard → Settings → Environment Variables
 
 ```
 https://supabase.com/dashboard
-→ Vibefolio 프로젝트
+→ 제 평가는요? 프로젝트
 → Authentication → Settings → SMTP Settings
 
 Enable Custom SMTP: ON
 
-Sender email: noreply@vibefolio.net
-Sender name: Vibefolio
+Sender email: noreply@myratingis.kr
+Sender name: 제 평가는요?
 
 Host: smtp.resend.com
 Port: 587
@@ -61,7 +61,7 @@ Password: re_WyFQFwTB_LyQuQu6XM2Tzv4gX7vXKVq9U
 ```
 https://resend.com/dashboard
 → Domains → Add Domain
-→ vibefolio.net
+→ myratingis.kr
 ```
 
 **DNS 레코드 추가 (도메인 관리 페이지):**
@@ -106,7 +106,7 @@ Priority: 10
 ```
 Resend Dashboard → Webhooks → Add Webhook
 
-URL: https://vibefolio.net/api/webhooks/resend
+URL: https://myratingis.kr/api/webhooks/resend
 Events: email.received
 ```
 
@@ -131,9 +131,9 @@ Events: email.received
 **관리자 페이지 접속:**
 
 ```
-https://vibefolio.net/admin/emails
+https://myratingis.kr/admin/emails
 
-발신: vibefolio@vibefolio.net
+발신: myratingis@myratingis.kr
 수신: 본인 이메일
 제목: 테스트
 내용: Resend 이메일 발송 테스트
@@ -144,7 +144,7 @@ https://vibefolio.net/admin/emails
 ### 2. 회원가입 인증 메일 테스트
 
 ```
-1. 시크릿 모드로 vibefolio.net 접속
+1. 시크릿 모드로 myratingis.kr 접속
 2. 회원가입
 3. 이메일 수신 확인
 4. 인증 링크 클릭
@@ -154,7 +154,7 @@ https://vibefolio.net/admin/emails
 ### 3. 이메일 수신 테스트 (MX 설정 후)
 
 ```
-Gmail 등에서 support@vibefolio.net로 이메일 발송
+Gmail 등에서 support@myratingis.kr로 이메일 발송
 → 관리자 페이지에서 수신 확인
 ```
 
@@ -164,11 +164,11 @@ Gmail 등에서 support@vibefolio.net로 이메일 발송
 
 DNS 설정 완료 후 사용 가능:
 
-- ✉️ `noreply@vibefolio.net` - 시스템 자동 발송
-- ✉️ `vibefolio@vibefolio.net` - 공식 이메일
-- ✉️ `support@vibefolio.net` - 고객 지원
-- ✉️ `admin@vibefolio.net` - 관리자
-- ✉️ `hello@vibefolio.net` - 일반 문의
+- ✉️ `noreply@myratingis.kr` - 시스템 자동 발송
+- ✉️ `myratingis@myratingis.kr` - 공식 이메일
+- ✉️ `support@myratingis.kr` - 고객 지원
+- ✉️ `admin@myratingis.kr` - 관리자
+- ✉️ `hello@myratingis.kr` - 일반 문의
 
 ---
 

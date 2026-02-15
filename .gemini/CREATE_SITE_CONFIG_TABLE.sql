@@ -33,6 +33,6 @@ create policy "Enable insert for admins only" on site_config
 insert into site_config (key, value, description)
 values 
   ('seo_og_image', '', 'Open Graph share image URL'),
-  ('seo_title', 'Vibefolio - 크리에이터를 위한 영감 저장소', 'Global site title'),
+  ('seo_title', 'MyRatingIs - 크리에이터를 위한 영감 저장소', 'Global site title'),
   ('seo_description', '디자이너, 개발자, 기획자를 위한 프로젝트 아카이빙 및 레퍼런스 공유 플랫폼', 'Global site description')
 on conflict (key) do nothing;

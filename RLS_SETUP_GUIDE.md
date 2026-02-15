@@ -2,7 +2,7 @@
 
 ## ⚠️ **중요: 이 작업을 반드시 수행해야 합니다!**
 
-현재 Vibefolio 앱이 제대로 작동하지 않는 이유는 **Supabase RLS(Row Level Security) 정책이 적용되지 않았기 때문**입니다.
+현재 제 평가는요? 앱이 제대로 작동하지 않는 이유는 **Supabase RLS(Row Level Security) 정책이 적용되지 않았기 때문**입니다.
 
 ---
 
@@ -11,7 +11,7 @@
 ### **1. Supabase Dashboard 접속**
 
 1. https://supabase.com 로그인
-2. Vibefolio 프로젝트 선택
+2. 제 평가는요? 프로젝트 선택
 3. 왼쪽 메뉴에서 **SQL Editor** 클릭
 
 ### **2. SQL 파일 실행**

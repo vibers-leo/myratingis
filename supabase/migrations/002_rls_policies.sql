@@ -1,4 +1,4 @@
--- Vibefolio RLS (Row Level Security) 정책 설정
+-- MyRatingIs RLS (Row Level Security) 정책 설정
 -- 이 SQL을 Supabase SQL Editor에서 실행하세요.
 
 -- ============================================

@@ -112,7 +112,7 @@ function renderTemplate(template: string, data: Record<string, any>): string {
           <p style="margin: 10px 0 0 0;">${data.message || ''}</p>
         </div>
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
-        <p style="color: #6b7280; font-size: 12px;">© 2026 Vibefolio. All rights reserved.</p>
+        <p style="color: #6b7280; font-size: 12px;">© 2026 제 평가는요? All rights reserved.</p>
       </div>
     `,
   };

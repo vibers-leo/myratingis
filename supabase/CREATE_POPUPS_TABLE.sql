@@ -55,4 +55,4 @@ CREATE TRIGGER popups_updated_at
 
 -- 샘플 데이터
 INSERT INTO public.popups (title, content, image_url, link_url, is_active, display_order) VALUES
-('🎉 Vibefolio 오픈 기념 이벤트', '새로운 크리에이터 커뮤니티 Vibefolio에 오신 것을 환영합니다! 지금 가입하고 프로젝트를 공유해보세요.', null, '/signup', true, 1);
+('🎉 제 평가는요? 오픈 기념 이벤트', '프로젝트 평가 플랫폼 제 평가는요?에 오신 것을 환영합니다! 지금 가입하고 프로젝트를 공유해보세요.', null, '/signup', true, 1);

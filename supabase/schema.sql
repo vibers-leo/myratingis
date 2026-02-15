@@ -1,4 +1,4 @@
--- Vibefolio Database Schema (Supabase Auth Integrated)
+-- MyRatingIs Database Schema (Supabase Auth Integrated)
 -- User 테이블을 삭제하고 Supabase Auth와 1:1 매핑되는 public.users 테이블을 사용합니다.
 -- 이 스크립트를 Supabase SQL Editor에서 실행하여 전체 스키마를 재구성하세요.
 -- 주의: 기존 데이터가 있다면 백업 후 실행하세요. (DROP TABLE이 포함되어 있지 않으므로 새 프로젝트 기준입니다)

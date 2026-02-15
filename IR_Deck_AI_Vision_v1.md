@@ -1,4 +1,4 @@
-# 바이브폴리오 (VIBEFOLIO) 비전 발표 자료 (Final AI Vision Ver.)
+# 제 평가는요? (MyRatingIs) 비전 발표 자료 (Final AI Vision Ver.)
 
 > AI 창작자를 위한 영감과 성장의 포트폴리오 플랫폼
 
@@ -6,7 +6,7 @@
 
 ## 슬라이드 1: 오프닝
 
-**타이틀:** VIBEFOLIO
+**타이틀:** MyRatingIs
 **서브타이틀:** 휘발되는 AI 창작물에 '영원한 가치'를 담다.
 **태그라인:** 영감과 학습으로 완성되는 AI 크리에이터의 성장 플랫폼 / The Growth Platform for AI Creatives
 **발표자:** [팀명 / 이름]
@@ -35,7 +35,7 @@
 
 ## 슬라이드 3: 우리의 미션 (Our Mission)
 
-**주제:** VIBEFOLIO - From Generation to Growth
+**주제:** MyRatingIs - From Generation to Growth
 
 - **Inspire (영감):** 타인의 창작물에서 새로운 아이디어를 얻습니다.
 - **Archive (축적):** 나의 AI 창작물, 프롬프트, 고민의 과정을 체계적으로 기록합니다.
@@ -97,9 +97,9 @@
 
 **메시지:**
 "AI 창작은 이제 시작입니다.
-여러분의 영감이 역사가 되는 곳, **바이브폴리오**입니다."
+여러분의 영감이 역사가 되는 곳, **제 평가는요?**입니다."
 
 **[최종 화면]**
-VIBEFOLIO
+MyRatingIs
 Your Inspiration, Your Portfolio, Your Growth.
 감사합니다.

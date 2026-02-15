@@ -1,10 +1,10 @@
-# Vibefolio API Documentation
+# MyRatingIs API Documentation
 
-This document describes the API endpoints used in the Vibefolio application. The API is built using Next.js Route Handlers and interacts with Supabase for data persistence.
+This document describes the API endpoints used in the MyRatingIs application. The API is built using Next.js Route Handlers and interacts with Supabase for data persistence.
 
 ## Base URL
 
-All API endpoints are relative to the base URL of the application (e.g., `https://vibefolio.net` or `http://localhost:3000`).
+All API endpoints are relative to the base URL of the application (e.g., `https://myratingis.kr` or `http://localhost:3000`).
 
 ---
 

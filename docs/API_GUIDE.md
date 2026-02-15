@@ -1,10 +1,10 @@
-# Vibefolio Public API 사용 가이드
+# MyRatingIs Public API 사용 가이드
 
-외부 애플리케이션에서 Vibefolio에 프로젝트를 자동으로 등록하고 관리할 수 있는 Public API입니다.
+외부 애플리케이션에서 MyRatingIs에 프로젝트를 자동으로 등록하고 관리할 수 있는 Public API입니다.
 
 ## 🔑 API Key 발급
 
-1. [Vibefolio](https://vibefolio.net)에 로그인
+1. [MyRatingIs](https://myratingis.kr)에 로그인
 2. **마이페이지** → **AI 도구** → **API 설정** 이동
 3. **새 API 키 생성** 버튼 클릭
 4. 생성된 API 키를 안전한 곳에 보관 (한 번만 표시됨)
@@ -12,7 +12,7 @@
 ## 📡 Base URL
 
 ```
-https://vibefolio.net/api/v1
+https://myratingis.kr/api/v1
 ```
 
 ## 🔐 인증
@@ -27,7 +27,7 @@ Authorization: Bearer {YOUR_API_KEY}
 
 ### 1. 프로젝트 생성
 
-새 프로젝트를 Vibefolio에 등록합니다.
+새 프로젝트를 MyRatingIs에 등록합니다.
 
 **Endpoint:** `POST /projects`
 
@@ -62,7 +62,7 @@ Authorization: Bearer {YOUR_API_KEY}
   "project": {
     "id": 123,
     "title": "My Awesome App",
-    "url": "https://vibefolio.net/project/123",
+    "url": "https://myratingis.kr/project/123",
     "thumbnail_url": "https://...",
     "visibility": "public",
     "created_at": "2026-01-18T12:00:00Z"
@@ -147,7 +147,7 @@ Authorization: Bearer {YOUR_API_KEY}
 ### cURL
 
 ```bash
-curl -X POST https://vibefolio.net/api/v1/projects \
+curl -X POST https://myratingis.kr/api/v1/projects \
   -H "Authorization: Bearer vf_abc123..." \
   -H "Content-Type: application/json" \
   -d '{
@@ -162,7 +162,7 @@ curl -X POST https://vibefolio.net/api/v1/projects \
 
 ```typescript
 const API_KEY = "vf_abc123...";
-const BASE_URL = "https://vibefolio.net/api/v1";
+const BASE_URL = "https://myratingis.kr/api/v1";
 
 async function createProject(data: any) {
   const response = await fetch(`${BASE_URL}/projects`, {

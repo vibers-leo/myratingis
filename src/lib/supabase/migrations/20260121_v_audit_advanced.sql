@@ -12,7 +12,7 @@ ADD COLUMN IF NOT EXISTS audit_deadline TIMESTAMPTZ,
 ADD COLUMN IF NOT EXISTS is_growth_requested BOOLEAN DEFAULT FALSE;
 
 COMMENT ON COLUMN "Project".audit_deadline IS 'V-Audit 진단 종료 기한';
-COMMENT ON COLUMN "Project".is_growth_requested IS '바이브폴리오 성장하기(공개 진단) 등록 여부';
+COMMENT ON COLUMN "Project".is_growth_requested IS '성장하기(공개 진단) 등록 여부';
 
 -- 2. ProjectRating 수정 가능 여부를 위한 컬럼 (선택사항이지만 유용함)
 ALTER TABLE "ProjectRating"

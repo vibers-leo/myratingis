@@ -1,4 +1,4 @@
--- 1. Fix Categories (Reset to 12 Vibefolio Categories)
+-- 1. Fix Categories (Reset to 12 MyRatingIs Categories)
 -- Note: This assumes 'categories' table exists. 
 -- If 'Project' table has FK constraint, we might need to handle it. 
 -- For safety, we will UPSERT based on ID.

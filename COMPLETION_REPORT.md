@@ -1,4 +1,4 @@
-# ✅ Vibefolio 개선 작업 완료 보고서
+# ✅ 제 평가는요? 개선 작업 완료 보고서
 
 ## 🎉 **완료된 작업 (2025-12-12 00:53 ~ 01:10)**
 
@@ -94,7 +94,7 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_key
 
 ### **배포 URL**
 
-- **Production**: https://vibefolio-main.vercel.app
+- **Production**: https://myratingis.vercel.app
 - **예상 배포 시간**: 2-3분
 
 ---
@@ -162,4 +162,4 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_key
 2. 카테고리 동기화 SQL 실행
 3. 배포 완료 확인
 
-**이제 Vibefolio가 훨씬 안정적으로 작동합니다!** 🚀
+**이제 제 평가는요?가 훨씬 안정적으로 작동합니다!** 🚀

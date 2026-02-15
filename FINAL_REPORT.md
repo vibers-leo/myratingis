@@ -1,4 +1,4 @@
-# 🌙 **잘 자요! Vibefolio 최종 완료 보고서**
+# 🌙 **잘 자요! 제 평가는요? 최종 완료 보고서**
 
 ## 🎉 **오늘 밤 완료된 모든 작업**
 
@@ -123,7 +123,7 @@
 
 ### **URL**
 
-- **Production**: https://vibefolio-main.vercel.app
+- **Production**: https://myratingis.vercel.app
 - **Local**: http://localhost:4000
 
 ---
@@ -179,7 +179,7 @@
 
 ---
 
-## 🌟 **Vibefolio는 이제 완성되었습니다!**
+## 🌟 **제 평가는요?는 이제 완성되었습니다!**
 
 **주요 기능:**
 
@@ -211,7 +211,7 @@
 
 **내일 아침에 확인하세요:**
 
-1. https://vibefolio-main.vercel.app
+1. https://myratingis.vercel.app
 2. 브라우저 새로고침 (Ctrl + Shift + R)
 3. 로그인 → 프로젝트 등록 → 좋아요 → 댓글
 
@@ -222,4 +222,4 @@
 **작업 완료 시간**: 2025-12-12 01:20
 **다음 단계**: 편히 주무세요! 😴
 
-**Vibefolio가 당신을 기다리고 있습니다!** ✨
+**제 평가는요?가 당신을 기다리고 있습니다!** ✨

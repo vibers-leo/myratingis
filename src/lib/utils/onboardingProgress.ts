@@ -97,7 +97,7 @@ export const ONBOARDING_STEPS = [
   {
     id: "welcome",
     title: "환영합니다!",
-    description: "바이브폴리오에 오신 것을 환영합니다.",
+    description: "제 평가는요?에 오신 것을 환영합니다.",
   },
   {
     id: "profile",

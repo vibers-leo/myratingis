@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS public.api_keys (
     key_id SERIAL PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     api_key TEXT UNIQUE NOT NULL,
-    key_name TEXT DEFAULT 'Vibefolio Key',
+    key_name TEXT DEFAULT 'MyRatingIs Key',
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
 );

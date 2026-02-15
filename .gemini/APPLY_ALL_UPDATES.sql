@@ -47,7 +47,7 @@ END $$;
 -- Initial Data (Only if empty)
 INSERT INTO ir_decks (team_name, title, description)
 SELECT 'Team 5', 'Team 5 IR Presentation', '다섯 번째 팀 발표 자료 초안'
-WHERE NOT EXISTS (SELECT 1 FROM ir_decks WHERE team_name = 'Team 5' OR team_name = 'Vibefolio (5조)');
+WHERE NOT EXISTS (SELECT 1 FROM ir_decks WHERE team_name = 'Team 5' OR team_name = 'MyRatingIs (5조)');
 
 
 -- 2. Create Site Stats Table & RPC
@@ -150,42 +150,42 @@ BEGIN
 END $$;
 
 
--- 5. Populate IR Deck Data for Vibefolio
--- Change Team 5 to Vibefolio
+-- 5. Populate IR Deck Data for MyRatingIs
+-- Change Team 5 to MyRatingIs
 UPDATE ir_decks
-SET team_name = 'Vibefolio (5조)',
-    title = 'Vibefolio - AI 창작자들을 위한 실체 있는 놀이터',
+SET team_name = 'MyRatingIs (5조)',
+    title = 'MyRatingIs - AI 창작자들을 위한 실체 있는 놀이터',
     description = '바이브코더(AI Creator)를 위한 포트폴리오 아카이빙 및 올인원 커뮤니티 (MVP 구현 완료)'
-WHERE team_name = 'Team 5' OR team_name = 'Vibefolio (5조)';
+WHERE team_name = 'Team 5' OR team_name = 'MyRatingIs (5조)';
 
 -- Reset slides
 DELETE FROM ir_slides 
-WHERE deck_id = (SELECT id FROM ir_decks WHERE team_name = 'Vibefolio (5조)');
+WHERE deck_id = (SELECT id FROM ir_decks WHERE team_name = 'MyRatingIs (5조)');
 
 -- Insert Slides
 INSERT INTO ir_slides (deck_id, order_index, layout_type, title, content, speaker_notes)
 VALUES
 -- 0. Cover
 (
-    (SELECT id FROM ir_decks WHERE team_name = 'Vibefolio (5조)'),
+    (SELECT id FROM ir_decks WHERE team_name = 'MyRatingIs (5조)'),
     0,
     'cover',
-    'Vibefolio',
+    'MyRatingIs',
     'AI 활용 창작자, "바이브코더"를 위한\n단 하나의 포트폴리오 플랫폼\n(MVP Developed & Live)',
-    '안녕하십니까, 5조 발표자입니다. 저희는 아이디어가 아닌, 실제로 동작하는 플랫폼 Vibefolio를 보여드리기 위해 이 자리에 섰습니다.'
+    '안녕하십니까, 5조 발표자입니다. 저희는 아이디어가 아닌, 실제로 동작하는 플랫폼 MyRatingIs를 보여드리기 위해 이 자리에 섰습니다.'
 ),
 -- 1. Project Question (Why We Started)
 (
-    (SELECT id FROM ir_decks WHERE team_name = 'Vibefolio (5조)'),
+    (SELECT id FROM ir_decks WHERE team_name = 'MyRatingIs (5조)'),
     1,
     'big_number',
     'Project Question',
     '### "우리에게 가장 필요한 플랫폼은 무엇일까?"\n\n1. 각자의 프로젝트를 효과적으로 홍보할 수 있는 곳\n2. MVP로 빠르게 유저를 모으고 반응을 확인할 수 있는 곳\n3. **바이브코딩**으로 만든 결과물을 인정받을 수 있는 곳',
-    '이 프로젝트는 저희 팀 스크로가 직접 겪은 갈증에서 시작되었습니다. "우리가 만든 AI 결과물을 어디에 자랑하지?" 이 질문이 Vibefolio의 시작이었습니다.'
+    '이 프로젝트는 저희 팀 스크로가 직접 겪은 갈증에서 시작되었습니다. "우리가 만든 AI 결과물을 어디에 자랑하지?" 이 질문이 MyRatingIs의 시작이었습니다.'
 ),
 -- 2. Market Problem (Pain Points)
 (
-    (SELECT id FROM ir_decks WHERE team_name = 'Vibefolio (5조)'),
+    (SELECT id FROM ir_decks WHERE team_name = 'MyRatingIs (5조)'),
     2,
     'swot',
     'Why New Platform?',
@@ -194,16 +194,16 @@ VALUES
 ),
 -- 3. Solution (Archive - Implemented)
 (
-    (SELECT id FROM ir_decks WHERE team_name = 'Vibefolio (5조)'),
+    (SELECT id FROM ir_decks WHERE team_name = 'MyRatingIs (5조)'),
     3,
     'image_left',
     'Solution 1: Archive (구현 완료)',
     '### 직관적인 Masonry Grid & 아카이빙\n\n- **Discover**: 최신 트렌드를 한눈에 볼 수 있는 핀터레스트 스타일의 Masonry Layout 적용 (Mobile Responsive)\n- **Detail**: 단순 이미지가 아닌, 기획 의도와 사용 툴(Prompt info)을 상세히 기록하는 에디터 구현\n- **Search**: 카테고리, 분야, 태그 기반의 실시간 검색 엔진 탑재',
-    '지금 보시는 화면은 디자인 시안이 아닙니다. 실제 구현된 Vibefolio의 메인 화면입니다. 반응형 그리드와 강력한 검색 기능이 이미 작동하고 있습니다.'
+    '지금 보시는 화면은 디자인 시안이 아닙니다. 실제 구현된 MyRatingIs의 메인 화면입니다. 반응형 그리드와 강력한 검색 기능이 이미 작동하고 있습니다.'
 ),
 -- 4. Solution (AI Tech - Implemented)
 (
-    (SELECT id FROM ir_decks WHERE team_name = 'Vibefolio (5조)'),
+    (SELECT id FROM ir_decks WHERE team_name = 'MyRatingIs (5조)'),
     4,
     'image_right',
     'Solution 2: AI Tech (구현 완료)',
@@ -212,7 +212,7 @@ VALUES
 ),
 -- 5. Business & Operations (Admin Dashboard)
 (
-    (SELECT id FROM ir_decks WHERE team_name = 'Vibefolio (5조)'),
+    (SELECT id FROM ir_decks WHERE team_name = 'MyRatingIs (5조)'),
     5,
     'grid',
     'Back-office Assessment',
@@ -221,7 +221,7 @@ VALUES
 ),
 -- 6. Tech Stack
 (
-    (SELECT id FROM ir_decks WHERE team_name = 'Vibefolio (5조)'),
+    (SELECT id FROM ir_decks WHERE team_name = 'MyRatingIs (5조)'),
     6,
     'basic',
     'Tech Architecture',
@@ -230,7 +230,7 @@ VALUES
 ),
 -- 7. Roadmap
 (
-    (SELECT id FROM ir_decks WHERE team_name = 'Vibefolio (5조)'),
+    (SELECT id FROM ir_decks WHERE team_name = 'MyRatingIs (5조)'),
     7,
     'swot',
     'Roadmap: Scale-up',
@@ -239,19 +239,19 @@ VALUES
 ),
 -- 8. Team
 (
-    (SELECT id FROM ir_decks WHERE team_name = 'Vibefolio (5조)'),
+    (SELECT id FROM ir_decks WHERE team_name = 'MyRatingIs (5조)'),
     8,
     'grid',
-    'Team Vibefolio (5조)',
+    'Team MyRatingIs (5조)',
     '### The Builders\n\n- **선효섭/신지호 (Backend)**: 안정적인 데이터 파이프라인 및 관리자 시스템 구축\n- **이승훈/이준호 (Frontend)**: Pixel-perfect UI 구현 및 유저 인터랙션 설계\n- **안승빈/이동엽 (PM/Planning)**: 서비스 기획 및 시장/유저 분석 리딩',
-    '저희는 기획으로 끝내지 않습니다. 코드로 증명하는 팀, Vibefolio입니다.'
+    '저희는 기획으로 끝내지 않습니다. 코드로 증명하는 팀, MyRatingIs입니다.'
 ),
 -- 9. Closing
 (
-    (SELECT id FROM ir_decks WHERE team_name = 'Vibefolio (5조)'),
+    (SELECT id FROM ir_decks WHERE team_name = 'MyRatingIs (5조)'),
     9,
     'cover',
-    'Vibefolio',
-    '상상이 현실이 되는 곳,\nVibefolio에서 당신의 바이브를 보여주세요.\n\n감사합니다.',
+    'MyRatingIs',
+    '상상이 현실이 되는 곳,\nMyRatingIs에서 당신의 바이브를 보여주세요.\n\n감사합니다.',
     '경청해 주셔서 감사합니다.'
 );

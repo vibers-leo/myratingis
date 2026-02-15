@@ -112,11 +112,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning className="dark">
       <head>
-        {/* Preconnect hints for critical third-party origins (saves 300-500ms per origin) */}
-        {/* Firebase Auth - Required for authentication */}
-        <link rel="preconnect" href="https://myratingis-29082.firebaseapp.com" />
-        <link rel="preconnect" href="https://firebase.googleapis.com" />
-        <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
+        {/* Preconnect hints for critical third-party origins */}
         <link rel="preconnect" href="https://www.googleapis.com" />
         <link rel="preconnect" href="https://apis.google.com" />
         {/* Kakao SDK */}

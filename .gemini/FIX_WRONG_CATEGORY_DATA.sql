@@ -27,7 +27,7 @@ WHERE title LIKE '%메디엣지%'
    OR title LIKE '%리팩토링%'
    OR title LIKE '%Next.js%' -- 추가로 웹 관련일 수 있는 것들
    OR title LIKE '%React%'
-   OR title LIKE '%Vibefolio%';
+   OR title LIKE '%MyRatingIs%';
 
 -- 3. 확인용: 변경된 프로젝트 수 확인 (선택 사항)
 -- SELECT count(*) FROM public."Project" WHERE category_id = 11;
