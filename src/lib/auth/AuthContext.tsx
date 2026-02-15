@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -28,8 +28,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authError, setAuthError] = useState<string | null>(null);
   const router = useRouter();
 
+  const fetchUserProfile = useCallback(async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error("Error fetching user profile:", error);
+      } else {
+        setUserProfile(data);
+      }
+    } catch (e) {
+      console.error("Profile fetch error:", e);
+    }
+  }, []);
+
   useEffect(() => {
-    // Safety timeout: never stay in loading state for more than 3 seconds
     const safetyTimer = setTimeout(() => {
       setLoading(false);
     }, 3000);
@@ -39,7 +56,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
           setUser(session.user);
-          // Don't block loading on profile fetch
           fetchUserProfile(session.user.id);
         }
       } catch (error) {
@@ -56,7 +72,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (session) {
         setUser(session.user);
-        // Don't block loading on profile fetch
         fetchUserProfile(session.user.id);
       } else {
         setUser(null);
@@ -69,27 +84,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       clearTimeout(safetyTimer);
       subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchUserProfile]);
 
-  const fetchUserProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error) {
-        console.error("Error fetching user profile:", error);
-      } else {
-        setUserProfile(data);
-      }
-    } catch (e) {
-      console.error("Profile fetch error:", e);
-    }
-  };
-
-  const signInWithGoogle = async () => {
+  const signInWithGoogle = useCallback(async () => {
     try {
       setLoading(true);
       setAuthError(null);
@@ -113,7 +110,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       console.log("[AuthContext] ✅ Google OAuth redirect initiated:", data);
-      // Note: Page will redirect, so loading state will be reset
     } catch (error: any) {
       console.error("[AuthContext] ❌ Google Login Failed:", {
         message: error.message,
@@ -122,11 +118,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       setAuthError(error.message);
       toast.error("Google 로그인에 실패했습니다.");
-      setLoading(false); // Only set false on error, since redirect will happen on success
+      setLoading(false);
     }
-  };
+  }, []);
 
-  const signInWithKakao = async () => {
+  const signInWithKakao = useCallback(async () => {
     try {
       setLoading(true);
       setAuthError(null);
@@ -145,18 +141,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       toast.error("카카오 로그인에 실패했습니다.");
       setLoading(false);
     }
-  };
+  }, []);
 
-  const signInWithEmail = async (email: string, password: string) => {
+  const signInWithEmail = useCallback(async (email: string, password: string) => {
     try {
       setLoading(true);
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-      
+
       if (error) throw error;
-      
+
       console.log("[AuthContext] Sign-in successful:", data.user?.email);
       router.push("/");
     } catch (error: any) {
@@ -166,37 +162,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
        setLoading(false);
     }
-  };
+  }, [router]);
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       await supabase.auth.signOut();
       router.push("/login");
     } catch (error: any) {
       console.error("Logout Failed", error);
     }
-  };
+  }, [router]);
 
-  const isAdmin = 
-    userProfile?.role === 'admin' || 
+  const isAdmin = useMemo(() =>
+    userProfile?.role === 'admin' ||
     (user?.app_metadata as any)?.role === 'admin' ||
     user?.email?.toLowerCase() === 'design@designdlab.co.kr' ||
     user?.email?.toLowerCase() === 'highspringroad@gmail.com' ||
-    user?.email?.toLowerCase() === 'juuunoder@gmail.com'; // Added search clue
+    user?.email?.toLowerCase() === 'juuunoder@gmail.com',
+  [userProfile?.role, user?.app_metadata, user?.email]);
+
+  const value = useMemo<AuthContextType>(() => ({
+    user,
+    loading,
+    isAuthenticated: !!user,
+    signInWithGoogle,
+    signInWithKakao,
+    signInWithEmail,
+    signOut,
+    authError,
+    userProfile,
+    isAdmin
+  }), [user, loading, signInWithGoogle, signInWithKakao, signInWithEmail, signOut, authError, userProfile, isAdmin]);
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loading, 
-      isAuthenticated: !!user, 
-      signInWithGoogle,
-      signInWithKakao,
-      signInWithEmail,
-      signOut, 
-      authError,
-      userProfile,
-      isAdmin
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

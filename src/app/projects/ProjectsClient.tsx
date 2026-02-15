@@ -37,7 +37,8 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
 
   useEffect(() => {
     fetchProjects();
-  }, [user, activeFilter]); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, activeFilter]);
 
   const fetchProjects = async (silent = false) => {
     if (!silent) setLoading(true);
