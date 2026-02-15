@@ -18,12 +18,8 @@ export async function GET(
       if (user) userId = user.id;
   }
 
-  if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    // 1. Verify Ownership (UUID면 projects 테이블, 정수면 Project 테이블)
+    // 1. Fetch Project (UUID면 projects 테이블, 정수면 Project 테이블)
     let project: any = null;
     if (isUUID(projectId)) {
         const { data } = await supabaseAdmin
@@ -43,18 +39,41 @@ export async function GET(
         project = data;
     }
 
-    if (!project || project.user_id !== userId) {
-        return NextResponse.json({ error: "Forbidden: You are not the owner." }, { status: 403 });
+    if (!project) {
+        return NextResponse.json({ error: "Project not found" }, { status: 404 });
     }
 
-    // 2. Fetch Ratings with Profiles via RPC (PostgREST 스키마 캐시 우회)
+    // Access control
+    const isOwner = userId && project.user_id === userId;
+    let isCollaborator = false;
+    if (userId && !isOwner) {
+        try {
+            const { data: collab } = await supabaseAdmin
+                .from('project_collaborators')
+                .select('id')
+                .eq('project_id', projectId)
+                .eq('user_id', userId)
+                .single();
+            if (collab) isCollaborator = true;
+        } catch (e) {}
+    }
+    const isAuthorized = isOwner || isCollaborator;
+
+    // Parse custom_data
+    let rawCustom = project.custom_data || {};
+    if (typeof rawCustom === 'string') {
+        try { rawCustom = JSON.parse(rawCustom); } catch (e) { rawCustom = {}; }
+    }
+    const resultVisibility = rawCustom?.result_visibility || 'public';
+    const isPublic = resultVisibility === 'public';
+
+    // 2. Fetch Ratings with Profiles via RPC
     const { data: rawRatings, error: ratingError } = await supabaseAdmin
       .rpc('get_ratings_with_profiles', { p_project_id: projectId });
 
     if (ratingError) throw ratingError;
 
-    // RPC returns flat fields → reconstruct profile object for compatibility
-    const ratings = (rawRatings || []).map((r: any) => ({
+    const allRatings = (rawRatings || []).map((r: any) => ({
       ...r,
       profile: {
         username: r.profile_username,
@@ -65,65 +84,71 @@ export async function GET(
       }
     }));
 
+    // Determine which ratings to use based on access
+    let targetRatings = allRatings;
+    let accessLevel = 'full';
+
+    if (!isPublic && !isAuthorized) {
+        const myRating = userId ? allRatings.find((r: any) => r.user_id === userId) : null;
+        if (myRating) {
+            targetRatings = [myRating];
+            accessLevel = 'personal';
+        } else {
+            return NextResponse.json({
+                success: false,
+                error: 'Access denied',
+                accessLevel: 'denied',
+                project: { title: project.title, custom_data: rawCustom }
+            }, { status: 403 });
+        }
+    }
+
     // 3. Fetch Polls
     const { data: votes } = await supabaseAdmin
       .from("ProjectPoll")
       .select("*")
       .eq("project_id", projectId);
 
-    // 4. Aggregation Logic
-    const totalCount = ratings?.length || 0;
-    
-    // Dynamic Categories from Project Config
-    let rawCustom = project.custom_data || {};
-    if (typeof rawCustom === 'string') {
-        try { rawCustom = JSON.parse(rawCustom); } catch (e) { rawCustom = {}; }
-    }
+    // 4. Aggregation
+    const totalCount = allRatings.length;
     const customConfig = rawCustom?.audit_config || rawCustom?.custom_categories;
     const categories = customConfig?.categories || [
-      { id: 'score_1', label: '기획력' }, 
-      { id: 'score_2', label: '독창성' }, 
-      { id: 'score_3', label: '심미성' }, 
+      { id: 'score_1', label: '기획력' },
+      { id: 'score_2', label: '독창성' },
+      { id: 'score_3', label: '심미성' },
       { id: 'score_4', label: '완성도' },
       { id: 'score_5', label: '상업성' },
       { id: 'score_6', label: '편의성' }
     ];
     const catIds = categories.map((c: any) => c.id || c.label);
-    
+
     let averages: Record<string, number> = {};
     let totalAvg = 0;
-
-    // Expertise Distribution & Votes
     const expertiseStats: Record<string, number> = {};
     const occupationStats: Record<string, number> = {};
     const voteCounts: Record<string, number> = {};
 
-    // Seed from separate poll table if exists
     if (votes) {
         votes.forEach((v: any) => {
             voteCounts[v.vote_type] = (voteCounts[v.vote_type] || 0) + 1;
         });
     }
 
-    if (totalCount > 0) {
+    if (targetRatings.length > 0) {
       const sums: Record<string, number> = {};
       catIds.forEach((id: string) => sums[id] = 0);
 
-      ratings?.forEach((curr: any) => {
+      targetRatings.forEach((curr: any) => {
           catIds.forEach((id: string, idx: number) => {
-              // Map score_1...6 columns to category ids by order
               const columnName = `score_${idx + 1}`;
-              // Fallback priority: Specific column -> Category ID key -> Global average score -> 0
-              const val = Number(curr[columnName]) || Number(curr[id]) || Number(curr.score) || 0;
+              const val = Number(curr[columnName]) || Number(curr[id]) || 0;
               sums[id] += val;
           });
 
-          // Aggregate vote_type from Rating table
           if (curr.vote_type) {
               voteCounts[curr.vote_type] = (voteCounts[curr.vote_type] || 0) + 1;
           }
 
-          // Aggregate Expertise
           const profile = curr.profile as any;
           if (profile) {
               const expField = profile.expertise?.fields || profile.expertise || [];
@@ -131,32 +156,26 @@ export async function GET(
               expList.forEach((field: string) => {
                   expertiseStats[field] = (expertiseStats[field] || 0) + 1;
               });
-
-              // Aggregate Occupation
-              const occ = profile.occupation;
-              if (occ) {
-                  occupationStats[occ] = (occupationStats[occ] || 0) + 1;
+              if (profile.occupation) {
+                  occupationStats[profile.occupation] = (occupationStats[profile.occupation] || 0) + 1;
               }
           }
       });
 
       catIds.forEach((id: string) => {
-          averages[id] = Number((sums[id] / totalCount).toFixed(1));
+          averages[id] = Number((sums[id] / targetRatings.length).toFixed(1));
       });
-      
+
       const sumAvgs = Object.values(averages).reduce((a, b) => a + b, 0);
       totalAvg = Number((sumAvgs / catIds.length).toFixed(1));
     }
 
-    // Feedbacks list
-
-    // Feedback Comments (Proposal & Custom Answers)
-    // Feedback Comments (Proposal & Custom Answers)
-    const feedbacks = ratings?.map((r: any) => ({
+    // 5. Build feedbacks with score columns
+    const feedbacks = targetRatings.map((r: any) => ({
         id: r.id,
         user_id: r.user_id,
         guest_id: r.guest_id,
-        username: (r.profile as any)?.nickname || (r.profile as any)?.username || (r.user_id ? "익명의 전문가" : "비회원 게스트"),
+        username: (r.profile as any)?.username || (r.user_id ? "익명의 전문가" : "비회원 게스트"),
         expertise: (() => {
             const profile = r.profile as any;
             if (!profile) return [];
@@ -167,23 +186,33 @@ export async function GET(
         age_group: (r.profile as any)?.age_group,
         gender: (r.profile as any)?.gender,
         score: r.score,
+        score_1: r.score_1,
+        score_2: r.score_2,
+        score_3: r.score_3,
+        score_4: r.score_4,
+        score_5: r.score_5,
+        score_6: r.score_6,
         vote_type: r.vote_type,
         proposal: r.proposal,
         custom_answers: r.custom_answers,
-        created_at: r.created_at
-    })) || [];
+        created_at: r.created_at || r.updated_at
+    }));
 
     return NextResponse.json({
       success: true,
+      project: {
+        title: project.title,
+        custom_data: rawCustom,
+        user_id: project.user_id,
+        author_id: project.author_id || project.user_id,
+        views: project.views || project.view_count || 0,
+      },
       report: {
         totalReviewers: totalCount,
-        michelin: {
-          averages,
-          totalAvg,
-          count: totalCount
-        },
+        accessLevel,
+        michelin: { averages, totalAvg, count: targetRatings.length },
         polls: voteCounts,
-        feedbacks: feedbacks,
+        feedbacks,
         expertiseDistribution: expertiseStats,
         occupationDistribution: occupationStats
       }

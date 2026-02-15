@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { db } from "@/lib/firebase/client"; // Firebase
-import { doc, getDoc, collection, query, where, getDocs, updateDoc, increment } from "firebase/firestore"; // Firestore methods
+import { supabase } from "@/lib/supabase/client";
 import { 
   ArrowLeft, 
   Users, 
@@ -67,7 +66,7 @@ export default function ReportPage() {
 
   useEffect(() => {
     if (ratings.length > 0 && user) {
-        setMyRating(ratings.find((r: any) => r.user_uid === user.id || (r.user_email && user.email && r.user_email === user.email)));
+        setMyRating(ratings.find((r: any) => r.user_uid === user.id || r.user_id === user.id));
     }
   }, [ratings, user]);
 
@@ -106,183 +105,102 @@ export default function ReportPage() {
       window.print();
   };
 
-  // ... (useEffect fetchData same as before) ...
-
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
-        // 1. Fetch Project from Firestore
-        const projectRef = doc(db, "projects", projectId);
-        const projectSnap = await getDoc(projectRef);
 
-        if (!projectSnap.exists()) {
-             toast.error("프로젝트를 찾을 수 없습니다.");
-             setLoading(false);
-             return;
+        // Get auth session for API calls
+        const { data: { session } } = await supabase.auth.getSession();
+        const headers: Record<string, string> = {};
+        if (session?.access_token) {
+          headers['Authorization'] = `Bearer ${session.access_token}`;
         }
 
-        const projectData = projectSnap.data();
-        
-        // --- View Count Increment (Report Page Visit) ---
-        const viewKey = `viewed_${projectId}`;
-        if (typeof window !== 'undefined' && !sessionStorage.getItem(viewKey)) {
-             try {
-                // Async update
-                updateDoc(projectRef, { 
-                    views: increment(1),
-                    views_count: increment(1),
-                    view_count: increment(1)
-                });
-                sessionStorage.setItem(viewKey, 'true');
-                // Optimistic Update
-                projectData.views = (projectData.views || 0) + 1;
-                projectData.views_count = (projectData.views_count || 0) + 1;
-             } catch(e) { console.warn("View increment failed", e); }
-        }
-        // ------------------------------------------------
+        // 1. Fetch detailed report via API (includes project + feedbacks)
+        const reportRes = await fetch(`/api/projects/${projectId}/report`, { headers });
+        const reportData = await reportRes.json();
 
-        // --- View Count Correction (Only for '와요' project, Min 135) ---
-        if (projectData.title?.includes("와요") && (projectData.views || 0) < 135) {
-            try {
-                // Async update
-                updateDoc(projectRef, { 
-                    views: 135,
-                    views_count: 135,
-                    view_count: 135
-                });
-                projectData.views = 135; 
-                projectData.views_count = 135;
-            } catch(e) { console.warn("Failed to update view count", e); }
+        if (!reportRes.ok || !reportData.success) {
+          // If 403 (access denied for private project), show access denied
+          if (reportRes.status === 403) {
+            const projectData = reportData.project || {};
+            if (typeof projectData.custom_data === 'string') {
+              try { projectData.custom_data = JSON.parse(projectData.custom_data); } catch (e) { projectData.custom_data = {}; }
+            }
+            setProject(projectData);
+            setRatings([]);
+            setLoading(false);
+            return;
+          }
+
+          // Try fallback: fetch basic data from rating API
+          const ratingRes = await fetch(`/api/projects/${projectId}/rating`, { headers });
+          const ratingData = await ratingRes.json();
+          if (ratingData.success && ratingData.project) {
+            const pd = { ...ratingData.project };
+            if (typeof pd.custom_data === 'string') {
+              try { pd.custom_data = JSON.parse(pd.custom_data); } catch (e) { pd.custom_data = {}; }
+            }
+            setProject(pd);
+          } else {
+            toast.error("프로젝트를 찾을 수 없습니다.");
+          }
+          setRatings([]);
+          setLoading(false);
+          return;
         }
-        // ----------------------------------------------------------------
-        
-        // Safe Parse custom_data
+
+        // 2. Set project data
+        const projectData = reportData.project || {};
         if (typeof projectData.custom_data === 'string') {
-            try { projectData.custom_data = JSON.parse(projectData.custom_data); } 
-            catch (e) { console.error("Failed to parse custom_data", e); projectData.custom_data = {}; }
+          try { projectData.custom_data = JSON.parse(projectData.custom_data); } catch (e) { projectData.custom_data = {}; }
         }
         setProject(projectData);
 
-        // 2. Fetch Evaluations from Firestore
-        const evalsRef = collection(db, "evaluations");
-        const q = query(evalsRef, where("projectId", "==", projectId));
-        const querySnapshot = await getDocs(q);
+        // 3. Map feedbacks to ratings format
+        const auditConfig = projectData.custom_data?.audit_config;
+        const categories = auditConfig?.categories || [
+          { id: 'score_1' }, { id: 'score_2' }, { id: 'score_3' },
+          { id: 'score_4' }, { id: 'score_5' }, { id: 'score_6' }
+        ];
 
-        let fetchedRatings = querySnapshot.docs.map(d => {
-            const data = d.data();
-            
-            // DEBUG: Log the raw data structure
-            console.log("[ReportPage] Raw evaluation data:", { 
-                id: d.id, 
-                scores: data.scores, 
-                score: data.score,
-                scoresType: typeof data.scores,
-                scoresKeys: data.scores ? Object.keys(data.scores) : null
-            });
-            
-            // Calculate average score from 'scores' object
-            let calculatedScore = 0;
-            if (data.scores) {
-                let scoreValues: number[] = [];
-                
-                // Handle different data formats
-                if (typeof data.scores === 'object') {
-                    // Get all values that are numbers
-                    const values = Object.values(data.scores);
-                    scoreValues = values.filter((v): v is number => typeof v === 'number' && !isNaN(v));
-                }
-                
-                console.log("[ReportPage] Score values extracted:", scoreValues);
-                
-                if (scoreValues.length > 0) {
-                    const sum = scoreValues.reduce((acc, val) => acc + val, 0);
-                    calculatedScore = sum / scoreValues.length;
-                    console.log("[ReportPage] Calculated score:", calculatedScore, "from", scoreValues.length, "values");
-                }
-            }
-            
-            // Fallback to data.score if scores object didn't yield a value
-            if (calculatedScore === 0 && typeof data.score === 'number') {
-                calculatedScore = data.score;
-                console.log("[ReportPage] Using fallback score:", calculatedScore);
-            }
-            
-            return {
-                ...data,
-                id: d.id,
-                created_at: data.createdAt?.toDate ? data.createdAt.toDate() : (new Date(data.createdAt) || new Date()),
-                user_id: data.user_uid,
-                score: calculatedScore
-            };
+        const feedbacks = reportData.report?.feedbacks || [];
+        const fetchedRatings = feedbacks.map((f: any) => {
+          // Reconstruct scores object from score_1..6
+          const scores: Record<string, number> = {};
+          categories.forEach((cat: any, idx: number) => {
+            const val = Number(f[`score_${idx + 1}`]) || Number(f[cat.id]) || 0;
+            scores[cat.id] = val;
+          });
+
+          const scoreValues = Object.values(scores).filter(v => v > 0);
+          const calculatedScore = scoreValues.length > 0
+            ? scoreValues.reduce((a, b) => a + b, 0) / scoreValues.length
+            : (f.score || 0);
+
+          return {
+            id: f.id,
+            user_uid: f.user_id,
+            user_id: f.user_id,
+            user_email: null,
+            user_nickname: f.username,
+            username: f.username,
+            user_job: f.occupation || (f.expertise?.length > 0 ? f.expertise[0] : null),
+            expertise: Array.isArray(f.expertise) ? f.expertise : [],
+            occupation: f.occupation,
+            age_group: f.age_group,
+            gender: f.gender,
+            scores,
+            score: calculatedScore,
+            vote_type: f.vote_type,
+            proposal: f.proposal,
+            custom_answers: f.custom_answers || {},
+            created_at: f.created_at || new Date().toISOString(),
+          };
         });
 
-        // 3. Fetch latest user profiles to show up-to-date info (e.g. if job was "Unset" but now "Planner")
-        const uniqueUserIds = [...new Set(fetchedRatings.map((r: any) => r.user_uid).filter(Boolean))];
-        
-        if (uniqueUserIds.length > 0) {
-            try {
-                // Fetch users in parallel
-                const userDocs = await Promise.all(
-                    uniqueUserIds.map(uid => getDoc(doc(db, "users", uid as string)))
-                );
-                
-                const userMap: Record<string, any> = {};
-                userDocs.forEach(snap => {
-                    if (snap.exists()) {
-                        userMap[snap.id] = snap.data();
-                    }
-                });
-
-                // Merge latest info into ratings
-                fetchedRatings = fetchedRatings.map((r: any) => {
-                    const latestUser = r.user_uid ? userMap[r.user_uid] : null;
-                    if (latestUser) {
-                        // Handle expertise (Array or Object)
-                        let safeExpertise = latestUser.expertise || latestUser.expertFields || r.expertise || [];
-                        
-                        // Check if expertise is wrapped in 'fields' (e.g. { fields: [...] })
-                        if (safeExpertise && safeExpertise.fields && Array.isArray(safeExpertise.fields)) {
-                             safeExpertise = safeExpertise.fields;
-                        }
-                        // Check if expertise is integer-indexed object (Firestore array-like object)
-                        else if (safeExpertise && typeof safeExpertise === 'object' && !Array.isArray(safeExpertise)) {
-                             // Check for Object-map style { 'marketing': true } vs Array-like { 0: 'marketing' }
-                             const keys = Object.keys(safeExpertise);
-                             const values = Object.values(safeExpertise);
-                             // If values are boolean, it's a map. If keys are numeric, it's array-like.
-                             if (values.every(v => v === true || v === false)) {
-                                 safeExpertise = keys.filter(k => safeExpertise[k]);
-                             } else {
-                                 // Fallback: try taking values
-                                 safeExpertise = values;
-                             }
-                        }
-
-                        if (!Array.isArray(safeExpertise)) safeExpertise = [];
-
-                        return {
-                            ...r,
-                            user_nickname: latestUser.nickname || latestUser.displayName || r.user_nickname,
-                            user_job: latestUser.job || latestUser.occupation || (safeExpertise.length > 0 ? safeExpertise[0] : (r.user_job || r.occupation)),
-                            expertise: safeExpertise,
-                            occupation: latestUser.occupation || r.occupation,
-                            age_group: latestUser.age_group || r.age_group,
-                            gender: latestUser.gender || r.gender,
-                            _synced: true
-                        };
-                    }
-                    return r;
-                });
-                
-                console.log(`[ReportPage] Synced latest profiles for ${uniqueUserIds.length} users.`);
-            } catch (userErr) {
-                console.error("[ReportPage] Failed to sync latest user profiles (Permission?):", userErr);
-            }
-        }
-
-        console.log(`[ReportPage] Loaded ${fetchedRatings.length} evaluations.`);
+        console.log(`[ReportPage] Loaded ${fetchedRatings.length} evaluations from API.`);
         setRatings(fetchedRatings);
 
       } catch (err) {
@@ -309,11 +227,10 @@ export default function ReportPage() {
     // --- Access Control Logic ---
     // --- Access Control Logic ---
     const isOwner = user?.id && (
-        user.id === project.user_id || 
-        user.id === project.author_uid || 
-        user.id === project.userId || 
-        (user.email && project.author_email && user.email === project.author_email) ||
-        (user.email && project.user_email && user.email === project.user_email)
+        user.id === project.user_id ||
+        user.id === project.author_id ||
+        user.id === project.author_uid ||
+        user.id === project.userId
     );
     // Check 'result_visibility' in custom_data (Default to public if undefined)
     const resultVisibility = project.custom_data?.result_visibility || 'public';
