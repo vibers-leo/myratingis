@@ -242,18 +242,18 @@ function LoginContent() {
                 onClick={handleGoogleLogin}
                 disabled={googleLoading || kakaoLoading || loading}
                 variant="outline"
-                className="w-full h-16 bg-white/5 border-2 border-white/10 text-chef-text hover:bg-white/10 rounded-2xl font-black text-sm tracking-widest uppercase transition-all shadow-xl group"
+                className="w-full h-14 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 rounded-xl font-semibold text-[15px] transition-all shadow-sm group"
               >
                 {googleLoading ? (
                   <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 border-3 border-orange-500 border-t-transparent rounded-full animate-spin" />
-                    Redirecting...
+                    <div className="w-5 h-5 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-gray-500">로그인 중...</span>
                   </div>
                 ) : (
-                  <>
-                    <FcGoogle className="h-7 w-7 mr-4 group-hover:scale-110 transition-transform" />
-                    Continue with Google
-                  </>
+                  <div className="flex items-center gap-3">
+                    <FcGoogle className="h-5 w-5" />
+                    <span>Google로 로그인</span>
+                  </div>
                 )}
               </Button>
 
@@ -263,18 +263,18 @@ function LoginContent() {
                   try { await signInWithKakao(); } catch { setKakaoLoading(false); }
                 }}
                 disabled={googleLoading || kakaoLoading || loading}
-                className="w-full h-16 bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] rounded-2xl font-black text-sm tracking-widest uppercase transition-all shadow-xl group border-0"
+                className="w-full h-14 bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] rounded-xl font-semibold text-[15px] transition-all shadow-sm group border-0"
               >
                 {kakaoLoading ? (
                   <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 border-3 border-[#191919] border-t-transparent rounded-full animate-spin" />
-                    Redirecting...
+                    <div className="w-5 h-5 border-2 border-[#191919] border-t-transparent rounded-full animate-spin" />
+                    <span>로그인 중...</span>
                   </div>
                 ) : (
-                  <>
-                    <RiKakaoTalkFill className="h-7 w-7 mr-4 group-hover:scale-110 transition-transform" />
-                    Continue with Kakao
-                  </>
+                  <div className="flex items-center gap-3">
+                    <RiKakaoTalkFill className="h-5 w-5" />
+                    <span>카카오로 로그인</span>
+                  </div>
                 )}
               </Button>
             </div>

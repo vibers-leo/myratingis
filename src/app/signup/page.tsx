@@ -155,10 +155,12 @@ export default function SignupPage() {
                 onClick={handleGoogleSignup}
                 disabled={loading}
                 variant="outline"
-                className="w-full h-16 bg-white/5 border-2 border-white/10 text-chef-text hover:bg-white/10 rounded-2xl font-black text-sm tracking-widest uppercase transition-all shadow-xl group"
+                className="w-full h-14 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 rounded-xl font-semibold text-[15px] transition-all shadow-sm group"
               >
-                <FcGoogle className="h-7 w-7 mr-4 group-hover:scale-110 transition-transform" />
-                Continue with Google
+                <div className="flex items-center gap-3">
+                  <FcGoogle className="h-5 w-5" />
+                  <span>Google로 시작하기</span>
+                </div>
               </Button>
 
               <Button
@@ -166,10 +168,12 @@ export default function SignupPage() {
                   try { setLoading(true); await signInWithKakao(); } catch { setLoading(false); }
                 }}
                 disabled={loading}
-                className="w-full h-16 bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] rounded-2xl font-black text-sm tracking-widest uppercase transition-all shadow-xl group border-0"
+                className="w-full h-14 bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] rounded-xl font-semibold text-[15px] transition-all shadow-sm group border-0"
               >
-                <RiKakaoTalkFill className="h-7 w-7 mr-4 group-hover:scale-110 transition-transform" />
-                Continue with Kakao
+                <div className="flex items-center gap-3">
+                  <RiKakaoTalkFill className="h-5 w-5" />
+                  <span>카카오로 시작하기</span>
+                </div>
               </Button>
             </div>
 
