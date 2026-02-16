@@ -281,6 +281,29 @@ export default function ProjectUploadPage() {
         projectId = data.id;
       }
 
+      // 보상 설정이 있으면 project_rewards 생성/업데이트
+      if (rewardType !== 'none' && projectId) {
+        const totalCost = rewardAmount * recipientCount;
+        const platformFee = Math.round(totalCost * 0.1);
+        const tax = Math.round((totalCost + platformFee) * 0.1);
+        const totalCharged = totalCost + platformFee + tax;
+
+        await (supabase as any)
+          .from('project_rewards')
+          .upsert({
+            project_id: projectId,
+            reward_type: rewardType,
+            amount_per_person: rewardAmount,
+            total_slots: recipientCount,
+            distribution_method: distributeMethod,
+            total_cost: totalCost,
+            platform_fee: platformFee,
+            tax: tax,
+            total_charged: totalCharged,
+            status: distributeMethod === 'lottery' ? 'pending_lottery' : 'active',
+          }, { onConflict: 'project_id' });
+      }
+
       toast.success(editId ? "수정이 완료되었습니다!" : "평가 의뢰가 성공적으로 등록되었습니다!");
       router.push(`/project/share/${projectId}`);
     } catch (error: any) {
@@ -799,7 +822,7 @@ export default function ProjectUploadPage() {
               <h3 className="text-3xl font-black text-chef-text tracking-tighter uppercase italic">4. 보약(보상/약속) 설정</h3>
            </div>
            <div className="px-4 py-1.5 bg-chef-panel border border-chef-border text-[10px] font-black text-orange-500 uppercase tracking-widest rounded-full animate-pulse">
-              관리자 전용 베타
+              유료 플랜 (베타)
            </div>
         </div>
 

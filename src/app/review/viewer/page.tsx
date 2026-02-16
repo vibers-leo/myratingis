@@ -18,6 +18,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { RewardClaimCard } from '@/components/RewardClaimCard';
 import { cn, linkify } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -462,11 +463,21 @@ function ViewerContent() {
             </div>
             
             <h3 className="text-3xl md:text-4xl font-black text-chef-text mb-4 italic tracking-tight">평가 제출 완료!</h3>
-            <p className="text-chef-text/60 font-medium text-sm md:text-base mb-12 max-w-sm leading-relaxed break-keep">
+            <p className="text-chef-text/60 font-medium text-sm md:text-base mb-6 max-w-sm leading-relaxed break-keep">
                 소중한 시간을 내어주셔서 감사합니다.<br/>
                 셰프님의 날카로운 통찰력은 창작자가 더 나은 결과물을 만드는 데 결정적인 역할을 할 것입니다.
             </p>
-    
+
+            {/* 보상 수령 카드 */}
+            {project?.custom_data?.audit_config?.reward?.type && project.custom_data.audit_config.reward.type !== 'none' && (
+                <RewardClaimCard
+                    projectId={projectId!}
+                    rewardConfig={project.custom_data.audit_config.reward}
+                    userId={user?.id || null}
+                    onLoginClick={() => router.push(`/login?returnTo=${encodeURIComponent(window.location.href)}`)}
+                />
+            )}
+
             <div className="flex flex-col w-full max-w-xs gap-3">
                 <Button 
                     onClick={() => router.push(`/report/${projectId}`)} 

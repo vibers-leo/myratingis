@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 
-import { Heart, Folder, Upload, Settings, Grid, Send, MessageCircle, Eye, EyeOff, Lock, Trash2, Camera, UserMinus, AlertTriangle, Loader2, Plus, Edit, Rocket, Sparkles, Wand2, Lightbulb, Zap, UserCircle, Search, Clock, BarChart, ChefHat, Share2, Copy, QrCode, ClipboardList } from "lucide-react";
+import { Heart, Folder, Upload, Settings, Grid, Send, MessageCircle, Eye, EyeOff, Lock, Trash2, Camera, UserMinus, AlertTriangle, Loader2, Plus, Edit, Rocket, Sparkles, Wand2, Lightbulb, Zap, UserCircle, Search, Clock, BarChart, ChefHat, Share2, Copy, QrCode, ClipboardList, Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
@@ -41,8 +41,9 @@ const AiOpportunityChat = dynamic(() => import("@/components/tools/AiOpportunity
 const AiPersonaChat = dynamic(() => import("@/components/tools/AiPersonaChat").then(mod => mod.AiPersonaChat), { ssr: false });
 const AiAssistantChat = dynamic(() => import("@/components/tools/AiAssistantChat").then(mod => mod.AiAssistantChat), { ssr: false });
 const ApiKeyManager = dynamic(() => import("@/components/ApiKeyManager").then(mod => mod.ApiKeyManager), { ssr: false });
+const RewardTab = dynamic(() => import("@/components/RewardTab").then(mod => mod.RewardTab), { ssr: false });
 
-type TabType = 'projects' | 'audit_requests' | 'likes' | 'collections' | 'proposals' | 'comments' | 'ai_tools' | 'dashboard' | 'settings';
+type TabType = 'projects' | 'audit_requests' | 'likes' | 'collections' | 'proposals' | 'comments' | 'rewards' | 'ai_tools' | 'dashboard' | 'settings';
 type AiToolType = 'lean-canvas' | 'persona' | 'assistant' | 'job' | 'trend' | 'recipe' | 'tool' | 'api-settings';
 
 // Type imports (not lazy loaded)
@@ -661,6 +662,7 @@ export default function MyPage() {
     { id: 'projects' as TabType, label: '나의 평가의뢰', icon: ChefHat, color: 'text-chef-text', bgColor: 'bg-chef-text' },
     // { id: 'audit_requests' as TabType, label: '의뢰 현황', icon: Clock, color: 'text-orange-600', bgColor: 'bg-orange-600' }, // Hidden
     { id: 'comments' as TabType, label: '참여한 평가', icon: MessageCircle, color: 'text-chef-text', bgColor: 'bg-chef-text' },
+    { id: 'rewards' as TabType, label: '포인트/보상', icon: Coins, color: 'text-orange-500', bgColor: 'bg-orange-500' },
     { id: 'likes' as TabType, label: '좋아요', icon: Heart, color: 'text-red-500', bgColor: 'bg-red-500' },
     { id: 'collections' as TabType, label: '컬렉션', icon: Folder, color: 'text-indigo-500', bgColor: 'bg-indigo-500' },
     { id: 'proposals' as TabType, label: '1:1 문의', icon: Send, color: 'text-chef-text', bgColor: 'bg-chef-text' },
@@ -1042,6 +1044,9 @@ export default function MyPage() {
                    )}
                 </div>
               </div>
+            )}
+            {activeTab === 'rewards' && user && (
+               <RewardTab userId={user.id} currentPoints={userProfile?.points || 0} />
             )}
             {activeTab === 'settings' && userProfile && (
                <div className="bg-chef-card rounded-xl border border-chef-border p-8 shadow-sm">

@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth/AuthContext';
 import { OptimizedImage } from '@/components/ui/optimized-image';
+import { RewardBadge } from '@/components/RewardBadge';
 // Supabase Client (타입 체크 우회)
 import { supabase } from '@/lib/supabase/client';
 
@@ -379,9 +380,15 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                          {p.title}
                       </h3>
                       
-                      <p className="text-sm md:text-md text-chef-text opacity-40 font-medium line-clamp-2 mb-6 leading-relaxed">
+                      <p className="text-sm md:text-md text-chef-text opacity-40 font-medium line-clamp-2 mb-3 leading-relaxed">
                          {p.summary || p.description || p.content_text?.substring(0, 100) + '...'}
                       </p>
+
+                      {p.custom_data?.audit_config?.reward?.type && p.custom_data.audit_config.reward.type !== 'none' && (
+                        <div className="mb-3">
+                          <RewardBadge rewardConfig={p.custom_data.audit_config.reward} />
+                        </div>
+                      )}
 
                       <div className="flex items-center gap-6 mt-auto">
                         <div className="flex items-center gap-1.5 ">

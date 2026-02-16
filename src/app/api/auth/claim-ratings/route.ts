@@ -64,6 +64,50 @@ export async function POST(req: NextRequest) {
       .update({ user_id: user.id })
       .eq('guest_id', guest_id);
 
+    // 3. Link pending reward claims from guest ratings to user
+    // 비회원이 평가한 프로젝트에 보상이 있으면, 해당 보상도 사용자에게 연결
+    if (guestRatings && guestRatings.length > 0) {
+      for (const rating of guestRatings) {
+        try {
+          // 해당 프로젝트에 보상이 설정되어 있는지 확인
+          const { data: reward } = await supabaseAdmin
+            .from('project_rewards')
+            .select('id, distribution_method, status')
+            .eq('project_id', rating.project_id)
+            .eq('status', 'active')
+            .single();
+
+          if (reward) {
+            // 이미 수령했는지 확인
+            const { data: existing } = await supabaseAdmin
+              .from('reward_claims')
+              .select('id')
+              .eq('project_reward_id', reward.id)
+              .eq('user_id', user.id)
+              .single();
+
+            if (!existing) {
+              // 선착순이면 자동 수령 시도
+              if (reward.distribution_method === 'fcfs') {
+                await supabaseAdmin.rpc('claim_fcfs_reward', {
+                  p_project_id: rating.project_id,
+                  p_user_id: user.id,
+                });
+              } else {
+                // 추첨/작가선정이면 응모 등록
+                await supabaseAdmin.rpc('claim_lottery_entry', {
+                  p_project_id: rating.project_id,
+                  p_user_id: user.id,
+                });
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('[Claim-Ratings] Reward linking failed for project:', rating.project_id, e);
+        }
+      }
+    }
+
     return NextResponse.json({ success: true, merged_count: guestRatings?.length || 0 });
 
   } catch (error: any) {
