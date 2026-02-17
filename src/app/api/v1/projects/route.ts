@@ -171,7 +171,7 @@ export async function POST(request: NextRequest) {
       project: {
         id: project.project_id,
         title: project.title,
-        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://myratingis.vercel.app'}/project/${project.project_id}`,
+        url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://myratingis.kr'}/project/${project.project_id}`,
         thumbnail_url: thumbnailUrl,
         visibility: visibility,
         created_at: project.created_at

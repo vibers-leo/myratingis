@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 // 1시간마다 RSS 재생성
 export const revalidate = 3600;
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://myratingis.vercel.app';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://myratingis.kr';
 const SITE_TITLE = '제 평가는요? (MyRatingIs)';
 const SITE_DESCRIPTION = '전문평가위원과 참여고객의 날카로운 시선으로 여러분의 프로젝트가 가진 진짜 가치를 증명해 드립니다.';
 

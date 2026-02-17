@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AI 채용 & 공모전 - MyRatingIs",
     description: "크리에이터를 위한 최신 AI 소식 및 구인 구직 정보",
-    url: "https://myratingis.vercel.app/recruit",
+    url: "https://myratingis.kr/recruit",
     siteName: 'MyRatingIs',
     images: [{
       url: "/images/recruit-banner.jpg",

@@ -2,7 +2,7 @@
  * Centralized Constants for MyRatingIs
  */
 
-export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://myratingis.vercel.app';
+export const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://myratingis.kr';
 
 export const CATEGORY_IDS = {
   PHOTO: 1,

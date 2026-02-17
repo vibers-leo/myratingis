@@ -244,7 +244,7 @@ export default function RecruitPage() {
         company: "바이브코퍼레이션",
         salary: "연봉 5,000 ~ 8,000만원",
         employmentType: "정규직",
-        link: "https://myratingis.vercel.app/recruit",
+        link: "https://myratingis.kr/recruit",
       }
     ];
     setItems(defaultItems);

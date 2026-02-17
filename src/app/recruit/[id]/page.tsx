@@ -35,7 +35,7 @@ export async function generateMetadata(
     openGraph: {
       title: item.title,
       description: item.description.substring(0, 160),
-      url: `https://myratingis.vercel.app/recruit/${id}`,
+      url: `https://myratingis.kr/recruit/${id}`,
       siteName: 'MyRatingIs',
       images: [
         item.thumbnail || '/images/default-banner.jpg',

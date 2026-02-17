@@ -68,7 +68,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   return {
     metadataBase: new URL(
-      process.env.NEXT_PUBLIC_APP_URL || "https://myratingis.vercel.app",
+      process.env.NEXT_PUBLIC_APP_URL || "https://myratingis.kr",
     ), 
     title: title,
     description: description,

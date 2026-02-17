@@ -155,14 +155,14 @@ export function FeedbackRequestModal({ open, onOpenChange, projectId, projectTit
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="flex-1 bg-white border border-indigo-200 px-3 py-2 rounded-xl text-xs font-mono text-indigo-600 truncate">
-                                myratingis.vercel.app/project/{projectId}
+                                myratingis.kr/project/{projectId}
                             </div>
                             <Button 
                                 size="sm" 
                                 variant="outline" 
                                 className="shrink-0 rounded-xl bg-white hover:bg-indigo-50 border-indigo-200 text-indigo-600 gap-1.5"
                                 onClick={() => {
-                                    navigator.clipboard.writeText(`myratingis.vercel.app/project/${projectId}`);
+                                    navigator.clipboard.writeText(`myratingis.kr/project/${projectId}`);
                                     toast.success("링크가 복사되었습니다!");
                                 }}
                             >
