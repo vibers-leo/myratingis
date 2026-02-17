@@ -72,7 +72,7 @@ export async function processUserQuery(userQuery: string, category: string): Pro
 async function generateGeminiResponse(query: string, results: SearchResultItem[], category: string): Promise<string> {
     const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
     // Using a reliable model, flash is faster/cheaper for this use case
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     const context = results.map(r => `- ${r.title}: ${r.snippet} (${r.source || r.company})`).join('\n');
     
