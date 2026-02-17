@@ -287,7 +287,7 @@ export default function FeaturesPage() {
                 전문가의 진단과 리얼한 시장 반응을 통해 다음 단계로 도약하세요.
               </p>
               <div className="flex justify-center pt-8">
-                  <Button onClick={() => router.push('/signup')} className="h-20 px-16 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-orange-600 dark:hover:bg-orange-500 hover:text-white dark:hover:text-white font-black text-xl shadow-2xl gap-4 transition-all hover:scale-105 active:scale-95 group">
+                  <Button onClick={() => router.push('/signup')} className="h-20 px-16 rounded-xl !bg-orange-500 !text-white hover:!bg-orange-600 font-black text-xl shadow-2xl shadow-orange-500/30 gap-4 transition-all hover:scale-105 active:scale-95 group">
                     무료로 시작하기 <ChevronRight size={24} className="group-hover:translate-x-1 transition-transform" />
                   </Button>
               </div>
