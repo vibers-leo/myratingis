@@ -11,7 +11,11 @@ async function callGemini(prompt: string, apiKey: string): Promise<string> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 2048,
+          responseMimeType: 'application/json',
+        },
       }),
       signal: AbortSignal.timeout(20000),
     }
@@ -24,7 +28,10 @@ async function callGemini(prompt: string, apiKey: string): Promise<string> {
   }
 
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  // Thinking model may return multiple parts - get the last non-thought text part
+  const parts = data.candidates?.[0]?.content?.parts || [];
+  const textPart = parts.filter((p: any) => p.text && !p.thought).pop();
+  return textPart?.text || parts[parts.length - 1]?.text || '';
 }
 
 export async function POST(req: NextRequest) {
@@ -131,11 +138,19 @@ JSON만 출력하세요:`;
     // Parse JSON from response
     let parsed;
     try {
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        parsed = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error('No JSON found in response');
+      // Strip markdown code blocks if present
+      let cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+      // Try direct parse first (responseMimeType should give clean JSON)
+      try {
+        parsed = JSON.parse(cleaned);
+      } catch {
+        // Fallback: extract JSON object from text
+        const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          parsed = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('No JSON found in response');
+        }
       }
     } catch (parseErr) {
       console.error('[analyze-url] JSON parse failed:', text);
