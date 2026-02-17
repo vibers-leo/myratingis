@@ -122,6 +122,8 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         {/* Naver Search Advisor */}
         <meta name="naver-site-verification" content="789d8371a26d4018307031798eb808bc19db1326" />
+        {/* RSS Feed */}
+        <link rel="alternate" type="application/rss+xml" title="제 평가는요? RSS" href="/rss.xml" />
       </head>
       <body
         className={`${inter.variable} font-sans antialiased min-h-screen custom-scrollbar overscroll-none`}
