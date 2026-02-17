@@ -264,7 +264,7 @@ function GrowthContent() {
       {/* Onboarding Modal Overlay */}
       {showOnboarding && isAuthenticated && <GrowthOnboardingModal onAgree={handleAgree} />}
 
-      <main className="w-full max-w-[1400px] mx-auto px-4 md:px-8 pb-32 pt-24">
+      <main className="w-full max-w-[1400px] mx-auto px-2 md:px-8 pb-32 pt-24">
          {/* Header */}
          <div className="mb-32 text-center space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             <div className="inline-flex items-center gap-3 px-6 py-2 bg-orange-50 dark:bg-orange-950/30 text-orange-600 dark:text-orange-400 rounded-full text-[10px] font-black italic border border-orange-100 dark:border-orange-900/30 tracking-[0.2em] uppercase">

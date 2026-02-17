@@ -22,7 +22,7 @@ export default function Home() {
       <div className="hidden md:block absolute top-[15%] left-[15%] w-[500px] h-[500px] bg-orange-600/5 rounded-full blur-[120px] animate-pulse" />
       <div className="hidden md:block absolute bottom-[15%] right-[15%] w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
 
-      <main className="relative z-10 w-full max-w-5xl mx-auto px-6 flex flex-col items-center text-center">
+      <main className="relative z-10 w-full max-w-5xl mx-auto px-2 md:px-6 flex flex-col items-center text-center">
         
         {/* Badge Section */}
         <div className="animate-fade-in-down mb-6 mt-12 md:mt-0 flex items-center gap-2 px-3 md:px-5 py-2 rounded-full border border-white/5 bg-white/[0.03] backdrop-blur-md shadow-2xl">

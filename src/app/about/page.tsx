@@ -39,7 +39,7 @@ export default function AboutPage() {
         </div>
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-5xl mx-auto px-6 text-center text-white">
+        <div className="relative z-10 max-w-5xl mx-auto px-2 md:px-6 text-center text-white">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md rounded-full mb-6 border border-white/20">
             <Sparkles className="w-4 h-4 text-green-400" />
             <span className="text-sm font-medium">크리에이터를 위한 프로젝트 평가 플랫폼</span>
@@ -107,7 +107,7 @@ export default function AboutPage() {
 
       {/* Features Section */}
       <section className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-6">
+        <div className="max-w-7xl mx-auto px-2 md:px-6">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               왜 제 평가는요?인가요?
@@ -207,7 +207,7 @@ export default function AboutPage() {
 
       {/* CTA Section */}
       <section className="py-24 bg-gradient-to-br from-green-600 to-emerald-700 text-white">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="max-w-4xl mx-auto px-2 md:px-6 text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
             지금 바로 시작하세요
           </h2>

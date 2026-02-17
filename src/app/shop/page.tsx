@@ -120,7 +120,7 @@ export default function ShopPage() {
     <div className="min-h-screen bg-chef-bg pb-20">
       <MyRatingIsHeader />
 
-      <main className="max-w-5xl mx-auto px-4 md:px-10 pt-28">
+      <main className="max-w-5xl mx-auto px-2 md:px-10 pt-28">
         {/* 헤더 */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-10">
           <div>

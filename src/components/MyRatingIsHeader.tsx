@@ -37,7 +37,7 @@ export function MyRatingIsHeader() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[100] chef-header-dark shadow-2xl backdrop-blur-md bg-black/20 border-b border-white/5">
-      <div className="w-full px-6 md:px-10 h-20 flex items-center justify-between">
+      <div className="w-full px-2 md:px-10 h-20 flex items-center justify-between">
         {/* Left: Logo */}
         <div className="flex-shrink-0 flex justify-start">
           <Link href="/" className="flex items-center gap-2 group">
@@ -192,7 +192,7 @@ export function MyRatingIsHeader() {
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-[110] bg-[#030712] md:hidden overflow-y-auto w-full h-[100dvh]"
           >
-            <div className="flex flex-col pt-24 px-6 pb-20 min-h-full">
+            <div className="flex flex-col pt-24 px-4 pb-20 min-h-full">
               
               {/* User Section */}
               {isAuthenticated && user ? (

@@ -29,7 +29,7 @@ function InteractivePreview() {
    const [activeTab, setActiveTab] = useState<'rating'|'poll'|'proposal'>('rating');
 
    return (
-      <div className="max-w-5xl mx-auto my-32 px-6">
+      <div className="max-w-5xl mx-auto my-32 px-2 md:px-6">
          <div className="text-center mb-16 space-y-4">
             <span className="px-4 py-1.5 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-xs font-black uppercase tracking-widest inline-block">체험하기</span>
             <h2 className="text-3xl md:text-5xl font-black text-chef-text tracking-tighter italic uppercase">
@@ -169,7 +169,7 @@ export default function FeaturesPage() {
     <div className="min-h-screen bg-background dark:bg-slate-950 selection:bg-orange-500/30 transition-colors duration-300">
       <main className="pt-32 pb-32">
         {/* Hero Section */}
-        <div className="max-w-7xl mx-auto px-6 mb-32">
+        <div className="max-w-7xl mx-auto px-2 md:px-6 mb-32">
            <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div className="space-y-10">
                 <motion.div 
@@ -239,7 +239,7 @@ export default function FeaturesPage() {
 
         {/* Feature Grid Section */}
         <div className="bg-gray-50 dark:bg-slate-900/50 py-32 border-y border-gray-100 dark:border-slate-800/50">
-           <div className="max-w-7xl mx-auto px-6">
+           <div className="max-w-7xl mx-auto px-2 md:px-6">
               <div className="mb-20 space-y-4">
                  <h2 className="text-[10px] font-black text-orange-500 uppercase tracking-[0.4em] italic">핵심 기능</h2>
                  <p className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tighter italic uppercase">혁신적인 기능으로 <br/> 가치를 증명합니다</p>
@@ -277,7 +277,7 @@ export default function FeaturesPage() {
         <InteractivePreview />
 
         {/* Bottom CTA */}
-        <div className="max-w-4xl mx-auto px-6 mt-40">
+        <div className="max-w-4xl mx-auto px-2 md:px-6 mt-40">
            <div className="text-center space-y-10">
               <h2 className="text-5xl md:text-7xl lg:text-8xl font-black text-gray-900 dark:text-white tracking-tighter italic uppercase leading-[0.9]">
                 지금 당신의 <br/> <span className="text-orange-500">가치</span>를 증명하세요

@@ -52,7 +52,7 @@ function ReviewIntro({ onStart, project, loading }: { onStart: () => void, proje
       </div>
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-[100px] animate-pulse" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-[100px] animate-pulse delay-1000" />
-      <main className="relative z-10 w-full max-w-lg mx-auto px-6 flex flex-col items-center text-center space-y-6 md:space-y-10">
+      <main className="relative z-10 w-full max-w-lg mx-auto px-2 md:px-6 flex flex-col items-center text-center space-y-6 md:space-y-10">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-2">
           <Star className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
           <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">Professional Evaluation Stage</span>

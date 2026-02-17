@@ -234,7 +234,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-500">
-      <main className="max-w-7xl mx-auto px-6 pt-32 pb-20">
+      <main className="max-w-7xl mx-auto px-2 md:px-6 pt-32 pb-20">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
            <div className="space-y-4">

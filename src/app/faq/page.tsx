@@ -78,7 +78,7 @@ export default function FAQPage() {
          </div>
       </div>
 
-      <main className="max-w-4xl mx-auto px-6 pt-40 relative z-10">
+      <main className="max-w-4xl mx-auto px-2 md:px-6 pt-40 relative z-10">
         <div className="text-center space-y-4 mb-20">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}

@@ -1,30 +1,26 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { 
-  faCamera, 
-  faCheck, 
+import {
+  faCamera,
   faPlus,
   faTrash,
-  faStar,
   faGift,
   faCoins,
-  faCalculator
 } from "@fortawesome/free-solid-svg-icons";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { supabase } from "@/lib/supabase/client"; 
+import { supabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChefHat, Sparkles, Info, Globe, Link, X, Lock, Eye, EyeOff } from "lucide-react";
+import { ChefHat, Sparkles, Globe, Link, X, Lock, Eye, ArrowLeft, ArrowRight, Calendar, FileText, Image as ImageIcon, Video, LinkIcon, Wand2, Loader2 } from "lucide-react";
 import { MyRatingIsHeader } from "@/components/MyRatingIsHeader";
-import { 
-  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer 
+import {
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
 } from 'recharts';
 
 const STICKER_PRESETS: Record<string, any[]> = {
@@ -45,35 +41,40 @@ const STICKER_PRESETS: Record<string, any[]> = {
   ]
 };
 
-/* Helper: Supabase Storage Image Upload */
 const uploadImage = async (file: File) => {
   const ext = file.name.split('.').pop();
   const filename = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${ext}`;
-
-  const { data, error } = await (supabase as any).storage
-    .from('uploads')
-    .upload(filename, file);
-
+  const { data, error } = await (supabase as any).storage.from('uploads').upload(filename, file);
   if (error) throw error;
-
-  const { data: { publicUrl } } = (supabase as any).storage
-    .from('uploads')
-    .getPublicUrl(filename);
-
+  const { data: { publicUrl } } = (supabase as any).storage.from('uploads').getPublicUrl(filename);
   return publicUrl;
 };
+
+// Toss-style step definitions
+const STEP_LABELS = [
+  'AI 자동 분석',
+  '프로젝트 제목',
+  '프로젝트 소개',
+  '평가 대상 미디어',
+  '공개 설정',
+  '평가 마감일',
+  '평가 기준 설정',
+  '스티커 투표',
+  '심층 질문',
+  '보상 설정',
+];
 
 export default function ProjectUploadPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading, isAdmin } = useAuth();
-  
-  // 1. Restore State Hooks
+  const titleRef = useRef<HTMLInputElement>(null);
+
   const [rewardType, setRewardType] = useState<'none' | 'point' | 'coupon'>('none');
   const [rewardAmount, setRewardAmount] = useState(500);
   const [recipientCount, setRecipientCount] = useState(10);
   const [distributeMethod, setDistributeMethod] = useState<'fcfs' | 'author'>('fcfs');
-  const [auditStep, setAuditStep] = useState(1);
+  const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [title, setTitle] = useState("");
   const [summary, setSummary] = useState("");
@@ -103,14 +104,15 @@ export default function ProjectUploadPage() {
     "이 프로젝트에서 가장 시급하게 보완해야할 점은 무엇인가요?",
     "발전을 위해 조언해 주실 부분이 있다면 자유롭게 말씀해 주세요."
   ]);
-
-  // New States for Demo Modal
   const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [demoShapeN, setDemoShapeN] = useState(6);
+  const [direction, setDirection] = useState(1); // 1=forward, -1=back
+  const [analyzeUrl, setAnalyzeUrl] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [aiApplied, setAiApplied] = useState(false);
 
-  const mode = searchParams.get('mode') || 'audit';
+  const totalSteps = isAdmin ? 10 : 9;
 
-  // Helper for Demo Data
   const getDemoData = (n: number) => {
     const shapes = [
       { subject: '항목 A', A: 4, fullMark: 5 },
@@ -123,7 +125,6 @@ export default function ProjectUploadPage() {
     return shapes.slice(0, n);
   };
 
-  // 2. Auth Guard
   useEffect(() => {
     if (!authLoading && !user) {
       toast.error("평가 의뢰를 위해 로그인이 필요합니다.");
@@ -131,42 +132,29 @@ export default function ProjectUploadPage() {
     }
   }, [authLoading, user, router]);
 
-  // 3. Initialization
   useEffect(() => {
-    if (!pollOptions.length) {
-       setPollOptions(STICKER_PRESETS.professional);
-    }
+    if (!pollOptions.length) setPollOptions(STICKER_PRESETS.professional);
   }, []);
 
-  // [Supabase] Edit Mode Data Fetching
   const editId = searchParams.get('edit');
   useEffect(() => {
     if (editId) {
       const fetchProject = async () => {
         try {
           const { data: p, error } = await (supabase as any)
-            .from('projects')
-            .select('*')
-            .eq('id', editId)
-            .single();
-
+            .from('projects').select('*').eq('id', editId).single();
           if (error) throw error;
-
           if (p) {
             setTitle(p.title || "");
             setSummary(p.summary || "");
             setVisibility(p.visibility as any || 'public');
             if (p.audit_deadline) setAuditDeadline(p.audit_deadline);
-
             const config = p.custom_data?.audit_config;
             if (config) {
               setAuditType(config.type || 'link');
               setMediaData(config.mediaA || "");
               if (config.categories) setCustomCategories(config.categories);
-              if (config.poll) {
-                  setPollDesc(config.poll.desc || "");
-                  setPollOptions(config.poll.options || []);
-              }
+              if (config.poll) { setPollDesc(config.poll.desc || ""); setPollOptions(config.poll.options || []); }
               if (config.questions) setAuditQuestions(config.questions);
             }
           }
@@ -179,7 +167,6 @@ export default function ProjectUploadPage() {
     }
   }, [editId]);
 
-  // OG Preview effect
   useEffect(() => {
     if (auditType === 'link' && typeof mediaData === 'string' && mediaData.includes('.')) {
       const timer = setTimeout(async () => {
@@ -190,350 +177,318 @@ export default function ProjectUploadPage() {
           if (response.ok) {
             const data = await response.json();
             setLinkPreview(data.title || data.image ? data : null);
-          } else {
-            setLinkPreview(null);
-          }
-        } catch (e) {
-          setLinkPreview(null);
-        } finally {
-          setIsLoadingPreview(false);
-        }
+          } else { setLinkPreview(null); }
+        } catch { setLinkPreview(null); }
+        finally { setIsLoadingPreview(false); }
       }, 1000);
       return () => clearTimeout(timer);
-    } else {
-      setLinkPreview(null);
-    }
+    } else { setLinkPreview(null); }
   }, [mediaData, auditType]);
-
 
   const handlePresetChange = (preset: 'professional' | 'michelin' | 'mz') => {
     setSelectedPreset(preset);
     setPollOptions(STICKER_PRESETS[preset]);
-    const desc = preset === 'professional' ? "[몰입형] 현업 전문가의 리얼한 반응" 
-               : preset === 'michelin' ? "[미슐랭형] 미식 가이드 컨셉" 
-               : "[MZ·위트형] 직관적이고 가벼운 반응";
-    setPollDesc(desc);
+    setPollDesc(preset === 'professional' ? "[몰입형] 현업 전문가의 리얼한 반응"
+               : preset === 'michelin' ? "[미슐랭형] 미식 가이드 컨셉"
+               : "[MZ·위트형] 직관적이고 가벼운 반응");
   };
 
+  const goNext = () => { setDirection(1); setStep(s => Math.min(s + 1, totalSteps)); };
+  const goPrev = () => { setDirection(-1); setStep(s => Math.max(s - 1, 1)); };
 
   const handleSubmit = async () => {
     if (!title.trim()) return toast.error("제목을 입력해주세요.");
     if (customCategories.length < 3) return toast.error("평가 항목은 최소 3개 이상이어야 합니다.");
     if (pollOptions.length < 2) return toast.error("스티커 항목은 최소 2개 이상이어야 합니다.");
     if (auditQuestions.length < 1) return toast.error("종합 의견 질문은 최소 1개 이상이어야 합니다.");
-
     setIsSubmitting(true);
     try {
-      if (!user) {
-        toast.error("로그인이 필요합니다.");
-        router.push("/login?returnTo=/project/upload");
-        return;
-      }
-
+      if (!user) { toast.error("로그인이 필요합니다."); router.push("/login?returnTo=/project/upload"); return; }
       const projectData = {
-        title,
-        summary: summary || title,
-        content_text: summary || title,
-        description: summary || title,
-        category_id: 1,
-        thumbnail_url: linkPreview?.image || null,
-        visibility: visibility,
-        audit_deadline: auditDeadline,
-        is_growth_requested: true,
-        author_id: user.id,
-        author_email: user.email,
+        title, summary: summary || title, content_text: summary || title, description: summary || title,
+        category_id: 1, thumbnail_url: linkPreview?.image || null, visibility, audit_deadline: auditDeadline,
+        is_growth_requested: true, author_id: user.id, author_email: user.email,
         custom_data: {
-          result_visibility: resultVisibility,
-          is_feedback_requested: true,
+          result_visibility: resultVisibility, is_feedback_requested: true,
           audit_config: {
-             type: auditType,
-             mediaA: mediaData,
-             categories: customCategories,
-             poll: { desc: pollDesc, options: pollOptions },
-             questions: auditQuestions,
-             reward: {
-               type: rewardType,
-               amount: rewardAmount,
-               count: recipientCount,
-               method: distributeMethod
-             }
+             type: auditType, mediaA: mediaData, categories: customCategories,
+             poll: { desc: pollDesc, options: pollOptions }, questions: auditQuestions,
+             reward: { type: rewardType, amount: rewardAmount, count: recipientCount, method: distributeMethod }
           }
         }
       };
-
       let projectId = editId;
-
       if (editId) {
-        const { error } = await (supabase as any)
-          .from('projects')
-          .update(projectData)
-          .eq('id', editId);
-
+        const { error } = await (supabase as any).from('projects').update(projectData).eq('id', editId);
         if (error) throw error;
       } else {
-        const { data, error } = await (supabase as any)
-          .from('projects')
-          .insert([projectData])
-          .select('id')
-          .single();
-
+        const { data, error } = await (supabase as any).from('projects').insert([projectData]).select('id').single();
         if (error) throw error;
         projectId = data.id;
       }
-
-      // 보상 설정이 있으면 project_rewards 생성/업데이트
       if (rewardType !== 'none' && projectId) {
         const totalCost = rewardAmount * recipientCount;
         const platformFee = Math.round(totalCost * 0.1);
         const tax = Math.round((totalCost + platformFee) * 0.1);
-        const totalCharged = totalCost + platformFee + tax;
-
-        await (supabase as any)
-          .from('project_rewards')
-          .upsert({
-            project_id: projectId,
-            reward_type: rewardType,
-            amount_per_person: rewardAmount,
-            total_slots: recipientCount,
-            distribution_method: distributeMethod,
-            total_cost: totalCost,
-            platform_fee: platformFee,
-            tax: tax,
-            total_charged: totalCharged,
-            status: distributeMethod === 'lottery' ? 'pending_lottery' : 'active',
-          }, { onConflict: 'project_id' });
+        await (supabase as any).from('project_rewards').upsert({
+          project_id: projectId, reward_type: rewardType, amount_per_person: rewardAmount,
+          total_slots: recipientCount, distribution_method: distributeMethod,
+          total_cost: totalCost, platform_fee: platformFee, tax, total_charged: totalCost + platformFee + tax,
+          status: distributeMethod === 'lottery' ? 'pending_lottery' : 'active',
+        }, { onConflict: 'project_id' });
       }
-
       toast.success(editId ? "수정이 완료되었습니다!" : "평가 의뢰가 성공적으로 등록되었습니다!");
       router.push(`/project/share/${projectId}`);
     } catch (error: any) {
       console.error("Submission Error:", error);
       toast.error(error.message || "등록 중 오류가 발생했습니다.");
+    } finally { setIsSubmitting(false); }
+  };
+
+  const slideVariants = {
+    enter: (d: number) => ({ x: d > 0 ? 80 : -80, opacity: 0 }),
+    center: { x: 0, opacity: 1 },
+    exit: (d: number) => ({ x: d > 0 ? -80 : 80, opacity: 0 }),
+  };
+
+  const handleAiAnalyze = async () => {
+    if (!analyzeUrl.trim()) return toast.error("URL을 입력해주세요.");
+    setIsAnalyzing(true);
+    try {
+      const res = await fetch('/api/ai/analyze-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: analyzeUrl.trim() }),
+      });
+      const data = await res.json();
+      if (!data.success) {
+        toast.error(data.error || 'AI 분석에 실패했습니다.');
+        return;
+      }
+      const { title: aiTitle, summary: aiSummary, categories, questions, ogImage, ogTitle, ogDescription } = data.data;
+      if (aiTitle) setTitle(aiTitle);
+      if (aiSummary) setSummary(aiSummary);
+      if (categories?.length >= 3) {
+        setCustomCategories(categories);
+      }
+      if (questions?.length >= 1) {
+        setAuditQuestions(questions);
+      }
+      // Auto-fill media link
+      const urlForMedia = analyzeUrl.startsWith('http') ? analyzeUrl : `https://${analyzeUrl}`;
+      setAuditType('link');
+      setMediaData(urlForMedia);
+      // Set OG preview
+      if (ogTitle || ogImage) {
+        setLinkPreview({ title: ogTitle, description: ogDescription, image: ogImage });
+      }
+      setAiApplied(true);
+      toast.success('AI가 폼을 자동으로 채웠습니다! 각 항목을 확인해주세요.');
+      goNext();
+    } catch (err: any) {
+      console.error('[AI Analyze]', err);
+      toast.error('AI 분석 중 오류가 발생했습니다.');
     } finally {
-      setIsSubmitting(false);
+      setIsAnalyzing(false);
     }
   };
 
-  const renderStep1 = () => (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-12">
-      <section className="space-y-6">
-        <div className="flex items-center gap-4 border-l-4 border-orange-500 pl-4 py-1">
-          <h3 className="text-3xl font-black text-chef-text tracking-tighter uppercase italic">0. 프로젝트 기본 정보</h3>
-        </div>
+  // ========= STEP RENDERERS =========
 
-        <div className="bg-orange-500/5 border border-orange-500/10 p-10 rounded-sm space-y-6 bevel-sm relative overflow-hidden group">
-           <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:rotate-12 transition-transform duration-1000 -mr-4 -mt-4">
-              <Sparkles size={120} />
-           </div>
-           <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-orange-500 text-white flex items-center justify-center bevel-sm">
-                 <Sparkles size={20} />
-              </div>
-              <h4 className="text-sm font-black text-orange-500 uppercase tracking-[0.2em] italic">Creator Tip: 비회원 참여 및 데이터 통합</h4>
-           </div>
-           <p className="text-xs text-chef-text opacity-80 leading-relaxed font-bold max-w-2xl relative z-10">
-              제 평가는요? 시스템은 <span className="text-orange-500">비회원 참여</span>를 공식 지원합니다. 
-              가입하지 않은 팀원이나 커스터머에게도 링크 하나로 평가를 요청하세요. 
-              참여자가 추후 가입할 경우, 이전에 남긴 모든 소중한 피드백이 해당 계정으로 자동 통합되어 안전하게 관리됩니다.
-           </p>
-        </div>
-        
-        <div className="space-y-6">
-          <div className="chef-black-panel p-1 rounded-sm border border-chef-border/30 hover:border-orange-500/50 transition-colors shadow-sm">
-            <input 
-              placeholder="평가받을 제목 (예: 커피 배달 매칭 MVP)" 
-              value={title} 
-              onChange={e => setTitle(e.target.value)} 
-              className="w-full h-20 bg-chef-panel border-none text-2xl font-black text-chef-text px-10 placeholder:text-chef-text/20 outline-none chef-input-high-v rounded-sm"
-            />
-          </div>
-          <div className="chef-black-panel p-1 rounded-sm border border-chef-border/30 hover:border-orange-500/50 transition-colors shadow-sm">
-            <textarea 
-              placeholder="프로젝트 소개&#13;&#10;예)&#13;&#10;모바일 초대장 - 와요&#13;&#10;사람들이 쉽게 모바일로 초대장을 만들 수 있는 앱입니다.&#13;&#10;냉정한 평가와 많은 관심 부탁드려요." 
-              value={summary} 
-              onChange={e => setSummary(e.target.value)} 
-              className="w-full min-h-[160px] bg-chef-panel border-none text-sm font-medium text-chef-text px-6 py-6 placeholder:text-chef-text/20 outline-none chef-input-high-v rounded-sm resize-none leading-relaxed"
-            />
-          </div>
-        </div>
-        
-        <div className="space-y-8">
-            {/* 1. Project Visibility */}
-            <div className="space-y-3">
-                <Label className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest ml-1">1. 프로젝트 공개 설정 (참여 권한)</Label>
-                <div className="flex gap-4">
-                     <button 
-                       onClick={() => setVisibility('public')}
-                       className={cn(
-                          "flex-1 h-16 rounded-sm bevel-cta border transition-all flex flex-col items-center justify-center gap-2",
-                          visibility === 'public' 
-                             ? "bg-orange-500/10 border-orange-500 text-orange-500" 
-                             : "bg-chef-panel border-chef-border text-chef-text opacity-40 hover:opacity-100"
-                       )}
-                     >
-                        <Globe size={18} />
-                        <div className="flex flex-col items-center">
-                           <span className="text-xs font-black uppercase tracking-widest">전체 공개</span>
-                           <span className="text-[9px] font-bold opacity-70">검색 노출 & 누구나 참여</span>
-                        </div>
-                     </button>
-                     <button 
-                       onClick={() => setVisibility('private')}
-                       className={cn(
-                          "flex-1 h-16 rounded-sm bevel-cta border transition-all flex flex-col items-center justify-center gap-2",
-                          visibility === 'private' 
-                             ? "bg-indigo-500/10 border-indigo-500 text-indigo-500" 
-                             : "bg-chef-panel border-chef-border text-chef-text opacity-40 hover:opacity-100"
-                       )}
-                     >
-                        <Link size={18} />
-                        <div className="flex flex-col items-center">
-                           <span className="text-xs font-black uppercase tracking-widest">일부 공개 (링크)</span>
-                           <span className="text-[9px] font-bold opacity-70">링크를 가진 사람만 참여</span>
-                        </div>
-                     </button>
-                </div>
-            </div>
+  const renderStepAiUrl = () => (
+    <div className="flex flex-col min-h-[60vh] justify-between">
+      <div className="space-y-6 flex-1">
+        <p className="text-sm text-chef-text/40 font-medium">Step 1 / {totalSteps}</p>
+        <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
+          MVP 링크가<br />있으신가요?
+        </h2>
+        <p className="text-sm text-chef-text/50">
+          URL을 입력하면 AI가 분석해서 폼을 자동으로 채워드려요.<br />
+          없으면 건너뛰고 직접 작성할 수 있어요.
+        </p>
 
-            {/* 2. Result Visibility */}
-            <div className="space-y-3">
-                <Label className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest ml-1">2. 결과 리포트 공개 설정 (열람 권한)</Label>
-                <div className="flex gap-4">
-                     <button 
-                       onClick={() => setResultVisibility('public')}
-                       className={cn(
-                          "flex-1 h-16 rounded-sm bevel-cta border transition-all flex flex-col items-center justify-center gap-2",
-                          resultVisibility === 'public' 
-                             ? "bg-emerald-500/10 border-emerald-500 text-emerald-500" 
-                             : "bg-chef-panel border-chef-border text-chef-text opacity-40 hover:opacity-100"
-                       )}
-                     >
-                        <Eye size={18} />
-                        <div className="flex flex-col items-center">
-                           <span className="text-xs font-black uppercase tracking-widest">결과 전체 공개</span>
-                           <span className="text-[9px] font-bold opacity-70">참여자 누구나 결과 리포트 확인</span>
-                        </div>
-                     </button>
-                     <button 
-                       onClick={() => setResultVisibility('private')}
-                       className={cn(
-                          "flex-1 h-16 rounded-sm bevel-cta border transition-all flex flex-col items-center justify-center gap-2",
-                          resultVisibility === 'private' 
-                             ? "bg-red-500/10 border-red-500 text-red-500" 
-                             : "bg-chef-panel border-chef-border text-chef-text opacity-40 hover:opacity-100"
-                       )}
-                     >
-                        <Lock size={18} />
-                        <div className="flex flex-col items-center">
-                           <span className="text-xs font-black uppercase tracking-widest">의뢰자만 보기</span>
-                           <span className="text-[9px] font-bold opacity-70">참여자는 본인 결과만 확인 가능</span>
-                        </div>
-                     </button>
-                </div>
-            </div>
-        </div>
-      </section>
-
-      <section className="bevel-border bevel-section p-8 md:p-12 space-y-10">
-        <div className="flex items-center justify-between">
-          <h4 className="text-xl font-black text-chef-text flex items-center gap-3 italic">
-             <FontAwesomeIcon icon={faCamera} className="text-orange-500" /> 대상 미디어 및 마감 기한
-          </h4>
+        <div className="pt-4 space-y-4">
           <div className="relative">
-             <Label className="text-[10px] font-black text-chef-text opacity-30 uppercase absolute -top-4 right-0 tracking-widest">평가 마감일</Label>
-             <input type="date" value={auditDeadline} onChange={e => setAuditDeadline(e.target.value)} className="bg-white/5 text-chef-text border border-chef-border px-4 py-2 text-xs font-black bevel-cta outline-none focus:border-orange-500 transition-all cursor-pointer chef-input-high-v" />
+            <input
+              autoFocus
+              placeholder="https://my-project.com"
+              value={analyzeUrl}
+              onChange={e => setAnalyzeUrl(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && analyzeUrl.trim() && !isAnalyzing && handleAiAnalyze()}
+              disabled={isAnalyzing}
+              className="w-full h-16 md:h-20 bg-chef-panel border border-chef-border/30 hover:border-orange-500/50 focus:border-orange-500 text-lg md:text-xl font-black text-chef-text px-4 md:px-6 pr-14 placeholder:text-chef-text/20 outline-none transition-colors rounded-sm disabled:opacity-50"
+            />
+            {isAnalyzing && (
+              <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />
+              </div>
+            )}
           </div>
-        </div>
 
-        <div className="grid grid-cols-4 gap-1">
-          {(['link', 'image', 'video', 'document'] as const).map(t => (
-            <button 
-              key={t} 
-              onClick={() => {
-                setAuditType(t);
-                setMediaData(t === 'image' || t === 'document' ? [] : "");
-              }} 
+          <Button
+            onClick={handleAiAnalyze}
+            disabled={!analyzeUrl.trim() || isAnalyzing}
+            className="w-full h-14 bg-gradient-to-r from-violet-600 to-orange-500 hover:from-violet-500 hover:to-orange-400 text-white text-lg font-black transition-all disabled:opacity-30 rounded-sm flex items-center justify-center gap-3"
+          >
+            {isAnalyzing ? (
+              <><Loader2 className="w-5 h-5 animate-spin" /> AI 분석 중...</>
+            ) : (
+              <><Wand2 className="w-5 h-5" /> AI로 자동 채우기</>
+            )}
+          </Button>
+
+          {aiApplied && (
+            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-sm px-4 py-3 flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-emerald-500 shrink-0" />
+              <p className="text-sm font-bold text-emerald-500">AI 분석이 완료되었습니다. 각 항목을 확인하고 수정해주세요.</p>
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="flex gap-3 pt-8">
+        <Button onClick={goNext} variant="ghost" className="h-14 flex-1 text-chef-text opacity-40 hover:opacity-100 text-base font-black transition-all rounded-sm">
+          건너뛰기 — 직접 작성할게요
+        </Button>
+        {analyzeUrl.trim() && !isAnalyzing && (
+          <Button onClick={goNext} className="h-14 px-8 bg-chef-text text-chef-bg hover:opacity-90 text-base font-black transition-all rounded-sm">
+            다음 <ArrowRight className="ml-2 w-5 h-5" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderStepTitle = () => (
+    <div className="flex flex-col min-h-[60vh] justify-between">
+      <div className="space-y-6 flex-1">
+        <p className="text-sm text-chef-text/40 font-medium">Step 2 / {totalSteps}</p>
+        <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
+          어떤 프로젝트를<br />평가받으시겠어요?
+        </h2>
+        <p className="text-sm text-chef-text/50">프로젝트의 제목을 입력해주세요.</p>
+        <div className="pt-4">
+          <input
+            ref={titleRef}
+            autoFocus
+            placeholder="예) 커피 배달 매칭 MVP"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && title.trim() && goNext()}
+            className="w-full h-16 md:h-20 bg-chef-panel border border-chef-border/30 hover:border-orange-500/50 focus:border-orange-500 text-xl md:text-2xl font-black text-chef-text px-4 md:px-8 placeholder:text-chef-text/20 outline-none transition-colors rounded-sm"
+          />
+        </div>
+      </div>
+      <div className="flex justify-end pt-8">
+        <Button onClick={goNext} disabled={!title.trim()} className="h-14 w-full md:w-auto md:px-16 bg-orange-600 hover:bg-orange-700 text-white text-lg font-black transition-all disabled:opacity-30 rounded-sm">
+          계속하기 <ArrowRight className="ml-2 w-5 h-5" />
+        </Button>
+      </div>
+    </div>
+  );
+
+  const renderStepSummary = () => (
+    <div className="flex flex-col min-h-[60vh] justify-between">
+      <div className="space-y-6 flex-1">
+        <p className="text-sm text-chef-text/40 font-medium">Step 3 / {totalSteps}</p>
+        <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
+          프로젝트를<br />간략히 소개해주세요
+        </h2>
+        <p className="text-sm text-chef-text/50">평가자들이 프로젝트를 이해하는 데 도움이 됩니다.</p>
+        <div className="pt-4">
+          <textarea
+            autoFocus
+            placeholder={"예)\n모바일 초대장 - 와요\n사람들이 쉽게 모바일로 초대장을 만들 수 있는 앱입니다.\n냉정한 평가와 많은 관심 부탁드려요."}
+            value={summary}
+            onChange={e => setSummary(e.target.value)}
+            className="w-full min-h-[200px] bg-chef-panel border border-chef-border/30 hover:border-orange-500/50 focus:border-orange-500 text-sm md:text-base font-medium text-chef-text px-4 md:px-6 py-5 placeholder:text-chef-text/20 outline-none transition-colors rounded-sm resize-none leading-relaxed"
+          />
+        </div>
+      </div>
+      <StepNav onPrev={goPrev} onNext={goNext} />
+    </div>
+  );
+
+  const renderStepMedia = () => (
+    <div className="flex flex-col min-h-[60vh] justify-between">
+      <div className="space-y-6 flex-1">
+        <p className="text-sm text-chef-text/40 font-medium">Step 4 / {totalSteps}</p>
+        <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
+          평가 대상을<br />등록해주세요
+        </h2>
+        <p className="text-sm text-chef-text/50">링크, 이미지, 영상, 문서 중 선택해서 업로드하세요.</p>
+
+        <div className="grid grid-cols-4 gap-1 pt-2">
+          {([
+            { type: 'link' as const, label: '웹 링크', icon: LinkIcon },
+            { type: 'image' as const, label: '이미지', icon: ImageIcon },
+            { type: 'video' as const, label: '유튜브', icon: Video },
+            { type: 'document' as const, label: '문서', icon: FileText },
+          ]).map(t => (
+            <button
+              key={t.type}
+              onClick={() => { setAuditType(t.type); setMediaData(t.type === 'image' || t.type === 'document' ? [] : ""); }}
               className={cn(
-                "h-14 font-black text-xs uppercase tracking-widest transition-all bevel-cta border border-chef-border",
-                auditType === t ? "bg-chef-text text-chef-bg" : "bg-chef-bg text-chef-text opacity-40 hover:opacity-100"
+                "h-16 md:h-14 font-black text-[10px] md:text-xs uppercase tracking-widest transition-all border border-chef-border flex flex-col items-center justify-center gap-1",
+                auditType === t.type ? "bg-chef-text text-chef-bg" : "bg-chef-bg text-chef-text opacity-40 hover:opacity-100"
               )}
             >
-              {t === 'link' ? "웹 링크" : t === 'image' ? "이미지" : t === 'video' ? "유튜브" : "문서(PDF/HWP/DOC)"}
+              <t.icon className="w-4 h-4" />
+              {t.label}
             </button>
           ))}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 pt-2">
           {auditType === 'image' || auditType === 'document' ? (
-             <div className="flex flex-col gap-4 p-6 bg-chef-panel bevel-section border border-chef-border min-h-[160px]">
-               <div className="flex flex-wrap gap-4">
+             <div className="flex flex-col gap-4 p-4 md:p-6 bg-chef-panel border border-chef-border min-h-[120px] rounded-sm">
+               <div className="flex flex-wrap gap-3">
                  {Array.isArray(mediaData) && mediaData.map((file, i) => (
                    <div key={i} className="relative group">
                      {auditType === 'image' ? (
-                        <div className="w-24 h-24 bevel-sm overflow-hidden relative">
-                           <img src={file} className="w-full h-full object-cover" />
-                        </div>
+                        <div className="w-20 h-20 overflow-hidden rounded-sm"><img src={file} className="w-full h-full object-cover" /></div>
                      ) : (
-                        <div className="w-32 h-32 bevel-sm bg-chef-card border border-chef-border flex flex-col items-center justify-center p-2 text-center">
-                           <div className="text-2xl mb-1">📄</div>
-                           <span className="text-[10px] font-black text-chef-text opacity-50 truncate w-full px-1">
-                              {(file?.split('/')?.pop()?.split('?')?.[0]) || "document.pdf"}
-                           </span>
+                        <div className="w-24 h-24 bg-chef-card border border-chef-border flex flex-col items-center justify-center p-2 text-center rounded-sm">
+                           <div className="text-xl mb-1">📄</div>
+                           <span className="text-[9px] font-black text-chef-text opacity-50 truncate w-full">{(file?.split('/')?.pop()?.split('?')?.[0]) || "file"}</span>
                         </div>
                      )}
-                     <button 
-                       onClick={() => setMediaData((mediaData as string[]).filter((_, j) => j !== i))} 
-                       className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
-                     >
+                     <button onClick={() => setMediaData((mediaData as string[]).filter((_, j) => j !== i))} className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10 text-[10px]">
                        <FontAwesomeIcon icon={faTrash} size="xs" />
                      </button>
                    </div>
                  ))}
-                 <label className="w-24 h-24 bevel-sm border-2 border-dashed border-chef-border flex flex-col items-center justify-center cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-chef-text opacity-20 hover:opacity-100">
-                   <FontAwesomeIcon icon={faPlus} className="mb-2" />
-                   <span className="text-[8px] font-black uppercase">{auditType === 'image' ? '이미지' : '파일'} 추가</span>
-                   <input 
-                     type="file" 
-                     multiple 
-                     accept={auditType === 'image' ? "image/*" : ".pdf,.hwp,.doc,.docx"} 
-                     className="hidden" 
-                     onChange={async e => {
-                       if (e.target.files) {
-                         toast.info("파일 업로드 중...", { id: 'uploading' });
-                         try {
-                           const urls = await Promise.all(Array.from(e.target.files).map(f => uploadImage(f)));
-                           setMediaData([...(Array.isArray(mediaData) ? mediaData : []), ...urls]);
-                           toast.success("업로드 완료!", { id: 'uploading' });
-                         } catch (err) {
-                           toast.error("업로드 실패", { id: 'uploading' });
-                         }
-                       }
-                     }} 
-                   />
+                 <label className="w-20 h-20 border-2 border-dashed border-chef-border flex flex-col items-center justify-center cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-chef-text opacity-20 hover:opacity-100 rounded-sm">
+                   <FontAwesomeIcon icon={faPlus} className="mb-1" />
+                   <span className="text-[8px] font-black uppercase">{auditType === 'image' ? '이미지' : '파일'}</span>
+                   <input type="file" multiple accept={auditType === 'image' ? "image/*" : ".pdf,.hwp,.doc,.docx"} className="hidden" onChange={async e => {
+                     if (e.target.files) {
+                       toast.info("업로드 중...", { id: 'uploading' });
+                       try {
+                         const urls = await Promise.all(Array.from(e.target.files).map(f => uploadImage(f)));
+                         setMediaData([...(Array.isArray(mediaData) ? mediaData : []), ...urls]);
+                         toast.success("업로드 완료!", { id: 'uploading' });
+                       } catch { toast.error("업로드 실패", { id: 'uploading' }); }
+                     }
+                   }} />
                  </label>
                </div>
-               {auditType === 'document' && (
-                  <p className="text-[10px] font-black text-orange-500 uppercase tracking-widest px-2">* PDF, HWP, DOC 파일만 지원합니다.</p>
-               )}
              </div>
           ) : (
-            <div className="space-y-4">
-              <div className="chef-black-panel p-1 rounded-sm border-none shadow-sm">
-                <input 
-                  value={typeof mediaData === 'string' ? mediaData : ''} 
-                  onChange={e => setMediaData(e.target.value)} 
-                  placeholder={auditType === 'link' ? "wayo.co.kr" : "YouTube 영상 주소..."} 
-                  className="w-full h-16 bg-chef-panel border-none text-chef-text font-black px-8 text-lg bevel-sm placeholder:text-chef-text/30 outline-none transition-colors chef-input-high-v rounded-sm"
-                />
-              </div>
-              
+            <div className="space-y-3">
+              <input
+                autoFocus
+                value={typeof mediaData === 'string' ? mediaData : ''}
+                onChange={e => setMediaData(e.target.value)}
+                placeholder={auditType === 'link' ? "https://wayo.co.kr" : "YouTube 영상 주소..."}
+                className="w-full h-14 md:h-16 bg-chef-panel border border-chef-border/30 hover:border-orange-500/50 focus:border-orange-500 text-chef-text font-black px-4 md:px-6 text-base md:text-lg placeholder:text-chef-text/30 outline-none transition-colors rounded-sm"
+              />
               {linkPreview && (
-                 <div className="chef-black-panel bevel-section p-6 border border-chef-border space-y-4 animate-in fade-in slide-in-from-top-2">
-                   <div className="flex gap-6 items-center">
-                     {linkPreview.image && <img src={linkPreview.image} className="w-24 h-24 object-cover bevel-sm shrink-0 border border-chef-border" />}
-                     <div className="space-y-1">
-                        <h5 className="text-xl font-black text-chef-text leading-tight">{linkPreview.title || "링크 미리보기"}</h5>
-                        <p className="text-xs font-black text-chef-text opacity-40 line-clamp-2 uppercase tracking-wide">{linkPreview.description || "설명이 없습니다."}</p>
+                 <div className="bg-chef-panel border border-chef-border p-4 space-y-2 animate-in fade-in slide-in-from-top-2 rounded-sm">
+                   <div className="flex gap-4 items-center">
+                     {linkPreview.image && <img src={linkPreview.image} className="w-16 h-16 object-cover rounded-sm shrink-0 border border-chef-border" />}
+                     <div className="space-y-0.5 min-w-0">
+                        <h5 className="text-base font-black text-chef-text leading-tight truncate">{linkPreview.title || "링크 미리보기"}</h5>
+                        <p className="text-[11px] font-medium text-chef-text opacity-40 line-clamp-1">{linkPreview.description || ""}</p>
                      </div>
                    </div>
                  </div>
@@ -541,442 +496,433 @@ export default function ProjectUploadPage() {
             </div>
           )}
         </div>
-      </section>
-
-      <div className="flex justify-end pt-4">
-        <Button 
-          onClick={() => setAuditStep(2)} 
-          className="h-16 px-12 bg-orange-600 hover:bg-orange-700 text-white text-lg font-black transition-all hover:scale-105 bevel-section shadow-[0_20px_40px_rgba(234,88,12,0.2)]"
-        >
-          다음 단계로 <FontAwesomeIcon icon={faCheck} className="ml-3" />
-        </Button>
       </div>
-    </motion.div>
+      <StepNav onPrev={goPrev} onNext={goNext} />
+    </div>
   );
 
-  const renderStep2 = () => (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-12">
-      <section className="space-y-8">
-        <div className="flex items-center justify-between border-b border-chef-border pb-6">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-orange-500 text-white flex items-center justify-center text-2xl bevel-section">🎯</div>
-            <div>
-              <h3 className="text-2xl font-black text-chef-text tracking-tighter uppercase italic">1. 미슐랭 평가 설정</h3>
-              <p className="text-[10px] font-black text-chef-text opacity-20 uppercase tracking-[0.3em] mt-0.5">평가 기준 설정</p>
+  const renderStepVisibility = () => (
+    <div className="flex flex-col min-h-[60vh] justify-between">
+      <div className="space-y-8 flex-1">
+        <p className="text-sm text-chef-text/40 font-medium">Step 5 / {totalSteps}</p>
+        <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
+          공개 범위를<br />설정해주세요
+        </h2>
+
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <Label className="text-xs font-black text-chef-text opacity-40 uppercase tracking-widest">프로젝트 참여 권한</Label>
+            <div className="flex gap-3">
+              <button onClick={() => setVisibility('public')} className={cn(
+                "flex-1 py-5 md:py-6 rounded-sm border-2 transition-all flex flex-col items-center justify-center gap-2",
+                visibility === 'public' ? "bg-orange-500/10 border-orange-500 text-orange-500" : "bg-chef-panel border-chef-border text-chef-text opacity-40 hover:opacity-100"
+              )}>
+                <Globe size={22} />
+                <span className="text-xs font-black">전체 공개</span>
+                <span className="text-[9px] font-medium opacity-70">누구나 참여</span>
+              </button>
+              <button onClick={() => setVisibility('private')} className={cn(
+                "flex-1 py-5 md:py-6 rounded-sm border-2 transition-all flex flex-col items-center justify-center gap-2",
+                visibility === 'private' ? "bg-indigo-500/10 border-indigo-500 text-indigo-500" : "bg-chef-panel border-chef-border text-chef-text opacity-40 hover:opacity-100"
+              )}>
+                <Link size={22} />
+                <span className="text-xs font-black">링크 공개</span>
+                <span className="text-[9px] font-medium opacity-70">링크를 가진 사람만</span>
+              </button>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+
+          <div className="space-y-3">
+            <Label className="text-xs font-black text-chef-text opacity-40 uppercase tracking-widest">결과 리포트 공개</Label>
+            <div className="flex gap-3">
+              <button onClick={() => setResultVisibility('public')} className={cn(
+                "flex-1 py-5 md:py-6 rounded-sm border-2 transition-all flex flex-col items-center justify-center gap-2",
+                resultVisibility === 'public' ? "bg-emerald-500/10 border-emerald-500 text-emerald-500" : "bg-chef-panel border-chef-border text-chef-text opacity-40 hover:opacity-100"
+              )}>
+                <Eye size={22} />
+                <span className="text-xs font-black">전체 공개</span>
+                <span className="text-[9px] font-medium opacity-70">참여자 누구나 확인</span>
+              </button>
+              <button onClick={() => setResultVisibility('private')} className={cn(
+                "flex-1 py-5 md:py-6 rounded-sm border-2 transition-all flex flex-col items-center justify-center gap-2",
+                resultVisibility === 'private' ? "bg-red-500/10 border-red-500 text-red-500" : "bg-chef-panel border-chef-border text-chef-text opacity-40 hover:opacity-100"
+              )}>
+                <Lock size={22} />
+                <span className="text-xs font-black">의뢰자만</span>
+                <span className="text-[9px] font-medium opacity-70">본인 결과만 확인</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <StepNav onPrev={goPrev} onNext={goNext} />
+    </div>
+  );
+
+  const renderStepDeadline = () => (
+    <div className="flex flex-col min-h-[60vh] justify-between">
+      <div className="space-y-6 flex-1">
+        <p className="text-sm text-chef-text/40 font-medium">Step 6 / {totalSteps}</p>
+        <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
+          평가 마감일을<br />설정해주세요
+        </h2>
+        <p className="text-sm text-chef-text/50">마감일이 지나면 새로운 평가를 받을 수 없습니다.</p>
+        <div className="pt-4 flex flex-col items-center gap-6">
+          <div className="w-full max-w-sm">
+            <div className="flex items-center gap-4 bg-chef-panel border border-chef-border/30 hover:border-orange-500/50 focus-within:border-orange-500 rounded-sm px-5 py-4 transition-colors">
+              <Calendar className="w-6 h-6 text-orange-500 shrink-0" />
+              <input
+                type="date"
+                value={auditDeadline}
+                onChange={e => setAuditDeadline(e.target.value)}
+                className="flex-1 bg-transparent text-chef-text font-black text-xl outline-none cursor-pointer"
+              />
+            </div>
+          </div>
+          <div className="bg-orange-500/5 border border-orange-500/10 rounded-sm px-5 py-4 max-w-sm w-full">
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-4 h-4 text-orange-500 shrink-0" />
+              <p className="text-xs text-chef-text/60 font-medium">
+                비회원도 평가에 참여할 수 있으며, 추후 가입 시 데이터가 자동 통합됩니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <StepNav onPrev={goPrev} onNext={goNext} />
+    </div>
+  );
+
+  const renderStepCategories = () => (
+    <div className="flex flex-col min-h-[60vh] justify-between">
+      <div className="space-y-5 flex-1">
+        <p className="text-sm text-chef-text/40 font-medium">Step 7 / {totalSteps}</p>
+        <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
+          평가 기준을<br />설정해주세요
+        </h2>
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-chef-text/50">항목 수에 따라 다각형 차트가 변합니다.</p>
+          <div className="flex items-center gap-2">
             <span className="text-xs font-black text-chef-text opacity-20">{customCategories.length}/10</span>
-            <Button variant="outline" onClick={() => setCustomCategories([...customCategories, { id: `cat-${Date.now()}`, label: "", desc: "" }])} disabled={customCategories.length >= 10} className="bevel-sm border-chef-border h-10 font-black text-chef-text bg-transparent hover:bg-black/5 dark:hover:bg-white/5 text-[10px] tracking-widest px-4 uppercase transition-all">
-              <FontAwesomeIcon icon={faPlus} className="mr-2" /> 항목 추가
+            <Button variant="outline" size="sm" onClick={() => setCustomCategories([...customCategories, { id: `cat-${Date.now()}`, label: "", desc: "" }])} disabled={customCategories.length >= 10} className="h-8 text-[10px] font-black border-chef-border bg-transparent text-chef-text hover:bg-black/5 dark:hover:bg-white/5 uppercase tracking-widest">
+              <FontAwesomeIcon icon={faPlus} className="mr-1" /> 추가
             </Button>
           </div>
         </div>
 
-        {/* [New] Polygonal UI Gallery (Demo Section) with Modal Trigger */}
-        <div className="bg-chef-card/50 border border-chef-border rounded-xl p-8 space-y-6">
-           <div className="flex items-center gap-3">
-              <Info className="w-5 h-5 text-orange-500" />
-              <h4 className="text-sm font-black text-chef-text uppercase tracking-widest">다각형 UI 가이드 : 질문 개수에 따라 모양이 변합니다</h4>
-           </div>
-           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { n: 3, shape: '삼각형', icon: '🔺' },
-                { n: 4, shape: '사각형', icon: '⬜' },
-                { n: 5, shape: '오각형', icon: '⬟' },
-                { n: 6, shape: '육각형', icon: '⬢' }
-              ].map((demo) => (
-                <button 
-                  key={demo.n}
-                  onClick={() => {
-                      setDemoShapeN(demo.n);
-                      setDemoModalOpen(true);
-                  }}
-                  className="flex flex-col items-center gap-2 p-4 bg-chef-panel border border-chef-border hover:border-orange-500/50 rounded-xl transition-all group"
-                >
-                   <span className="text-2xl group-hover:scale-125 transition-transform">{demo.icon}</span>
-                   <div className="text-center">
-                      <p className="text-[10px] font-black text-chef-text opacity-40 uppercase">{demo.n}개 지표</p>
-                      <p className="text-xs font-black text-chef-text">{demo.shape} UI 보기</p>
-                   </div>
-                </button>
-              ))}
-           </div>
-           <p className="text-[10px] text-chef-text opacity-30 font-bold text-center uppercase tracking-widest">항목 개수를 조절하여 프로젝트에 가장 적합한 진단 모델을 설계해보세요.</p>
+        {/* Polygon shape preview */}
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          {[{ n: 3, s: '삼각형', i: '🔺' },{ n: 4, s: '사각형', i: '⬜' },{ n: 5, s: '오각형', i: '⬟' },{ n: 6, s: '육각형', i: '⬢' }].map(d => (
+            <button key={d.n} onClick={() => { setDemoShapeN(d.n); setDemoModalOpen(true); }}
+              className="flex items-center gap-2 px-3 py-2 bg-chef-panel border border-chef-border hover:border-orange-500/50 rounded-sm transition-all shrink-0 text-xs font-black text-chef-text/60">
+              <span>{d.i}</span><span>{d.n}개</span>
+            </button>
+          ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-1">
           {customCategories.map((cat, idx) => (
-            <div key={idx} className="chef-black-panel bevel-section p-10 border border-chef-border/50 relative group hover:border-orange-500 transition-all bg-chef-card shadow-lg">
-              <div className="flex items-center gap-6">
-                <div className="w-12 h-12 bg-chef-panel text-chef-text opacity-20 flex items-center justify-center bevel-sm shrink-0 font-black text-xs">
-                   0{idx+1}
-                </div>
-                <div className="flex-1 space-y-1">
+            <div key={idx} className="bg-chef-panel border border-chef-border/50 p-4 rounded-sm relative group hover:border-orange-500/50 transition-all">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-chef-bg text-chef-text opacity-30 flex items-center justify-center rounded-sm shrink-0 font-black text-[10px]">{idx+1}</div>
+                <div className="flex-1 space-y-1 min-w-0">
                   <input value={cat.label} onChange={e => {
-                    const next = [...customCategories];
-                    next[idx].label = e.target.value;
-                    setCustomCategories(next);
-                  }} className="font-black text-chef-text outline-none w-full bg-transparent text-xl placeholder:text-chef-text/10 chef-input-high-v" placeholder="평가 항목명" />
+                    const next = [...customCategories]; next[idx].label = e.target.value; setCustomCategories(next);
+                  }} className="font-black text-chef-text outline-none w-full bg-transparent text-base placeholder:text-chef-text/15" placeholder="평가 항목명" />
                   <input value={cat.desc} onChange={e => {
-                    const next = [...customCategories];
-                    next[idx].desc = e.target.value;
-                    setCustomCategories(next);
-                  }} className="text-[10px] text-chef-text opacity-40 outline-none w-full bg-transparent font-black uppercase tracking-widest chef-input-high-v placeholder:text-chef-text/5" placeholder="가이드라인 입력..." />
+                    const next = [...customCategories]; next[idx].desc = e.target.value; setCustomCategories(next);
+                  }} className="text-[10px] text-chef-text opacity-40 outline-none w-full bg-transparent font-bold placeholder:text-chef-text/10" placeholder="설명 입력..." />
+                </div>
+                {customCategories.length > 3 && (
+                  <button onClick={() => setCustomCategories(customCategories.filter((_, i) => i !== idx))} className="opacity-0 group-hover:opacity-100 text-chef-text hover:text-red-500 transition-all p-1 shrink-0">
+                    <FontAwesomeIcon icon={faTrash} size="xs" />
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <StepNav onPrev={goPrev} onNext={goNext} />
+    </div>
+  );
+
+  const renderStepPoll = () => (
+    <div className="flex flex-col min-h-[60vh] justify-between">
+      <div className="space-y-5 flex-1">
+        <p className="text-sm text-chef-text/40 font-medium">Step 8 / {totalSteps}</p>
+        <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
+          스티커 투표를<br />설정해주세요
+        </h2>
+
+        {/* Preset */}
+        <div className="flex gap-1 bg-chef-panel p-1 rounded-sm overflow-x-auto no-scrollbar">
+          {[
+            { key: 'professional' as const, label: '전문가' },
+            { key: 'michelin' as const, label: '미슐랭' },
+            { key: 'mz' as const, label: 'MZ세대' },
+          ].map(p => (
+            <button key={p.key} onClick={() => handlePresetChange(p.key)} className={cn(
+              "flex-1 px-3 py-2 text-[10px] font-black uppercase transition-all rounded-sm whitespace-nowrap",
+              selectedPreset === p.key ? "bg-chef-text text-chef-bg shadow" : "text-chef-text opacity-40 hover:opacity-100"
+            )}>{p.label}</button>
+          ))}
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-black text-chef-text opacity-20">{pollOptions.length}/6</span>
+          <Button size="sm" variant="outline" onClick={() => setPollOptions([...pollOptions, { id: `p-${Date.now()}`, label: "", desc: "", image_url: "" }])} disabled={pollOptions.length >= 6} className="h-8 text-[10px] font-black border-chef-border bg-transparent text-chef-text hover:bg-black/5 dark:hover:bg-white/5 uppercase tracking-widest">
+            <FontAwesomeIcon icon={faPlus} className="mr-1" /> 추가
+          </Button>
+        </div>
+
+        <div className="space-y-4 max-h-[45vh] overflow-y-auto pr-1">
+          {pollOptions.map((opt, idx) => (
+            <div key={idx} className="bg-chef-panel border border-chef-border rounded-sm overflow-hidden relative group">
+              <div className="flex gap-3 p-3">
+                <label htmlFor={`sticker-upload-${idx}`} className="w-20 h-20 md:w-24 md:h-24 bg-chef-bg border border-chef-border flex items-center justify-center cursor-pointer overflow-hidden shrink-0 rounded-sm">
+                  {opt.image_url ? (
+                    <img src={opt.image_url} className="w-full h-full object-cover" />
+                  ) : (
+                    <FontAwesomeIcon icon={faCamera} className="text-chef-text opacity-10 text-xl" />
+                  )}
+                </label>
+                <input id={`sticker-upload-${idx}`} type="file" className="hidden" accept="image/*" onChange={async e => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const toastId = toast.loading(`이미지 업로드 중...`);
+                    try {
+                      const url = await uploadImage(file);
+                      const next = [...pollOptions]; next[idx].image_url = url; setPollOptions(next);
+                      toast.success("완료!", { id: toastId });
+                    } catch (err: any) { toast.error("실패", { id: toastId }); }
+                  }
+                }} />
+                <div className="flex-1 space-y-2 min-w-0">
+                  <textarea value={opt.label} onChange={e => { const next = [...pollOptions]; next[idx].label = e.target.value; setPollOptions(next); }}
+                    className="w-full font-black text-chef-text outline-none bg-transparent text-sm placeholder:text-chef-text/15 resize-none h-10 leading-tight" placeholder="메뉴 명칭" rows={2} />
+                  <textarea value={opt.desc} onChange={e => { const next = [...pollOptions]; next[idx].desc = e.target.value; setPollOptions(next); }}
+                    className="w-full text-[10px] text-chef-text opacity-40 bg-transparent resize-none outline-none font-bold h-10 placeholder:text-chef-text/10 leading-relaxed" placeholder="설명 입력..." rows={2} />
                 </div>
               </div>
-              {customCategories.length > 3 && (
-                <button onClick={() => setCustomCategories(customCategories.filter((_, i) => i !== idx))} className="opacity-0 group-hover:opacity-100 absolute top-4 right-4 text-chef-text hover:text-red-500 transition-all">
-                  <FontAwesomeIcon icon={faTrash} size="xs" />
+              {pollOptions.length > 2 && (
+                <button onClick={() => setPollOptions(pollOptions.filter((_, i) => i !== idx))} className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-sm opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center text-[10px]">
+                  <FontAwesomeIcon icon={faTrash} />
                 </button>
               )}
             </div>
           ))}
         </div>
-      </section>
-
-      <div className="flex justify-between items-center pt-8">
-        <Button variant="ghost" onClick={() => setAuditStep(1)} className="h-14 px-8 font-black text-chef-text opacity-40 hover:opacity-100 uppercase tracking-widest text-xs transition-opacity">이전 단계</Button>
-        <Button onClick={() => setAuditStep(3)} className="h-20 px-16 bg-chef-text text-chef-bg hover:opacity-90 text-lg font-black bevel-cta transition-transform hover:scale-105 shadow-2xl uppercase tracking-widest border border-chef-border/20">
-            다음: 스티커 투표 설정 <FontAwesomeIcon icon={faPlus} className="ml-3" />
-        </Button>
       </div>
-    </motion.div>
+      <StepNav onPrev={goPrev} onNext={goNext} />
+    </div>
   );
 
-  const renderStep3 = () => (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-16">
-      <section className="space-y-8">
-        <div className="flex items-center justify-between border-b border-chef-border pb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-indigo-600 text-white flex items-center justify-center text-2xl bevel-section">📊</div>
-            <div>
-              <h3 className="text-2xl font-black text-chef-text tracking-tighter uppercase italic">2. 스티커 투표 설정</h3>
-              <p className="text-[10px] font-black text-chef-text opacity-20 uppercase tracking-[0.3em] mt-0.5">스티커 투표 옵션</p>
-            </div>
-          </div>
-          <div className="flex flex-col gap-4 w-full md:w-auto">
-            {/* Preset Selector */}
-            <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest text-right">프리셋 선택</span>
-                <div className="flex bg-chef-panel p-1 bevel-sm gap-1 self-end">
-                  <button onClick={() => handlePresetChange('professional')} className={cn("px-4 py-2 text-[10px] font-black uppercase transition-all", selectedPreset === 'professional' ? "bg-chef-text text-chef-bg shadow-lg" : "text-chef-text opacity-40 hover:opacity-100")}>전문가 (Professional)</button>
-                  <button onClick={() => handlePresetChange('michelin')} className={cn("px-4 py-2 text-[10px] font-black uppercase transition-all", selectedPreset === 'michelin' ? "bg-chef-text text-chef-bg shadow-lg" : "text-chef-text opacity-40 hover:opacity-100")}>미슐랭 (Michelin)</button>
-                  <button onClick={() => handlePresetChange('mz')} className={cn("px-4 py-2 text-[10px] font-black uppercase transition-all", selectedPreset === 'mz' ? "bg-chef-text text-chef-bg shadow-lg" : "text-chef-text opacity-40 hover:opacity-100")}>MZ세대 (MZ)</button>
-                </div>
-            </div>
-            
-            <div className="flex items-center gap-4 justify-end">
-              <span className="text-xs font-black text-chef-text opacity-20">{pollOptions.length}/6</span>
-              <Button onClick={() => setPollOptions([...pollOptions, { id: `p-${Date.now()}`, label: "", desc: "", image_url: "" }])} disabled={pollOptions.length >= 6} className="bevel-sm h-10 bg-chef-panel text-chef-text border border-chef-border hover:bg-black/5 dark:hover:bg-white/5 font-black text-[10px] uppercase tracking-widest transition-all"><FontAwesomeIcon icon={faPlus} className="mr-2" /> 항목 추가</Button>
-            </div>
-          </div>
-        </div>
+  const renderStepQuestions = () => {
+    const isLastStep = !isAdmin;
+    return (
+      <div className="flex flex-col min-h-[60vh] justify-between">
+        <div className="space-y-5 flex-1">
+          <p className="text-sm text-chef-text/40 font-medium">Step 9 / {totalSteps}</p>
+          <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
+            평가자에게 물어볼<br />질문을 작성해주세요
+          </h2>
+          <p className="text-sm text-chef-text/50">텍스트 답변으로 수집되어 핵심 인사이트가 됩니다.</p>
 
-        <div className="chef-frame-container">
-          <div className="chef-frame-header">스티커 메뉴</div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {pollOptions.map((opt, idx) => (
-              <div key={idx} className="chef-menu-card group">
-                <div className="relative group/img">
-                  <label 
-                    htmlFor={`sticker-upload-${idx}`}
-                    className="w-full aspect-[4/3] bg-chef-panel border-b border-chef-border flex items-center justify-center cursor-pointer overflow-hidden relative"
-                  >
-                    {opt.image_url ? (
-                      <img src={opt.image_url} className="w-full h-full object-cover transition-transform duration-500 group-hover/img:scale-110" />
-                    ) : (
-                      <FontAwesomeIcon icon={faCamera} className="text-chef-text opacity-10 text-3xl" />
-                    )}
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 flex items-center justify-center transition-opacity backdrop-blur-sm">
-                      <span className="text-[10px] text-white font-black uppercase tracking-widest border border-white/20 px-4 py-2">이미지 선택</span>
-                    </div>
-                  </label>
-                  <input 
-                    id={`sticker-upload-${idx}`}
-                    type="file" 
-                    className="hidden" 
-                    accept="image/*"
-                    onChange={async e => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const toastId = toast.loading(`${idx + 1}번 스티커 이미지 업로드 중...`);
-                        try {
-                          const url = await uploadImage(file);
-                          const next = [...pollOptions];
-                          next[idx].image_url = url;
-                          setPollOptions(next);
-                          toast.success("업로드 완료!", { id: toastId });
-                        } catch (err: any) {
-                          toast.error("업로드 실패: " + (err.message || "알 수 없는 오류"), { id: toastId });
-                        }
-                      }
-                    }} 
-                  />
+          <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-1">
+            {auditQuestions.map((q, idx) => (
+              <div key={idx} className="bg-chef-panel border border-chef-border p-4 rounded-sm relative group">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest">질문 {idx+1}</span>
+                  {auditQuestions.length > 1 && (
+                    <button onClick={() => setAuditQuestions(auditQuestions.filter((_, i) => i !== idx))} className="text-chef-text opacity-20 hover:text-red-400 hover:opacity-100 transition-all p-1">
+                      <FontAwesomeIcon icon={faTrash} size="xs" />
+                    </button>
+                  )}
                 </div>
-
-                <div className="chef-menu-bottom min-h-[160px] py-6 px-4">
-                  <textarea 
-                    value={opt.label} 
-                    onChange={e => {
-                      const next = [...pollOptions];
-                      next[idx].label = e.target.value;
-                      setPollOptions(next);
-                    }} 
-                    className="w-full font-black text-chef-text outline-none bg-transparent text-center text-lg placeholder:text-chef-text/10 mb-2 resize-none h-16 chef-input-high-v overflow-hidden whitespace-pre-wrap leading-tight" 
-                    placeholder="메뉴 명칭" 
-                    rows={2}
-                  />
-                  <div className="chef-line-detail" />
-                  <textarea 
-                    value={opt.desc} 
-                    onChange={e => {
-                      const next = [...pollOptions];
-                      next[idx].desc = e.target.value;
-                      setPollOptions(next);
-                    }} 
-                    className="w-full text-[10px] text-chef-text opacity-40 bg-transparent resize-none outline-none font-black uppercase tracking-widest text-center h-20 placeholder:text-chef-text/5 chef-input-high-v whitespace-pre-wrap leading-relaxed" 
-                    placeholder="메뉴 설명 입력..." 
-                    rows={3} 
-                  />
-                </div>
-
-                {pollOptions.length > 2 && (
-                  <button onClick={() => setPollOptions(pollOptions.filter((_, i) => i !== idx))} className="absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center border border-white/10">
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                )}
+                <textarea value={q} onChange={e => { const next = [...auditQuestions]; next[idx] = e.target.value; setAuditQuestions(next); }}
+                  className="w-full min-h-[60px] bg-white/5 border border-chef-border focus:border-orange-500 text-chef-text font-bold text-sm p-3 placeholder:text-chef-text/10 outline-none transition-all resize-none leading-relaxed rounded-sm"
+                  placeholder="평가받고 싶은 질문을 입력하세요." rows={2}
+                />
               </div>
             ))}
+            <Button variant="ghost" onClick={() => setAuditQuestions([...auditQuestions, ""])} disabled={auditQuestions.length >= 6} className="w-full h-12 border border-dashed border-chef-border text-chef-text opacity-20 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5 font-black uppercase tracking-widest transition-all text-xs rounded-sm">
+              <FontAwesomeIcon icon={faPlus} className="mr-2" /> 질문 추가 (최대 6개)
+            </Button>
           </div>
         </div>
-      </section>
-
-      <div className="flex justify-between items-center pt-10 border-t border-chef-border">
-        <Button variant="ghost" onClick={() => setAuditStep(2)} className="h-14 px-8 font-black text-chef-text opacity-50 hover:opacity-100 uppercase tracking-widest text-xs transition-opacity">이전 단계</Button>
-        <Button onClick={() => setAuditStep(4)} className="h-16 px-16 bg-chef-text text-chef-bg hover:opacity-90 text-lg font-black bevel-cta transition-transform hover:scale-105 shadow-2xl uppercase tracking-widest">다음: 심층 질문 설정 <FontAwesomeIcon icon={faPlus} className="ml-3" /></Button>
-      </div>
-    </motion.div>
-  );
-
-  const renderStep4 = () => (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-16">
-      <section className="space-y-10">
-        <div className="flex items-center gap-4 border-l-4 border-orange-500 pl-4">
-           <h3 className="text-3xl font-black text-chef-text tracking-tighter uppercase italic">3. 심층 질문지 구성</h3>
-        </div>
-        <p className="text-sm text-chef-text opacity-40 font-bold max-w-2xl">
-          평가자들에게 더 자세히 묻고 싶은 질문을 던지세요. 
-          답변은 텍스트 형태로 수집되며, 프로젝트 개선의 핵심 인사이트가 됩니다.
-        </p>
-        <div className="space-y-4">
-          {auditQuestions.map((q, idx) => (
-            <div key={idx} className="flex flex-col gap-3 group p-8 bg-chef-panel bevel-section border border-chef-border relative">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-black text-orange-500 uppercase tracking-[0.2em] italic">심층 질문 {idx+1}</span>
-                {auditQuestions.length > 1 && (
-                  <button onClick={() => setAuditQuestions(auditQuestions.filter((_, i) => i !== idx))} className="text-chef-text opacity-20 hover:text-red-400 hover:opacity-100 transition-all p-1">
-                    <FontAwesomeIcon icon={faTrash} size="sm" />
-                  </button>
-                )}
-              </div>
-              <textarea 
-                value={q} 
-                onChange={e => {
-                   const next = [...auditQuestions];
-                   next[idx] = e.target.value;
-                   setAuditQuestions(next);
-                }} 
-                className="w-full min-h-[100px] bg-white/5 border border-chef-border focus:border-orange-500 text-chef-text font-black text-lg p-6 bevel-cta placeholder:text-chef-text/5 outline-none transition-all chef-input-high-v resize-none leading-relaxed" 
-                placeholder="평가위원에게 평가받고 싶은 질문을 입력하세요." 
-                rows={3}
-              />
-            </div>
-          ))}
-          <Button variant="ghost" onClick={() => setAuditQuestions([...auditQuestions, ""])} disabled={auditQuestions.length >= 6} className="w-full h-16 bevel-cta border border-dashed border-chef-border text-chef-text opacity-20 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5 font-black uppercase tracking-widest transition-all">
-            <FontAwesomeIcon icon={faPlus} className="mr-3" /> 새 질문 추가하기 (최대 6개)
+        <div className="flex gap-3 pt-8">
+          <Button variant="ghost" onClick={goPrev} className="h-14 px-6 font-black text-chef-text opacity-40 hover:opacity-100 text-sm">
+            <ArrowLeft className="mr-1 w-4 h-4" /> 이전
+          </Button>
+          <Button onClick={() => isLastStep ? handleSubmit() : goNext()} disabled={isSubmitting} className={cn(
+            "h-14 flex-1 text-lg font-black transition-all rounded-sm",
+            isLastStep ? "bg-orange-600 hover:bg-orange-700 text-white" : "bg-chef-text text-chef-bg hover:opacity-90"
+          )}>
+            {isSubmitting ? "게시 중..." : isLastStep ? <><ChefHat className="w-5 h-5 mr-2" /> 평가 의뢰 게시하기</> : <>계속하기 <ArrowRight className="ml-2 w-5 h-5" /></>}
           </Button>
         </div>
-      </section>
+      </div>
+    );
+  };
 
-      <div className="flex justify-between items-center pt-10 border-t border-chef-border">
-        <Button variant="ghost" onClick={() => setAuditStep(3)} className="h-14 px-8 font-black text-chef-text opacity-80 hover:opacity-100 uppercase tracking-widest text-xs transition-opacity">이전 단계</Button>
-        <Button onClick={() => {
-           if (isAdmin) {
-             setAuditStep(5);
-           } else {
-             handleSubmit();
-           }
-        }} disabled={isSubmitting} className="h-20 px-16 bevel-cta bg-orange-600 hover:bg-orange-700 text-white text-xl font-black flex items-center gap-5 transition-all hover:scale-105 shadow-[0_10px_40px_rgba(234,88,12,0.4)]">
-          {isSubmitting ? "의뢰 게시 중..." : (isAdmin ? <><FontAwesomeIcon icon={faPlus} className="w-5 h-5" /> 계속 : 보약 설정</> : <><ChefHat className="w-6 h-6" /> 평가 의뢰 게시하기</>)}
+  const renderStepReward = () => (
+    <div className="flex flex-col min-h-[60vh] justify-between">
+      <div className="space-y-6 flex-1">
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-chef-text/40 font-medium">Step 10 / {totalSteps}</p>
+          <span className="px-3 py-1 bg-chef-panel border border-chef-border text-[10px] font-black text-orange-500 uppercase tracking-widest rounded-full animate-pulse">유료 플랜 (베타)</span>
+        </div>
+        <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
+          보상을<br />설정해주세요
+        </h2>
+
+        <div className="space-y-5">
+          <div className="space-y-3">
+            <Label className="text-xs font-black text-chef-text opacity-30 uppercase tracking-widest">보상 종류</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => setRewardType('point')} className={cn(
+                "p-5 border-2 transition-all flex flex-col items-center gap-3 rounded-sm",
+                rewardType === 'point' ? "border-orange-500 bg-orange-500/5 text-orange-500" : "border-chef-border bg-chef-card opacity-40 hover:opacity-100"
+              )}>
+                <FontAwesomeIcon icon={faCoins} size="xl" />
+                <span className="font-black text-xs">포인트</span>
+              </button>
+              <button onClick={() => setRewardType('coupon')} className={cn(
+                "p-5 border-2 transition-all flex flex-col items-center gap-3 rounded-sm",
+                rewardType === 'coupon' ? "border-orange-500 bg-orange-500/5 text-orange-500" : "border-chef-border bg-chef-card opacity-40 hover:opacity-100"
+              )}>
+                <FontAwesomeIcon icon={faGift} size="xl" />
+                <span className="font-black text-xs">기프티콘</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-black text-chef-text opacity-30 uppercase tracking-widest">인당 금액 (P)</Label>
+              <input type="number" value={rewardAmount} onChange={e => setRewardAmount(Number(e.target.value))} className="w-full h-12 bg-chef-panel border border-chef-border text-chef-text font-black px-4 outline-none focus:border-orange-500 rounded-sm" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-[10px] font-black text-chef-text opacity-30 uppercase tracking-widest">모집 인원</Label>
+              <input type="number" value={recipientCount} onChange={e => setRecipientCount(Number(e.target.value))} className="w-full h-12 bg-chef-panel border border-chef-border text-chef-text font-black px-4 outline-none focus:border-orange-500 rounded-sm" />
+            </div>
+          </div>
+
+          <div className="bg-chef-card border border-chef-border rounded-sm p-5 space-y-3">
+            <h4 className="text-sm font-black text-chef-text flex items-center gap-2">
+              <FontAwesomeIcon icon={faCoins} className="text-orange-500" /> 청구 내역
+            </h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between text-chef-text font-medium"><span className="opacity-40">보상 원금</span><span>{(rewardAmount * recipientCount).toLocaleString()}P</span></div>
+              <div className="flex justify-between text-chef-text font-medium"><span className="opacity-40">수수료 (10%)</span><span className="text-orange-500">+{Math.round(rewardAmount * recipientCount * 0.1).toLocaleString()}P</span></div>
+              <div className="flex justify-between text-chef-text font-medium"><span className="opacity-40">부가세 (10%)</span><span className="text-orange-500">+{Math.round(rewardAmount * recipientCount * 1.1 * 0.1).toLocaleString()}P</span></div>
+              <div className="border-t border-chef-border pt-2 flex justify-between items-end">
+                <span className="text-xs font-black text-chef-text opacity-40">합계</span>
+                <span className="text-2xl font-black text-chef-text">{Math.round(rewardAmount * recipientCount * 1.21).toLocaleString()}P</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-3 pt-8">
+        <Button variant="ghost" onClick={goPrev} className="h-14 px-6 font-black text-chef-text opacity-40 hover:opacity-100 text-sm">
+          <ArrowLeft className="mr-1 w-4 h-4" /> 이전
+        </Button>
+        <Button onClick={handleSubmit} disabled={isSubmitting} className="h-14 flex-1 bg-orange-600 hover:bg-orange-700 text-white text-lg font-black transition-all rounded-sm">
+          {isSubmitting ? "게시 중..." : <><ChefHat className="w-5 h-5 mr-2" /> 게시 완료</>}
         </Button>
       </div>
-    </motion.div>
+    </div>
   );
 
-  const renderStep5 = () => (
-    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="space-y-12">
-      <section className="space-y-10">
-        <div className="flex items-center justify-between">
-           <div className="flex items-center gap-4 border-l-4 border-orange-500 pl-4 py-1">
-              <h3 className="text-3xl font-black text-chef-text tracking-tighter uppercase italic">4. 보약(보상/약속) 설정</h3>
-           </div>
-           <div className="px-4 py-1.5 bg-chef-panel border border-chef-border text-[10px] font-black text-orange-500 uppercase tracking-widest rounded-full animate-pulse">
-              유료 플랜 (베타)
-           </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8">
-           <div className="space-y-8">
-              <div className="space-y-4">
-                 <Label className="text-xs font-black text-chef-text opacity-30 uppercase tracking-[0.2em]">보상 종류 선택</Label>
-                 <div className="grid grid-cols-2 gap-4">
-                    <button 
-                      onClick={() => setRewardType('point')}
-                      className={cn(
-                        "p-8 bevel-sm border-2 transition-all flex flex-col items-center gap-4",
-                        rewardType === 'point' ? "border-orange-500 bg-orange-500/5 text-orange-500" : "border-chef-border bg-chef-card opacity-40 hover:opacity-100"
-                      )}
-                    >
-                       <FontAwesomeIcon icon={faCoins} size="2xl" />
-                       <span className="font-black text-xs uppercase tracking-widest">포인트 보상</span>
-                    </button>
-                    <button 
-                      onClick={() => setRewardType('coupon')}
-                      className={cn(
-                        "p-8 bevel-sm border-2 transition-all flex flex-col items-center gap-4",
-                        rewardType === 'coupon' ? "border-orange-500 bg-orange-500/5 text-orange-500" : "border-chef-border bg-chef-card opacity-40 hover:opacity-100"
-                      )}
-                    >
-                       <FontAwesomeIcon icon={faGift} size="2xl" />
-                       <span className="font-black text-xs uppercase tracking-widest">기프티콘 샵</span>
-                    </button>
-                 </div>
-              </div>
-
-              <div className="space-y-6">
-                 <div className="space-y-2">
-                    <Label className="text-xs font-black text-chef-text opacity-30 uppercase tracking-[0.2em]">인당 보상 금액 (P)</Label>
-                    <input type="number" value={rewardAmount} onChange={e => setRewardAmount(Number(e.target.value))} className="w-full h-14 bg-chef-panel border border-chef-border text-chef-text font-black px-6 outline-none focus:border-orange-500 bevel-sm" />
-                 </div>
-                 <div className="space-y-2">
-                    <Label className="text-xs font-black text-chef-text opacity-30 uppercase tracking-[0.2em]">모집 인원 (명)</Label>
-                    <input type="number" value={recipientCount} onChange={e => setRecipientCount(Number(e.target.value))} className="w-full h-14 bg-chef-panel border border-chef-border text-chef-text font-black px-6 outline-none focus:border-orange-500 bevel-sm" />
-                 </div>
-              </div>
-           </div>
-
-           <div className="bg-chef-card border-none bevel-section p-10 space-y-8 shadow-2xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-10 opacity-5 -mr-10 -mt-10 group-hover:rotate-12 transition-transform duration-1000">
-                 <FontAwesomeIcon icon={faCalculator} size="10x" />
-              </div>
-              <h4 className="text-xl font-black text-chef-text italic uppercase flex items-center gap-3">
-                 <FontAwesomeIcon icon={faCoins} className="text-orange-500" /> 실시간 청구 내역
-              </h4>
-              <div className="space-y-4 border-y border-chef-border py-6">
-                 <div className="flex justify-between text-chef-text font-bold">
-                    <span className="opacity-40">보상 원금</span>
-                    <span>{(rewardAmount * recipientCount).toLocaleString()} P</span>
-                 </div>
-                 <div className="flex justify-between text-chef-text font-bold">
-                    <span className="opacity-40">플랫폼 수수료 (10%)</span>
-                    <span className="text-orange-500">+{(rewardAmount * recipientCount * 0.1).toLocaleString()} P</span>
-                 </div>
-                 <div className="flex justify-between text-chef-text font-bold">
-                    <span className="opacity-40">부가가치세 (10%)</span>
-                    <span className="text-orange-500">+{(rewardAmount * recipientCount * 1.1 * 0.1).toLocaleString()} P</span>
-                 </div>
-              </div>
-              <div className="flex justify-between items-end">
-                 <span className="text-xs font-black text-chef-text opacity-40 uppercase tracking-widest">최종 합계</span>
-                 <span className="text-4xl font-black italic text-chef-text tracking-tighter">{(rewardAmount * recipientCount * 1.21).toLocaleString()} P</span>
-              </div>
-           </div>
-        </div>
-
-        <div className="flex justify-between items-center pt-8 border-t border-chef-border">
-             <Button variant="ghost" onClick={() => setAuditStep(4)} className="h-14 px-8 font-black text-chef-text opacity-80 hover:opacity-100 uppercase tracking-widest text-xs">이전 단계</Button>
-             <Button onClick={handleSubmit} disabled={isSubmitting} className="h-20 px-16 bevel-cta bg-orange-600 hover:bg-orange-700 text-white text-xl font-black flex items-center gap-5 transition-all hover:scale-105 shadow-[0_10px_40px_rgba(234,88,12,0.4)]">
-               {isSubmitting ? "게시 중..." : <><ChefHat className="w-6 h-6" /> 게시 완료</>}
-             </Button>
-        </div>
-      </section>
-    </motion.div>
-  );
+  const stepRenderers = [
+    renderStepAiUrl,      // 1
+    renderStepTitle,      // 2
+    renderStepSummary,    // 3
+    renderStepMedia,      // 4
+    renderStepVisibility, // 5
+    renderStepDeadline,   // 6
+    renderStepCategories, // 7
+    renderStepPoll,       // 8
+    renderStepQuestions,  // 9
+    renderStepReward,     // 10
+  ];
 
   return (
-    <div className="min-h-screen bg-chef-bg font-pretendard pb-20">
+    <div className="min-h-screen bg-chef-bg font-pretendard">
       <MyRatingIsHeader />
-      
-      <main className="max-w-4xl mx-auto px-6 pt-32">
-        <AnimatePresence mode="wait">
-          {auditStep === 1 && renderStep1()}
-          {auditStep === 2 && renderStep2()}
-          {auditStep === 3 && renderStep3()}
-          {auditStep === 4 && renderStep4()}
-          {auditStep === 5 && renderStep5()}
+
+      {/* Progress Bar */}
+      <div className="fixed top-20 left-0 right-0 z-40 h-1 bg-chef-border/30">
+        <motion.div
+          className="h-full bg-orange-500"
+          initial={false}
+          animate={{ width: `${(step / totalSteps) * 100}%` }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        />
+      </div>
+
+      <main className="max-w-2xl mx-auto px-4 md:px-6 pt-28 pb-20">
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={step}
+            custom={direction}
+            variants={slideVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+          >
+            {stepRenderers[step - 1]?.()}
+          </motion.div>
         </AnimatePresence>
       </main>
 
       {/* Demo Preview Modal */}
       <AnimatePresence>
         {demoModalOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            exit={{ opacity: 0 }} 
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
-            onClick={() => setDemoModalOpen(false)}
-          >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20 }} 
-              animate={{ scale: 1, y: 0 }} 
-              exit={{ scale: 0.9, y: 20 }} 
-              className="bg-[#0a0a0a] border border-white/10 w-full max-w-md rounded-xl p-8 relative shadow-2xl"
-              onClick={e => e.stopPropagation()}
-            >
-               <button 
-                 onClick={() => setDemoModalOpen(false)}
-                 className="absolute top-6 right-6 text-white/40 hover:text-white transition-colors"
-               >
-                 <X size={24} />
-               </button>
-               
-               <div className="text-center space-y-2 mb-8">
-                  <h3 className="text-2xl font-black text-white italic">
-                    {demoShapeN === 3 && "Triangle Logic"}
-                    {demoShapeN === 4 && "Square Logic"}
-                    {demoShapeN === 5 && "Pentagon Logic"}
-                    {demoShapeN === 6 && "Hexagon Logic"}
-                  </h3>
-                  <p className="text-xs font-bold text-white/40 uppercase tracking-widest">{demoShapeN}개의 평가 지표 예시</p>
-               </div>
-
-               <div className="h-[300px] w-full relative">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="70%" data={getDemoData(demoShapeN)}>
-                      <PolarGrid stroke="#ffffff20" />
-                      <PolarAngleAxis dataKey="subject" tick={{ fill: '#ffffff60', fontSize: 12, fontWeight: 'bold' }} />
-                      <PolarRadiusAxis angle={30} domain={[0, 5]} tick={false} axisLine={false} />
-                      <Radar
-                        name="Demo"
-                        dataKey="A"
-                        stroke="#ea580c"
-                        strokeWidth={3}
-                        fill="#ea580c"
-                        fillOpacity={0.5}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
-               </div>
-
-               <div className="text-center mt-6">
-                  <p className="text-[10px] text-white/20">Evaluation Preview Mode</p>
-               </div>
+            onClick={() => setDemoModalOpen(false)}>
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+              className="bg-[#0a0a0a] border border-white/10 w-full max-w-sm rounded-xl p-6 relative shadow-2xl"
+              onClick={e => e.stopPropagation()}>
+              <button onClick={() => setDemoModalOpen(false)} className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors"><X size={20} /></button>
+              <div className="text-center space-y-1 mb-6">
+                <h3 className="text-xl font-black text-white italic">
+                  {demoShapeN === 3 && "Triangle"}{demoShapeN === 4 && "Square"}{demoShapeN === 5 && "Pentagon"}{demoShapeN === 6 && "Hexagon"}
+                </h3>
+                <p className="text-xs font-bold text-white/40 uppercase tracking-widest">{demoShapeN}개 지표 예시</p>
+              </div>
+              <div className="h-[250px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="70%" data={getDemoData(demoShapeN)}>
+                    <PolarGrid stroke="#ffffff20" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#ffffff60', fontSize: 11, fontWeight: 'bold' }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 5]} tick={false} axisLine={false} />
+                    <Radar name="Demo" dataKey="A" stroke="#ea580c" strokeWidth={3} fill="#ea580c" fillOpacity={0.5} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+// Reusable navigation buttons
+function StepNav({ onPrev, onNext, nextLabel = "계속하기" }: { onPrev: () => void; onNext: () => void; nextLabel?: string }) {
+  return (
+    <div className="flex gap-3 pt-8">
+      <Button variant="ghost" onClick={onPrev} className="h-14 px-6 font-black text-chef-text opacity-40 hover:opacity-100 text-sm rounded-sm">
+        <ArrowLeft className="mr-1 w-4 h-4" /> 이전
+      </Button>
+      <Button onClick={onNext} className="h-14 flex-1 bg-chef-text text-chef-bg hover:opacity-90 text-lg font-black transition-all rounded-sm">
+        {nextLabel} <ArrowRight className="ml-2 w-5 h-5" />
+      </Button>
     </div>
   );
 }
