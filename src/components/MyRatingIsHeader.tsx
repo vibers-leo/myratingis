@@ -165,16 +165,16 @@ export function MyRatingIsHeader() {
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           <div className="w-6 h-5 flex flex-col justify-between items-center relative">
-            <motion.span 
-              animate={isMenuOpen ? { rotate: 45, y: 9, backgroundColor: "#fff" } : { rotate: 0, y: 0 }}
-              className="w-full h-0.5 bg-current rounded-full origin-center transition-all duration-300" 
+            <motion.span
+              animate={isMenuOpen ? { rotate: 45, y: 9 } : { rotate: 0, y: 0 }}
+              className="w-full h-0.5 bg-current rounded-full origin-center transition-all duration-300"
             />
-            <motion.span 
+            <motion.span
               animate={isMenuOpen ? { opacity: 0 } : { opacity: 1 }}
               className="w-full h-0.5 bg-current rounded-full transition-all duration-300"
             />
-            <motion.span 
-              animate={isMenuOpen ? { rotate: -45, y: -9, backgroundColor: "#fff" } : { rotate: 0, y: 0 }}
+            <motion.span
+              animate={isMenuOpen ? { rotate: -45, y: -9 } : { rotate: 0, y: 0 }}
               className="w-full h-0.5 bg-current rounded-full origin-center transition-all duration-300"
             />
           </div>
@@ -198,11 +198,11 @@ export function MyRatingIsHeader() {
               {isAuthenticated && user ? (
                  <div className="mb-10 space-y-6">
                     <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-inner">
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-2xl font-black text-white shadow-lg shrink-0">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-xl font-black text-white shadow-lg shrink-0">
                            {userProfile?.username?.charAt(0) || "U"}
                         </div>
                         <div className="overflow-hidden">
-                           <p className="text-xl font-black text-foreground truncate">{(userProfile as any)?.nickname || userProfile?.username || user?.user_metadata?.full_name || "CHEF"}</p>
+                           <p className="text-base font-black text-chef-text truncate">{(userProfile as any)?.nickname || userProfile?.username || user?.user_metadata?.full_name || "CHEF"}</p>
                            <p className="text-xs text-muted-foreground font-bold truncate">{user.email}</p>
                         </div>
                     </div>
@@ -243,16 +243,16 @@ export function MyRatingIsHeader() {
               ) : (
                  <div className="mb-10 space-y-3">
                     <div className="text-center mb-6">
-                        <h3 className="text-2xl font-black text-foreground italic mb-2">Welcome Chef!</h3>
+                        <h3 className="text-xl font-black text-chef-text italic mb-2">Welcome Chef!</h3>
                         <p className="text-sm text-muted-foreground">로그인하고 모든 기능을 이용해보세요.</p>
                     </div>
                     <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                       <Button className="w-full rounded-2xl h-14 font-black text-foreground bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 text-sm uppercase tracking-widest mb-3">
+                       <Button variant="outline" className="w-full rounded-2xl h-14 font-black text-chef-text bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 text-sm uppercase tracking-widest mb-3">
                         로그인
                       </Button>
                     </Link>
                     <Link href="/signup" onClick={() => setIsMenuOpen(false)}>
-                       <Button className="w-full rounded-2xl h-14 font-black text-white bg-foreground text-sm uppercase tracking-widest shadow-lg">
+                       <Button className="w-full rounded-2xl h-14 font-black text-chef-bg bg-chef-text text-sm uppercase tracking-widest shadow-lg">
                         회원가입
                       </Button>
                     </Link>
@@ -273,7 +273,7 @@ export function MyRatingIsHeader() {
                          animate={{ opacity: 1, x: 0 }}
                          transition={{ delay: 0.1 * i }}
                          className={cn(
-                           "group flex items-center justify-between p-6 rounded-xl border transition-all active:scale-95",
+                           "group flex items-center justify-between p-4 rounded-xl border transition-all active:scale-95",
                            link.highlight
                              ? "bg-orange-600 border-orange-500 shadow-[0_10px_30px_rgba(234,88,12,0.3)]"
                              : "bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/10"
@@ -281,7 +281,7 @@ export function MyRatingIsHeader() {
                        >
                           <div>
                              <p className={cn("text-xs font-black uppercase tracking-widest mb-1", link.highlight ? "text-orange-200" : "text-muted-foreground")}>{link.sub}</p>
-                             <p className={cn("text-xl font-black italic tracking-tighter", link.highlight ? "text-white" : "text-foreground")}>{link.label}</p>
+                             <p className={cn("text-lg font-black italic tracking-tighter", link.highlight ? "text-white" : "text-chef-text")}>{link.label}</p>
                           </div>
                           <ArrowRight className={cn("opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300", link.highlight ? "text-white" : "text-muted-foreground")} />
                        </motion.div>
