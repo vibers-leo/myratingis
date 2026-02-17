@@ -292,12 +292,12 @@ export function ProfileManager({ user, onUpdate }: ProfileManagerProps) {
                 {/* 공개 여부 */}
                 <div className="col-span-full bg-chef-panel p-6 rounded-xl border border-chef-border flex items-center justify-between">
                      <div className="flex items-center gap-4">
-                        <div className={`p-3 rounded-full ${isPublic ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' : 'bg-chef-card text-chef-text opacity-40'}`}>
+                        <div className={`p-3 rounded-full ${isPublic ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' : 'bg-chef-card text-chef-text opacity-60'}`}>
                             {isPublic ? <Eye className="w-6 h-6" /> : <EyeOff className="w-6 h-6" />}
                         </div>
                         <div>
                             <h3 className="font-bold text-chef-text">프로필 공개 설정</h3>
-                            <p className="text-sm text-chef-text opacity-40">
+                            <p className="text-sm text-chef-text opacity-60">
                                 {isPublic ? "누구나 내 프로필을 볼 수 있습니다." : "나만 내 프로필을 볼 수 있습니다."}
                             </p>
                         </div>
@@ -329,7 +329,7 @@ export function ProfileManager({ user, onUpdate }: ProfileManagerProps) {
                        <UserCircle className="w-6 h-6 text-orange-500" />
                        상세 프로필
                    </h2>
-                   <p className="text-sm text-chef-text opacity-40 mt-1">성별, 연령, 직업, 전문 분야 정보입니다.</p>
+                   <p className="text-sm text-chef-text opacity-60 mt-1">성별, 연령, 직업, 전문 분야 정보입니다.</p>
                 </div>
             </div>
 
@@ -345,7 +345,7 @@ export function ProfileManager({ user, onUpdate }: ProfileManagerProps) {
                                     onClick={() => setFormData({ ...formData, gender: g })}
                                     className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${formData.gender === g
                                         ? 'bg-orange-600 border-orange-600 text-white shadow-md'
-                                        : 'bg-chef-panel border-chef-border text-chef-text opacity-40 hover:opacity-100'
+                                        : 'bg-chef-panel border-chef-border text-chef-text opacity-60 hover:opacity-100'
                                         }`}
                                 >
                                     {g}
@@ -363,7 +363,7 @@ export function ProfileManager({ user, onUpdate }: ProfileManagerProps) {
                                     onClick={() => setFormData({ ...formData, age_group: age })}
                                     className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${formData.age_group === age
                                         ? 'bg-orange-600 border-orange-600 text-white shadow-md'
-                                        : 'bg-chef-panel border-chef-border text-chef-text opacity-40 hover:opacity-100'
+                                        : 'bg-chef-panel border-chef-border text-chef-text opacity-60 hover:opacity-100'
                                         }`}
                                 >
                                     {age}
@@ -386,7 +386,7 @@ export function ProfileManager({ user, onUpdate }: ProfileManagerProps) {
                                 className={`px-4 py-2 rounded-xl text-sm font-bold transition-all border ${
                                     (formData.occupation === job) || (job === '기타' && !['학생', '직장인', '공무원', '자영업/사업', '프리랜서', '주부', '구직자'].includes(formData.occupation) && formData.occupation !== "")
                                     ? 'bg-orange-600 border-orange-600 text-white shadow-md'
-                                    : 'bg-chef-panel border-chef-border text-chef-text opacity-40 hover:opacity-100'
+                                    : 'bg-chef-panel border-chef-border text-chef-text opacity-60 hover:opacity-100'
                                     }`}
                             >
                                 {job}
@@ -422,7 +422,7 @@ export function ProfileManager({ user, onUpdate }: ProfileManagerProps) {
                                 className={`px-3 py-2 rounded-full text-xs font-bold transition-all border flex items-center gap-1.5 ${
                                     expertise.fields.includes(item.value)
                                     ? 'bg-blue-600 border-blue-600 text-white shadow-md transform scale-105'
-                                    : 'bg-chef-card border-chef-border text-chef-text opacity-40 hover:opacity-100'
+                                    : 'bg-chef-card border-chef-border text-chef-text opacity-60 hover:opacity-100'
                                 }`}
                             >
                                 <span><FontAwesomeIcon icon={item.icon} /></span>
@@ -472,7 +472,7 @@ export function ProfileManager({ user, onUpdate }: ProfileManagerProps) {
         {/* 2.7 비밀번호 변경 */}
         <section className="space-y-6">
             <h2 className="text-xl font-bold border-b border-chef-border pb-4 flex items-center gap-2 text-chef-text">
-                <Lock className="w-6 h-6 text-chef-text opacity-40" />
+                <Lock className="w-6 h-6 text-chef-text opacity-60" />
                 보안 및 비밀번호 변경
             </h2>
             <div className="bg-chef-panel p-6 rounded-2xl border border-chef-border space-y-6">

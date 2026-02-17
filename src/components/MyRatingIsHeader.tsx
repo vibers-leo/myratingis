@@ -36,13 +36,13 @@ export function MyRatingIsHeader() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] chef-header-dark shadow-2xl backdrop-blur-md bg-black/20 border-b border-white/5">
+    <header className="fixed top-0 left-0 right-0 z-[100] chef-header-dark shadow-2xl backdrop-blur-md bg-white/80 dark:bg-black/20 border-b border-gray-200 dark:border-white/5">
       <div className="w-full px-2 md:px-10 h-20 flex items-center justify-between">
         {/* Left: Logo */}
         <div className="flex-shrink-0 flex justify-start">
           <Link href="/" className="flex items-center gap-2 group">
               {!mounted ? (
-                <div className="h-7 w-24 bg-white/5 animate-pulse rounded" />
+                <div className="h-7 w-24 bg-gray-100 dark:bg-white/5 animate-pulse rounded" />
               ) : theme === 'dark' ? (
                 <Image src="/logo-white.png" alt="제 평가는요?" width={140} height={56} quality={100} className="h-7 w-auto object-contain transition-all duration-300 group-hover:scale-105" />
               ) : (
@@ -77,13 +77,13 @@ export function MyRatingIsHeader() {
           {/* Theme Toggle */}
           <button 
             onClick={toggleTheme}
-            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition-all text-chef-text active:scale-95"
+            className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-all text-chef-text active:scale-95"
           >
-            {!mounted ? <div className="w-5 h-5 bg-white/5 rounded-full" /> : theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5 text-gray-600" />}
+            {!mounted ? <div className="w-5 h-5 bg-gray-100 dark:bg-white/5 rounded-full" /> : theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5 text-gray-600" />}
           </button>
 
           {!mounted || loading ? (
-            <div className="w-24 h-10 bg-white/5 animate-pulse rounded-xl" />
+            <div className="w-24 h-10 bg-gray-100 dark:bg-white/5 animate-pulse rounded-xl" />
           ) : isAuthenticated && user ? (
             <>
                <Button
@@ -96,7 +96,7 @@ export function MyRatingIsHeader() {
               <div className="relative">
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="flex items-center gap-2 pl-2 pr-4 py-1.5 rounded-full hover:bg-white/5 border border-transparent hover:border-white/10 transition-all"
+                  className="flex items-center gap-2 pl-2 pr-4 py-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 border border-transparent hover:border-gray-200 dark:hover:border-white/10 transition-all"
                 >
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center shadow-inner">
                     <span className="text-white font-black text-xs">
@@ -146,7 +146,7 @@ export function MyRatingIsHeader() {
           ) : (
             <div className="flex items-center gap-3">
                <Link href="/login">
-                <Button variant="ghost" className="text-chef-text opacity-70 hover:opacity-100 hover:bg-white/5 px-6 h-12 font-bold text-sm uppercase tracking-widest transition-all rounded-xl">
+                <Button variant="ghost" className="text-chef-text opacity-70 hover:opacity-100 hover:bg-gray-100 dark:hover:bg-white/5 px-6 h-12 font-bold text-sm uppercase tracking-widest transition-all rounded-xl">
                   로그인
                 </Button>
               </Link>
@@ -190,20 +190,20 @@ export function MyRatingIsHeader() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[110] bg-[#030712] md:hidden overflow-y-auto w-full h-[100dvh]"
+            className="fixed inset-0 z-[110] bg-white dark:bg-[#030712] md:hidden overflow-y-auto w-full h-[100dvh]"
           >
             <div className="flex flex-col pt-24 px-4 pb-20 min-h-full">
               
               {/* User Section */}
               {isAuthenticated && user ? (
                  <div className="mb-10 space-y-6">
-                    <div className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 shadow-inner">
+                    <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-inner">
                         <div className="w-16 h-16 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-2xl font-black text-white shadow-lg shrink-0">
                            {userProfile?.username?.charAt(0) || "U"}
                         </div>
                         <div className="overflow-hidden">
-                           <p className="text-xl font-black text-white truncate">{(userProfile as any)?.nickname || userProfile?.username || user?.user_metadata?.full_name || "CHEF"}</p>
-                           <p className="text-xs text-white/40 font-bold truncate">{user.email}</p>
+                           <p className="text-xl font-black text-foreground truncate">{(userProfile as any)?.nickname || userProfile?.username || user?.user_metadata?.full_name || "CHEF"}</p>
+                           <p className="text-xs text-muted-foreground font-bold truncate">{user.email}</p>
                         </div>
                     </div>
                     
@@ -224,7 +224,7 @@ export function MyRatingIsHeader() {
                             setIsMenuOpen(false);
                           }}
                           variant="outline"
-                          className="w-full rounded-2xl h-12 font-bold text-white/80 border-white/10 bg-white/5"
+                          className="w-full rounded-2xl h-12 font-bold text-foreground/80 border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5"
                         >
                           마이페이지
                         </Button>
@@ -234,7 +234,7 @@ export function MyRatingIsHeader() {
                             setIsMenuOpen(false);
                           }}
                           variant="outline"
-                          className="w-full rounded-2xl h-12 font-bold text-red-500 border-white/10 bg-white/5 hover:bg-red-500/10"
+                          className="w-full rounded-2xl h-12 font-bold text-red-500 border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 hover:bg-red-500/10"
                         >
                           로그아웃
                         </Button>
@@ -243,16 +243,16 @@ export function MyRatingIsHeader() {
               ) : (
                  <div className="mb-10 space-y-3">
                     <div className="text-center mb-6">
-                        <h3 className="text-2xl font-black text-white italic mb-2">Welcome Chef!</h3>
-                        <p className="text-sm text-white/40">로그인하고 모든 기능을 이용해보세요.</p>
+                        <h3 className="text-2xl font-black text-foreground italic mb-2">Welcome Chef!</h3>
+                        <p className="text-sm text-muted-foreground">로그인하고 모든 기능을 이용해보세요.</p>
                     </div>
                     <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                       <Button className="w-full rounded-2xl h-14 font-black text-white bg-white/10 border border-white/10 text-sm uppercase tracking-widest mb-3">
+                       <Button className="w-full rounded-2xl h-14 font-black text-foreground bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 text-sm uppercase tracking-widest mb-3">
                         로그인
                       </Button>
                     </Link>
                     <Link href="/signup" onClick={() => setIsMenuOpen(false)}>
-                       <Button className="w-full rounded-2xl h-14 font-black text-black bg-white text-sm uppercase tracking-widest shadow-[0_0_20px_rgba(255,255,255,0.3)]">
+                       <Button className="w-full rounded-2xl h-14 font-black text-white bg-foreground text-sm uppercase tracking-widest shadow-lg">
                         회원가입
                       </Button>
                     </Link>
@@ -274,27 +274,27 @@ export function MyRatingIsHeader() {
                          transition={{ delay: 0.1 * i }}
                          className={cn(
                            "group flex items-center justify-between p-6 rounded-xl border transition-all active:scale-95",
-                           link.highlight 
-                             ? "bg-orange-600 border-orange-500 shadow-[0_10px_30px_rgba(234,88,12,0.3)]" 
-                             : "bg-white/5 border-white/5 hover:bg-white/10"
+                           link.highlight
+                             ? "bg-orange-600 border-orange-500 shadow-[0_10px_30px_rgba(234,88,12,0.3)]"
+                             : "bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/10"
                          )}
                        >
                           <div>
-                             <p className={cn("text-xs font-black uppercase tracking-widest mb-1", link.highlight ? "text-orange-200" : "text-white/30")}>{link.sub}</p>
-                             <p className={cn("text-xl font-black italic tracking-tighter", link.highlight ? "text-white" : "text-white")}>{link.label}</p>
+                             <p className={cn("text-xs font-black uppercase tracking-widest mb-1", link.highlight ? "text-orange-200" : "text-muted-foreground")}>{link.sub}</p>
+                             <p className={cn("text-xl font-black italic tracking-tighter", link.highlight ? "text-white" : "text-foreground")}>{link.label}</p>
                           </div>
-                          <ArrowRight className={cn("opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300", link.highlight ? "text-white" : "text-white/50")} />
+                          <ArrowRight className={cn("opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300", link.highlight ? "text-white" : "text-muted-foreground")} />
                        </motion.div>
                     </Link>
                  ))}
               </div>
 
                {/* Footer / Theme Toggle */}
-               <div className="mt-10 pt-6 border-t border-white/10 flex items-center justify-between">
-                  <span className="text-[10px] font-black text-white/30 uppercase tracking-widest">Theme Settings</span>
-                  <button 
+               <div className="mt-10 pt-6 border-t border-gray-200 dark:border-white/10 flex items-center justify-between">
+                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Theme Settings</span>
+                  <button
                     onClick={toggleTheme}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-bold text-white hover:bg-white/10"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-xs font-bold text-foreground hover:bg-gray-200 dark:hover:bg-white/10"
                   >
                     {theme === 'dark' ? <Sun size={14} className="text-orange-400" /> : <Moon size={14} />}
                     {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}

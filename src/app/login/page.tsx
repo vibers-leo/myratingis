@@ -118,12 +118,12 @@ function LoginContent() {
       <div className="flex min-h-screen flex-col items-center justify-center py-24 px-6">
         {/* Decorative Ornaments */}
         <div className="absolute top-0 left-0 p-20 opacity-5 pointer-events-none select-none">
-          <div className="text-[120px] font-black text-white leading-none tracking-tighter">STAGE</div>
+          <div className="text-[120px] font-black text-foreground leading-none tracking-tighter">STAGE</div>
         </div>
 
         <div className="w-full max-w-md relative z-10">
           <div 
-            className="rounded-xl p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] border-2 border-white/5 backdrop-blur-3xl"
+            className="rounded-xl p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] border-2 border-gray-200 dark:border-white/5 backdrop-blur-3xl"
           >
             {/* 로고 영역 */}
             <div className="flex justify-center mb-10">
@@ -134,7 +134,7 @@ function LoginContent() {
                   width={360}
                   height={108}
                   quality={100}
-                  className="h-9 w-auto invert brightness-0"
+                  className="h-9 w-auto dark:invert dark:brightness-0"
                 />
               </div>
             </div>
@@ -176,7 +176,7 @@ function LoginContent() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="CHEF@MYRATING.IS"
-                    className="w-full h-16 bg-[#1a1a1a] border-2 border-white/5 text-white font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-[#222] outline-none transition-all placeholder:text-white/10 shadow-inner text-lg autofill:shadow-[0_0_0_1000px_#1a1a1a_inset] autofill:text-fill-white"
+                    className="w-full h-16 bg-gray-50 dark:bg-[#1a1a1a] border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-gray-100 dark:focus:bg-[#222] outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-lg"
                   />
                 </div>
 
@@ -192,7 +192,7 @@ function LoginContent() {
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     placeholder="••••••••"
-                    className="w-full h-16 bg-[#1a1a1a] border-2 border-white/5 text-white font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-[#222] outline-none transition-all placeholder:text-white/10 shadow-inner text-lg autofill:shadow-[0_0_0_1000px_#1a1a1a_inset] autofill:text-fill-white"
+                    className="w-full h-16 bg-gray-50 dark:bg-[#1a1a1a] border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-gray-100 dark:focus:bg-[#222] outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-lg"
                   />
                 </div>
               </div>
@@ -205,7 +205,7 @@ function LoginContent() {
                       type="checkbox"
                       className="peer absolute inset-0 opacity-0 cursor-pointer z-10"
                     />
-                    <div className="w-4 h-4 border border-white/20 rounded-none bg-white/5 peer-checked:bg-orange-500 peer-checked:border-orange-500 transition-all flex items-center justify-center">
+                    <div className="w-4 h-4 border border-gray-200 dark:border-white/20 rounded-none bg-gray-100 dark:bg-white/5 peer-checked:bg-orange-500 peer-checked:border-orange-500 transition-all flex items-center justify-center">
                       <div className="w-1.5 h-1.5 bg-white scale-0 peer-checked:scale-100 transition-transform" />
                     </div>
                   </div>
@@ -230,7 +230,7 @@ function LoginContent() {
 
             <div className="relative my-10">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/5" />
+                <div className="w-full border-t border-gray-200 dark:border-white/5" />
               </div>
               <div className="relative flex justify-center text-[8px] font-black uppercase tracking-[0.4em]">
                 <span className="bg-chef-card px-4 text-chef-text opacity-20">또는 소셜 로그인</span>
@@ -299,7 +299,7 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-black flex items-center justify-center text-white font-black animate-pulse">로딩 중...</div>}>
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center text-chef-text font-black animate-pulse">로딩 중...</div>}>
       <LoginContent />
     </Suspense>
   );

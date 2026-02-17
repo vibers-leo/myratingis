@@ -245,7 +245,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
               <h1 className="text-4xl md:text-6xl font-black text-chef-text tracking-tighter italic uppercase">
                 평가 참여하기
               </h1>
-              <p className="text-chef-text opacity-40 font-bold max-w-xl text-lg">
+              <p className="text-chef-text opacity-60 font-bold max-w-xl text-lg">
                 도전하는 창작자들의 다양한 프로젝트를 만나보세요.<br />
                 당신의 소중한 의견이 창작자에게 큰 힘이 됩니다.
               </p>
@@ -258,7 +258,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                   onClick={() => setActiveFilter(f)}
                   className={cn(
                     "px-6 py-2 text-[10px] font-black uppercase tracking-widest transition-all",
-                    activeFilter === f ? "bg-chef-text text-chef-bg shadow-lg" : "text-chef-text opacity-30 hover:opacity-100"
+                    activeFilter === f ? "bg-chef-text text-chef-bg shadow-lg" : "text-chef-text opacity-50 hover:opacity-100"
                   )}
                 >
                   {f}
@@ -350,7 +350,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-chef-panel to-chef-card opacity-30">
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-chef-panel to-chef-card opacity-50">
                           <ChefHat className="w-12 h-12" />
                         </div>
                       );
@@ -370,7 +370,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                    <div className="flex-1 flex flex-col justify-center min-w-0 py-2">
                       <div className="flex items-center gap-2 mb-2">
                          <span className="px-3 py-1 bg-orange-600/10 text-orange-600 text-[8px] font-black uppercase tracking-widest rounded-full">{p.category_name || "New Project"}</span>
-                         <span className="text-[10px] text-chef-text opacity-20 font-black italic">by {p.User?.username || "Unknown"}</span>
+                         <span className="text-[10px] text-chef-text opacity-50 font-black italic">by {p.User?.username || "Unknown"}</span>
                       </div>
                       
                        <h3 
@@ -380,7 +380,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                          {p.title}
                       </h3>
                       
-                      <p className="text-sm md:text-md text-chef-text opacity-40 font-medium line-clamp-2 mb-3 leading-relaxed">
+                      <p className="text-sm md:text-md text-chef-text opacity-60 font-medium line-clamp-2 mb-3 leading-relaxed">
                          {p.summary || p.description || p.content_text?.substring(0, 100) + '...'}
                       </p>
 
@@ -392,16 +392,16 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
 
                       <div className="flex items-center gap-6 mt-auto">
                         <div className="flex items-center gap-1.5 ">
-                           <Eye className="w-3.5 h-3.5 text-chef-text opacity-20" />
-                           <span className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest">Views {p.views_count || 0}</span>
+                           <Eye className="w-3.5 h-3.5 text-chef-text opacity-50" />
+                           <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">Views {p.views_count || 0}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                            <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-                           <span className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest">Audits {p.rating_count || 0}</span>
+                           <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">Audits {p.rating_count || 0}</span>
                         </div>
                         <div className="flex items-center gap-1.5 ml-auto md:ml-0">
-                           <Clock className="w-3.5 h-3.5 text-chef-text opacity-20" />
-                           <span className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest leading-none">
+                           <Clock className="w-3.5 h-3.5 text-chef-text opacity-50" />
+                           <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest leading-none">
                             {p.created_at
                                 ? new Date(p.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
                                 : "N/A"}
@@ -421,7 +421,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                                 "w-10 h-10 rounded-full border flex items-center justify-center transition-all",
                                 p.is_liked 
                                     ? "bg-red-500/10 border-red-500 text-red-500 shadow-md" 
-                                    : "bg-chef-panel border-chef-border text-chef-text opacity-40 hover:opacity-100 hover:text-red-500 hover:border-red-500/30"
+                                    : "bg-chef-panel border-chef-border text-chef-text opacity-60 hover:opacity-100 hover:text-red-500 hover:border-red-500/30"
                             )}
                             title="좋아요"
                           >
@@ -433,7 +433,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                                 "w-10 h-10 rounded-full border flex items-center justify-center transition-all",
                                 p.is_bookmarked
                                     ? "bg-blue-500/10 border-blue-500 text-blue-500 shadow-md"
-                                    : "bg-chef-panel border-chef-border text-chef-text opacity-40 hover:opacity-100 hover:text-blue-500 hover:border-blue-500/30"
+                                    : "bg-chef-panel border-chef-border text-chef-text opacity-60 hover:opacity-100 hover:text-blue-500 hover:border-blue-500/30"
                             )}
                             title="컬렉션 저장"
                           >
@@ -441,7 +441,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                           </button>
                           <button 
                             onClick={(e) => handleInquiry(e, p)}
-                            className="w-10 h-10 rounded-full bg-chef-panel border border-chef-border flex items-center justify-center text-chef-text opacity-40 hover:opacity-100 hover:text-green-500 hover:border-green-500/30 transition-all"
+                            className="w-10 h-10 rounded-full bg-chef-panel border border-chef-border flex items-center justify-center text-chef-text opacity-60 hover:opacity-100 hover:text-green-500 hover:border-green-500/30 transition-all"
                             title="1:1 문의"
                           >
                              <Send size={18} />
@@ -477,7 +477,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                       )}
 
                       {(!p.has_rated || !isAuthenticated) && (
-                        <p className="text-[9px] text-center font-bold text-orange-600 opacity-40 uppercase tracking-tighter mt-1 animate-pulse">
+                        <p className="text-[9px] text-center font-bold text-orange-600 opacity-60 uppercase tracking-tighter mt-1 animate-pulse">
                           의견이 필요합니다!
                         </p>
                       )}
@@ -489,11 +489,11 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
         ) : (
           <div className="flex flex-col items-center justify-center py-40 space-y-6 text-center">
              <div className="w-24 h-24 bg-chef-panel rounded-full flex items-center justify-center border border-chef-border animate-bounce">
-                <ChefHat className="w-10 h-10 text-chef-text opacity-20" />
+                <ChefHat className="w-10 h-10 text-chef-text opacity-50" />
              </div>
              <div className="space-y-2">
                 <h3 className="text-3xl font-black text-chef-text italic uppercase">No Audits Found</h3>
-                <p className="text-chef-text opacity-40 font-bold">평가를 기다리는 프로젝트가 아직 없습니다. 직접 의뢰를 시작해 보세요.</p>
+                <p className="text-chef-text opacity-60 font-bold">평가를 기다리는 프로젝트가 아직 없습니다. 직접 의뢰를 시작해 보세요.</p>
              </div>
              <Button 
                onClick={() => router.push('/project/upload')}

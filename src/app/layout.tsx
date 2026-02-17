@@ -110,7 +110,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" suppressHydrationWarning className="dark">
+    <html lang="ko" suppressHydrationWarning>
       <head>
         {/* Preconnect hints for critical third-party origins */}
         <link rel="preconnect" href="https://www.googleapis.com" />

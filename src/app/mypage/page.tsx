@@ -685,7 +685,7 @@ export default function MyPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-4 font-black transition-all relative whitespace-nowrap ${isActive ? tab.color : 'text-chef-text opacity-40 hover:opacity-100'}`}
+                className={`flex items-center gap-2 px-4 py-4 font-black transition-all relative whitespace-nowrap ${isActive ? tab.color : 'text-chef-text opacity-60 hover:opacity-100'}`}
               >
                 <Icon size={18} fill={tab.id === 'likes' && isActive ? 'currentColor' : 'none'} />
                 <span className="text-xs uppercase tracking-widest">{tab.label}</span>
@@ -727,8 +727,8 @@ export default function MyPage() {
                 {/* [New] Project Sub-filters */}
                 {activeTab === 'projects' && (
                   <div className="flex gap-2">
-                    <button onClick={() => setProjectFilter('all')} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", projectFilter === 'all' ? "bg-chef-text text-chef-bg shadow-xl" : "bg-chef-panel border border-chef-border text-chef-text opacity-40 hover:opacity-100")}>ALL</button>
-                    <button onClick={() => setProjectFilter('active')} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", projectFilter === 'active' ? "bg-orange-600 text-white shadow-xl" : "bg-chef-panel border border-chef-border text-chef-text opacity-40 hover:opacity-100")}>PUBLISHED</button>
+                    <button onClick={() => setProjectFilter('all')} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", projectFilter === 'all' ? "bg-chef-text text-chef-bg shadow-xl" : "bg-chef-panel border border-chef-border text-chef-text opacity-60 hover:opacity-100")}>ALL</button>
+                    <button onClick={() => setProjectFilter('active')} className={cn("px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all", projectFilter === 'active' ? "bg-orange-600 text-white shadow-xl" : "bg-chef-panel border border-chef-border text-chef-text opacity-60 hover:opacity-100")}>PUBLISHED</button>
                   </div>
                 )}
 
@@ -740,11 +740,11 @@ export default function MyPage() {
                           className="bg-chef-card rounded-xl border-2 border-dashed border-chef-border hover:border-orange-500/50 overflow-hidden hover:shadow-2xl transition-all cursor-pointer group flex items-center justify-center p-8 gap-6 shadow-sm"
                         >
                           <div className="w-16 h-16 rounded-xl bg-chef-panel flex items-center justify-center transition-all shadow-sm group-hover:shadow-2xl group-hover:bg-orange-600">
-                            <Plus className="w-8 h-8 text-chef-text opacity-20 group-hover:text-white group-hover:opacity-100 transition-all" />
+                            <Plus className="w-8 h-8 text-chef-text opacity-50 group-hover:text-white group-hover:opacity-100 transition-all" />
                           </div>
                           <div>
                             <p className="text-chef-text font-black text-lg uppercase tracking-tight mb-1">새 프로젝트 의뢰하기</p>
-                            <p className="text-chef-text opacity-40 font-bold text-xs uppercase tracking-widest">POST NEW PROJECT FOR AUDIT</p>
+                            <p className="text-chef-text opacity-60 font-bold text-xs uppercase tracking-widest">POST NEW PROJECT FOR AUDIT</p>
                           </div>
                         </div>
                      )}
@@ -787,7 +787,7 @@ export default function MyPage() {
                                         className="w-full h-full object-cover transition-opacity duration-500" 
                                     />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-chef-panel to-chef-card opacity-30">
+                                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-chef-panel to-chef-card opacity-50">
                                         <ChefHat className="w-16 h-16 text-chef-text" />
                                     </div>
                                 );
@@ -800,13 +800,13 @@ export default function MyPage() {
                                <span className="px-3 py-1 bg-orange-600/10 text-orange-600 text-[8px] font-black uppercase tracking-widest rounded-full">
                                     {project.custom_data?.audit_config ? "Audit Request" : "Project"}
                                </span>
-                               <span className="text-[10px] text-chef-text opacity-20 font-black italic">
+                               <span className="text-[10px] text-chef-text opacity-50 font-black italic">
                                     {project.visibility === 'public' ? 'Published' : 'Private'}
                                </span>
                             </div>
 
                             <h3 className="text-xl md:text-2xl font-black text-chef-text tracking-tighter truncate mb-2">{project.title}</h3>
-                            <p className="text-[11px] text-chef-text opacity-40 font-bold line-clamp-2 mb-6 leading-relaxed">
+                            <p className="text-[11px] text-chef-text opacity-60 font-bold line-clamp-2 mb-6 leading-relaxed">
                                 {project.description || project.summary || "작성된 설명이 없습니다."}
                             </p>
                             
@@ -824,20 +824,20 @@ export default function MyPage() {
 
                             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-auto">
                                 <div className="flex items-center gap-1.5">
-                                   <Eye className="w-3.5 h-3.5 text-chef-text opacity-20" />
-                                   <span className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest whitespace-nowrap">조회수 {project.views || 0}</span>
+                                   <Eye className="w-3.5 h-3.5 text-chef-text opacity-50" />
+                                   <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest whitespace-nowrap">조회수 {project.views || 0}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
-                                   <Heart className="w-3.5 h-3.5 text-chef-text opacity-20" />
-                                   <span className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest whitespace-nowrap">좋아요 {project.likes || 0}</span>
+                                   <Heart className="w-3.5 h-3.5 text-chef-text opacity-50" />
+                                   <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest whitespace-nowrap">좋아요 {project.likes || 0}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                    <ChefHat className="w-3.5 h-3.5 text-orange-500" />
-                                   <span className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest whitespace-nowrap">평가수 {project.rating_count || 0}</span>
+                                   <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest whitespace-nowrap">평가수 {project.rating_count || 0}</span>
                                 </div>
                                 <div className="flex items-center gap-1.5 ml-auto md:ml-0">
-                                   <Clock className="w-3.5 h-3.5 text-chef-text opacity-20" />
-                                   <span className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest leading-none whitespace-nowrap">
+                                   <Clock className="w-3.5 h-3.5 text-chef-text opacity-50" />
+                                   <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest leading-none whitespace-nowrap">
                                         {project.created_at ? new Date(project.created_at).toLocaleDateString() : "-"}
                                    </span>
                                 </div>
@@ -889,7 +889,7 @@ export default function MyPage() {
                              )}
 
                              {project.visibility === 'private' && (
-                                <p className="text-[9px] text-center font-bold text-chef-text opacity-20 uppercase tracking-tighter mt-1 leading-none">
+                                <p className="text-[9px] text-center font-bold text-chef-text opacity-50 uppercase tracking-tighter mt-1 leading-none">
                                     Private Project
                                 </p>
                              )}
@@ -977,7 +977,7 @@ export default function MyPage() {
                         className={`flex items-start gap-4 p-4 rounded-2xl transition-all text-left group ${
                             activeAiTool === menuItem.id 
                             ? 'bg-white border-2 border-purple-100 shadow-md ring-4 ring-purple-50/50' 
-                            : 'hover:bg-white/50 border-2 border-transparent text-gray-500'
+                            : 'hover:bg-gray-100 dark:hover:bg-white/10 border-2 border-transparent text-gray-500'
                         }`}
                         >
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
@@ -997,8 +997,8 @@ export default function MyPage() {
                 {/* 오른쪽 콘텐츠 영역 */}
                 <div className="flex-1 bg-chef-card rounded-xl border border-chef-border shadow-sm p-0 md:p-0 relative overflow-hidden group">
                   {/* Futuristic Background Decor */}
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl opacity-20 -mr-32 -mt-32 transition-all group-hover:opacity-40 pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl opacity-20 -ml-16 -mb-16 transition-all group-hover:opacity-40 pointer-events-none" />
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl opacity-50 -mr-32 -mt-32 transition-all group-hover:opacity-60 pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl opacity-50 -ml-16 -mb-16 transition-all group-hover:opacity-60 pointer-events-none" />
                   
                   {['job', 'trend', 'recipe', 'tool'].includes(activeAiTool) ? (
                        <div className="h-full flex flex-col relative z-10">
@@ -1009,7 +1009,7 @@ export default function MyPage() {
                                   {activeAiTool === 'recipe' && <><Lightbulb className="text-amber-500 w-6 h-6"/> AI 레시피</>}
                                   {activeAiTool === 'tool' && <><Zap className="text-yellow-500 w-6 h-6"/> AI 도구 추천</>}
                                </h2>
-                               <p className="text-sm text-chef-text opacity-40 pl-8">
+                               <p className="text-sm text-chef-text opacity-60 pl-8">
                                   {activeAiTool === 'job' && "최신 AI 프롬프트 엔지니어링 채용 공고와 해커톤 정보를 확인하세요."}
                                   {activeAiTool === 'trend' && "매일 업데이트되는 글로벌 AI 업계의 최신 동향과 뉴스 링크를 제공합니다."}
                                   {activeAiTool === 'recipe' && "다양한 이미지 생성 프롬프트 스타일과 워크플로우를 발견하고 적용해보세요."}
@@ -1036,10 +1036,10 @@ export default function MyPage() {
                    ) : (
                     <div className="relative z-10 flex flex-col items-center justify-center h-full text-center max-w-xl mx-auto space-y-6 py-20 px-8">
                         {/* Fallback Intro or Empty State */}
-                        <div className="w-20 h-20 rounded-xl bg-chef-panel flex items-center justify-center text-chef-text opacity-20">
+                        <div className="w-20 h-20 rounded-xl bg-chef-panel flex items-center justify-center text-chef-text opacity-50">
                              <Sparkles className="w-10 h-10" />
                         </div>
-                        <p className="text-chef-text opacity-40">도구를 선택해주세요.</p>
+                        <p className="text-chef-text opacity-60">도구를 선택해주세요.</p>
                     </div>
                    )}
                 </div>
@@ -1057,21 +1057,21 @@ export default function MyPage() {
                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="bg-chef-card p-8 rounded-xl border border-chef-border shadow-sm space-y-2">
-                          <p className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest">Total Impressions</p>
+                          <p className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">Total Impressions</p>
                           <h4 className="text-4xl font-black italic tracking-tighter text-chef-text">24,802</h4>
                           <div className="text-xs font-bold text-green-600 flex items-center gap-1">
                              <Rocket size={14} /> +12% from last week
                           </div>
                       </div>
                       <div className="bg-chef-card p-8 rounded-xl border border-chef-border shadow-sm space-y-2">
-                          <p className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest">Feedback Rate</p>
+                          <p className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">Feedback Rate</p>
                           <h4 className="text-4xl font-black italic tracking-tighter text-chef-text">4.8%</h4>
                           <div className="text-xs font-bold text-orange-600 flex items-center gap-1">
                              <Sparkles size={14} /> High Engagement
                           </div>
                       </div>
                       <div className="bg-chef-card p-8 rounded-xl border border-chef-border shadow-sm space-y-2">
-                          <p className="text-[10px] font-black text-chef-text opacity-40 uppercase tracking-widest">Conversion Point</p>
+                          <p className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">Conversion Point</p>
                           <h4 className="text-4xl font-black italic tracking-tighter text-chef-text">860P</h4>
                           <div className="text-xs font-bold text-blue-600 flex items-center gap-1">
                              <BarChart size={14} /> Stable Flow
@@ -1085,7 +1085,7 @@ export default function MyPage() {
                       </div>
                       <div className="space-y-2">
                          <h3 className="text-2xl font-black text-chef-text italic uppercase">Deep Analytics Coming Soon</h3>
-                         <p className="text-chef-text opacity-40 font-bold max-w-sm">프로젝트별 유입 경로, 체류 시간, 문항별 정밀 분석 데이터를 준비 중입니다. 관리자 권한으로 초안을 확인하고 계십니다.</p>
+                         <p className="text-chef-text opacity-60 font-bold max-w-sm">프로젝트별 유입 경로, 체류 시간, 문항별 정밀 분석 데이터를 준비 중입니다. 관리자 권한으로 초안을 확인하고 계십니다.</p>
                       </div>
                   </div>
                </div>
@@ -1206,7 +1206,7 @@ export default function MyPage() {
           <div className="space-y-8">
             <div className="text-center space-y-2">
               <h3 className="text-3xl font-black tracking-tighter uppercase italic">프로젝트 공유</h3>
-              <p className="text-xs font-bold text-chef-text opacity-40 uppercase tracking-widest">링크 또는 QR코드로 공유하세요</p>
+              <p className="text-xs font-bold text-chef-text opacity-60 uppercase tracking-widest">링크 또는 QR코드로 공유하세요</p>
             </div>
 
             <div className="flex flex-col items-center gap-6 p-8 bg-chef-panel rounded-xl border border-chef-border/50">
@@ -1219,7 +1219,7 @@ export default function MyPage() {
                   />
                </div>
                <div className="w-full space-y-3">
-                  <Label className="text-[10px] font-black opacity-30 uppercase tracking-widest">평가 참여 링크</Label>
+                  <Label className="text-[10px] font-black opacity-50 uppercase tracking-widest">평가 참여 링크</Label>
                   <div className="flex gap-2">
                     <Input 
                         readOnly 

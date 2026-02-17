@@ -53,12 +53,13 @@
     --vibe-soft-orange: 24.6 95% 96%;
     --header-bg: rgba(255, 255, 255, 0.85);
 
-    /* Original Chef/Michelin Variables for Legacy Support */
+    /* Chef/Michelin Design System */
     --chef-bg: #FFFFFF;
     --chef-card-bg: #FFFFFF;
     --chef-text: #0F172A;
     --chef-border: #E2E8F0;
     --chef-panel: #F8FAFC;
+    --chef-frame: #0F172A;
   }
 
   .dark {
@@ -98,6 +99,7 @@
     --chef-border: rgba(255, 255, 255, 0.08);
     --chef-panel: #111111;
     --chef-panel-hsl: 0 0% 7%;
+    --chef-frame: rgba(255, 255, 255, 0.5);
   }
 
   * { @apply border-border; }
@@ -469,27 +471,8 @@
 
   /* ============================================ */
   /* [MyRatingIs] Theme System: Light & Dark */
+  /* (Primary definitions are in @layer base :root / .dark above) */
   /* ============================================ */
-
-  :root {
-    --chef-bg: #FFFFFF;
-    --chef-card-bg: #FFFFFF;
-    --chef-text: #000000;
-    --chef-border: #000000;
-    --chef-frame: #000000;
-    --chef-panel: #F2F2F2;
-    --header-bg: rgba(255, 255, 255, 0.95);
-  }
-
-  .dark {
-    --chef-bg: #050505; 
-    --chef-card-bg: #111111;
-    --chef-text: #ffffff;
-    --chef-border: rgba(255, 255, 255, 0.12);
-    --chef-frame: rgba(255, 255, 255, 0.5);
-    --chef-panel: #1a1a1a;
-    --header-bg: rgba(10, 10, 10, 0.95);
-  }
 
   /* 배경 테마 적용 */
   .chef-bg-page {
@@ -709,26 +692,25 @@
   }
 }
 
-/* Autofill Background Fix */
+/* Autofill Background Fix - Light Mode */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px #1a1a1a inset !important;
-  -webkit-text-fill-color: #ffffff !important;
-  caret-color: white !important;
+  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #0F172A !important;
+  caret-color: #0F172A !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Explicitly target dark mode to be sure */
-.dark input:-webkit-autofill {
+/* Autofill Background Fix - Dark Mode */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 1000px #1a1a1a inset !important;
   -webkit-text-fill-color: #ffffff !important;
-}
-
-.light input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-  -webkit-text-fill-color: #000000 !important;
+  caret-color: white !important;
 }
 
 /* Michelin Slider Custom Styles */

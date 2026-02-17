@@ -306,7 +306,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
 
   if (isLoading) {
      return (
-      <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="w-full min-h-screen bg-gray-50 dark:bg-card flex items-center justify-center">
         <p className="text-secondary">로딩 중...</p>
       </div>
     );
@@ -314,7 +314,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
 
   if (!project) {
     return (
-      <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="w-full min-h-screen bg-gray-50 dark:bg-card flex items-center justify-center">
         <div className="text-center">
           <p className="text-secondary mb-4">프로젝트를 찾을 수 없습니다.</p>
           <Button onClick={() => router.push("/")} className="btn-primary">
@@ -326,9 +326,9 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
   }
 
   return (
-    <div className="w-full min-h-screen bg-gray-50">
+    <div className="w-full min-h-screen bg-gray-50 dark:bg-card">
       {/* 상단 네비게이션 */}
-      <div className="w-full bg-white border-b border-gray-200 sticky top-14 md:top-16 z-10">
+      <div className="w-full bg-white dark:bg-card border-b border-gray-200 dark:border-white/10 sticky top-14 md:top-16 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Button
             variant="ghost"
@@ -369,12 +369,12 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       </div>
 
       {/* 메인 콘텐츠 (노트폴리오 스타일 리뉴얼) */}
-      <div className="w-full bg-white min-h-screen">
+      <div className="w-full bg-white dark:bg-card min-h-screen">
         
         {/* 1. 이미지 및 상세 내용 섹션 */}
         <div className="max-w-[1240px] mx-auto px-4 md:px-6 py-8 md:py-12">
            {/* 프로젝트 이미지 (흰색 배경 위) */}
-           <div className="bg-gray-50/50 rounded-xl border border-gray-100 overflow-hidden mb-12 shadow-sm flex items-center justify-center min-h-[400px]">
+           <div className="bg-gray-50/50 dark:bg-muted/50 rounded-xl border border-gray-100 dark:border-white/10 overflow-hidden mb-12 shadow-sm flex items-center justify-center min-h-[400px]">
              <Image
                src={project.urls.full}
                alt={project.alt_description || "프로젝트 이미지"}
@@ -388,11 +388,11 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
 
            {/* 프로젝트 설명 및 태그 */}
            <div className="max-w-4xl mx-auto px-2 mb-16">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6 leading-tight break-keep">
+              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-foreground mb-6 leading-tight break-keep">
                 {project.title || "제목 없음"}
               </h1>
               <div 
-                className="text-lg text-gray-700 leading-8 mb-10 break-keep prose prose-lg max-w-none prose-img:rounded-xl prose-video:rounded-xl prose-headings:font-bold prose-a:text-green-600 hover:prose-a:text-green-700"
+                className="text-lg text-gray-700 dark:text-foreground/70 leading-8 mb-10 break-keep prose prose-lg max-w-none dark:prose-invert prose-img:rounded-xl prose-video:rounded-xl prose-headings:font-bold prose-a:text-green-600 hover:prose-a:text-green-700"
                 dangerouslySetInnerHTML={{ __html: linkify(project.description || project.alt_description || "설명이 없습니다.") }}
               />
 
@@ -402,24 +402,24 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
               </div>
 
               {/* 태그 리스트 & 라이선스 */}
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between pt-8 border-t border-gray-100 gap-6">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between pt-8 border-t border-gray-100 dark:border-white/10 gap-6">
                  <div className="flex flex-wrap gap-2">
                    {project.tags && project.tags.length > 0 ? (
                      project.tags.map((tag, index) => (
-                       <span key={index} className="px-3 py-1.5 bg-gray-100/80 text-gray-600 text-sm rounded-full font-medium hover:bg-gray-200 transition-colors cursor-pointer">
+                       <span key={index} className="px-3 py-1.5 bg-gray-100/80 dark:bg-white/5 text-gray-600 dark:text-foreground/60 text-sm rounded-full font-medium hover:bg-gray-200 dark:hover:bg-white/10 transition-colors cursor-pointer">
                          {tag}
                        </span>
                      ))
                    ) : (
-                     <span className="text-gray-400 text-sm">등록된 태그가 없습니다.</span>
+                     <span className="text-gray-400 dark:text-foreground/40 text-sm">등록된 태그가 없습니다.</span>
                    )}
                  </div>
-                 <div className="flex items-center gap-3 text-gray-400">
+                 <div className="flex items-center gap-3 text-gray-400 dark:text-foreground/40">
                     {/* CCL Mockups (Text/CSS) */}
                     <div className="flex gap-1" title="Creative Commons License: CC BY-NC-ND">
-                        <div className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-[10px] font-bold cursor-help hover:border-gray-500 hover:text-gray-600 transition-colors">CC</div>
-                        <div className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-[10px] font-bold cursor-help hover:border-gray-500 hover:text-gray-600 transition-colors">BY</div>
-                        <div className="w-6 h-6 rounded-full border border-gray-300 flex items-center justify-center text-[10px] font-bold cursor-help hover:border-gray-500 hover:text-gray-600 transition-colors">NC</div>
+                        <div className="w-6 h-6 rounded-full border border-gray-300 dark:border-white/10 flex items-center justify-center text-[10px] font-bold cursor-help hover:border-gray-500 hover:text-gray-600 dark:hover:text-foreground/60 transition-colors">CC</div>
+                        <div className="w-6 h-6 rounded-full border border-gray-300 dark:border-white/10 flex items-center justify-center text-[10px] font-bold cursor-help hover:border-gray-500 hover:text-gray-600 dark:hover:text-foreground/60 transition-colors">BY</div>
+                        <div className="w-6 h-6 rounded-full border border-gray-300 dark:border-white/10 flex items-center justify-center text-[10px] font-bold cursor-help hover:border-gray-500 hover:text-gray-600 dark:hover:text-foreground/60 transition-colors">NC</div>
                     </div>
                  </div>
               </div>
@@ -427,14 +427,14 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
         </div>
 
         {/* 2. 하단 액션 바 (검은색 배경) - 노트폴리오 스타일 핵심 */}
-        <div className="w-full bg-[#18181b] text-white py-20 border-t border-gray-800">
+        <div className="w-full bg-muted text-foreground py-20 border-t border-gray-200 dark:border-white/10">
            <div className="max-w-4xl mx-auto px-4 text-center">
                {/* Action Buttons */}
                <div className="flex flex-row items-center justify-center gap-4 mb-10">
                   <Button 
                     onClick={handleLike}
                     className={`h-14 px-8 rounded-full text-lg font-bold transition-all shadow-lg hover:scale-105 gap-2 border-0 ${
-                      isLiked ? 'bg-[#ff4e4e] hover:bg-[#e04545] text-white' : 'bg-[#333] hover:bg-[#444] text-white'
+                      isLiked ? 'bg-[#ff4e4e] hover:bg-[#e04545] text-white' : 'bg-gray-200 hover:bg-gray-300 dark:bg-[#333] dark:hover:bg-[#444] text-foreground'
                     }`}
                   >
                     <Heart className={isLiked ? "fill-current" : ""} size={22} strokeWidth={isLiked ? 0 : 2.5} />
@@ -443,7 +443,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                   
                   <Button 
                     onClick={handleBookmark}
-                    className={`h-14 px-8 rounded-full text-lg font-bold transition-all shadow-lg hover:scale-105 gap-2 bg-white text-black hover:bg-gray-200 border-0`}
+                    className={`h-14 px-8 rounded-full text-lg font-bold transition-all shadow-lg hover:scale-105 gap-2 bg-white dark:bg-card text-black dark:text-foreground hover:bg-gray-200 dark:hover:bg-white/10 border-0`}
                   >
                     <Bookmark className={isBookmarked ? "fill-current" : ""} size={22} strokeWidth={2.5} />
                     {isBookmarked ? '컬렉션 저장됨' : '컬렉션 저장'}
@@ -455,54 +455,54 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                   <span className="inline-block px-3 py-1 bg-[#00d084] text-black text-xs font-bold rounded mb-4">
                     MYRATINGIS PICK 선정
                   </span>
-                  <h2 className="text-2xl md:text-3xl font-bold mb-3">{project.title}</h2>
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">{project.title}</h2>
                </div>
                
                {/* Meta Info */}
-               <div className="text-gray-400 text-sm mb-8 flex items-center justify-center gap-3">
+               <div className="text-gray-400 dark:text-foreground/40 text-sm mb-8 flex items-center justify-center gap-3">
                   <span>{dayjs(project.created_at).fromNow()}</span>
-                  <span className="w-0.5 h-3 bg-gray-600"></span>
+                  <span className="w-0.5 h-3 bg-gray-400 dark:bg-gray-600"></span>
                   <span>{project.category || "General"}</span>
                   {project.rendering_type && (
                     <>
-                      <span className="w-0.5 h-3 bg-gray-600"></span>
+                      <span className="w-0.5 h-3 bg-gray-400 dark:bg-gray-600"></span>
                       <span>{project.rendering_type}</span>
                     </>
                   )}
                </div>
 
                {/* Stats Icons */}
-               <div className="flex items-center justify-center gap-8 text-gray-500">
+               <div className="flex items-center justify-center gap-8 text-gray-400 dark:text-gray-500">
                   <div className="flex items-center gap-2" title="조회수">
                      <Eye size={20} />
-                     <span className="text-lg font-medium text-gray-300">{addCommas(viewCount)}</span>
+                     <span className="text-lg font-medium text-gray-600 dark:text-gray-300">{addCommas(viewCount)}</span>
                   </div>
                   <div className="flex items-center gap-2" title="좋아요">
                      <Heart size={20} />
-                     <span className="text-lg font-medium text-gray-300">{addCommas(likeCount)}</span>
+                     <span className="text-lg font-medium text-gray-600 dark:text-gray-300">{addCommas(likeCount)}</span>
                   </div>
                   <div className="flex items-center gap-2" title="댓글">
                      <MessageCircle size={20} />
-                     <span className="text-lg font-medium text-gray-300">{comments.length}</span>
+                     <span className="text-lg font-medium text-gray-600 dark:text-gray-300">{comments.length}</span>
                   </div>
                </div>
            </div>
         </div>
 
         {/* 3. 작성자 프로필 섹션 */}
-        <div className="max-w-2xl mx-auto px-4 py-20 text-center border-b border-gray-100">
+        <div className="max-w-2xl mx-auto px-4 py-20 text-center border-b border-gray-100 dark:border-white/10">
             <div className="mb-6 relative inline-block group cursor-pointer">
-              <div className="absolute inset-0 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-full blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+              <div className="absolute inset-0 bg-gradient-to-tr from-purple-500 to-pink-500 rounded-full blur opacity-50 group-hover:opacity-40 transition-opacity"></div>
               <Image 
                 src={project.user.profile_image.large} 
                 alt={project.user.username}
                 width={112}
                 height={112}
-                className="relative w-28 h-28 rounded-full border-4 border-white shadow-lg mx-auto object-cover"
+                className="relative w-28 h-28 rounded-full border-4 border-white dark:border-card shadow-lg mx-auto object-cover"
               />
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">{project.user.username}</h3>
-            <p className="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">{project.user.username}</h3>
+            <p className="text-gray-500 dark:text-foreground/50 mb-8 max-w-md mx-auto leading-relaxed">
                 창작의 즐거움을 나누는 크리에이터입니다.
                 {/* Intro data if available */}
             </p>
@@ -517,7 +517,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                   </Button>
                 ) : (
                   <>
-                    <Button variant="outline" className="h-11 px-8 rounded-full border-gray-300 hover:bg-gray-50 gap-2 text-base">
+                    <Button variant="outline" className="h-11 px-8 rounded-full border-gray-300 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 gap-2 text-base">
                       <Plus size={18} /> 팔로우
                     </Button>
                     <Button className="h-11 px-8 rounded-full bg-[#00d084] hover:bg-[#00b874] text-white border-0 gap-2 font-bold text-base shadow-md">
@@ -529,8 +529,8 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
         </div>
 
         {/* 4. 댓글 섹션 (간소화) */}
-        <div className="max-w-3xl mx-auto px-6 py-16 border-b border-gray-100">
-            <h3 className="text-xl font-bold mb-8 flex items-center gap-2">
+        <div className="max-w-3xl mx-auto px-6 py-16 border-b border-gray-100 dark:border-white/10">
+            <h3 className="text-xl font-bold text-foreground mb-8 flex items-center gap-2">
               댓글 <span className="text-green-600">{comments.length}</span>
             </h3>
             
@@ -542,12 +542,12 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       placeholder={newCommentSecret ? "작성자와 관리자만 볼 수 있는 비밀 댓글입니다." : "작품에 대한 감상평을 남겨주세요..."}
-                      className={`w-full px-4 py-3 bg-gray-50 border ${newCommentSecret ? 'border-amber-200 bg-amber-50/50' : 'border-gray-200'} rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all resize-none text-gray-800 placeholder:text-gray-400 pr-24`}
+                      className={`w-full px-4 py-3 bg-gray-50 dark:bg-muted border ${newCommentSecret ? 'border-amber-200 bg-amber-50/50 dark:bg-amber-900/20' : 'border-gray-200 dark:border-white/10'} rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500/20 focus:border-green-500 transition-all resize-none text-gray-800 dark:text-foreground placeholder:text-gray-400 dark:placeholder:text-foreground/30 pr-24`}
                       rows={2}
                     />
                     <button
                       onClick={() => setNewCommentSecret(!newCommentSecret)}
-                      className={`absolute bottom-3 right-3 px-2 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-bold ${newCommentSecret ? 'bg-amber-100 text-amber-600' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                      className={`absolute bottom-3 right-3 px-2 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-bold ${newCommentSecret ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600' : 'bg-gray-100 dark:bg-white/5 text-gray-400 hover:bg-gray-200 dark:hover:bg-white/10'}`}
                       title="비밀 댓글 설정"
                     >
                       {newCommentSecret ? <Lock size={12} /> : <Unlock size={12} />}
@@ -559,7 +559,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                         onClick={handleAddComment} 
                         disabled={!newComment.trim()} 
                         size="sm" 
-                        className="rounded-full bg-black hover:bg-gray-800 text-white transition-colors"
+                        className="rounded-full bg-black dark:bg-foreground hover:bg-gray-800 dark:hover:bg-foreground/80 text-white dark:text-background transition-colors"
                      >
                         작성하기
                      </Button>
@@ -572,21 +572,21 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
               {comments.length > 0 ? (
                 comments.map((comment) => (
                   <div key={comment.id} className="flex gap-4 group">
-                      <Image src={comment.userAvatar} alt={comment.username} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-gray-100 mt-1" />
+                      <Image src={comment.userAvatar} alt={comment.username} width={40} height={40} className="w-10 h-10 rounded-full object-cover border border-gray-100 dark:border-white/10 mt-1" />
                       <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                              <span className="font-bold text-sm text-gray-900">{comment.username}</span>
+                              <span className="font-bold text-sm text-gray-900 dark:text-foreground">{comment.username}</span>
                               {comment.isSecret && (
                                 <span className="bg-amber-100 text-amber-600 text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1 font-medium">
                                   <Lock size={10} /> 비밀
                                 </span>
                               )}
-                              <span className="text-xs text-gray-400">{dayjs(comment.createdAt).format("YYYY.MM.DD")}</span>
+                              <span className="text-xs text-gray-400 dark:text-foreground/40">{dayjs(comment.createdAt).format("YYYY.MM.DD")}</span>
                               {user && user.id === comment.user_id && (
                                  <button onClick={() => handleDeleteComment(comment.id)} className="ml-auto text-xs text-gray-300 hover:text-red-500 transition-colors">삭제</button>
                               )}
                           </div>
-                          <p className={`text-sm leading-relaxed whitespace-pre-wrap ${comment.isSecret ? 'text-gray-500 italic' : 'text-gray-700'}`}>
+                          <p className={`text-sm leading-relaxed whitespace-pre-wrap ${comment.isSecret ? 'text-gray-500 dark:text-foreground/50 italic' : 'text-gray-700 dark:text-foreground/70'}`}>
                             {(!comment.isSecret || (user && (user.id === comment.user_id || user.id === project.user_id))) 
                               ? comment.content 
                               : "🔒 작성자와 프로젝트 관리자만 볼 수 있는 비밀 댓글입니다."}
@@ -595,7 +595,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
                   </div>
                 ))
               ) : (
-                <div className="text-center py-10 text-gray-400 bg-gray-50 rounded-xl">
+                <div className="text-center py-10 text-gray-400 dark:text-foreground/40 bg-gray-50 dark:bg-muted rounded-xl">
                    첫 번째 댓글의 주인공이 되어보세요!
                 </div>
               )}
@@ -605,9 +605,9 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
         {/* 5. 관련 프로젝트 (기존 로직 활용 + 디자인 개선) */}
         {relatedProjects.length > 0 && (
           <div className="max-w-[1400px] mx-auto px-6 py-20 pb-32">
-            <h2 className="text-2xl font-bold text-gray-900 mb-8 flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-8 flex items-center justify-between">
               <span>관련 프로젝트</span>
-              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-black hover:bg-gray-100 rounded-full">더 보기</Button>
+              <Button variant="ghost" size="sm" className="text-gray-400 hover:text-black dark:hover:text-foreground hover:bg-gray-100 dark:hover:bg-white/5 rounded-full">더 보기</Button>
             </h2>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProjects.map((relatedProject) => (

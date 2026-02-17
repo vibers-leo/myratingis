@@ -162,7 +162,7 @@ export default function OnboardingPage() {
                             MyRatingIs에 오신 것을 환영합니다.
                         </p>
                         <div className="pt-8">
-                            <Button onClick={() => setStep(2)} size="lg" className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-12 h-14 rounded-full text-lg shadow-xl shadow-orange-200">
+                            <Button onClick={() => setStep(2)} size="lg" className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-12 h-14 rounded-full text-lg shadow-xl shadow-orange-500/20">
                                 시작하기 <ChevronRight className="ml-2 w-5 h-5"/>
                             </Button>
                         </div>
@@ -273,7 +273,7 @@ export default function OnboardingPage() {
                     >
                         <div>
                             <h2 className="text-2xl font-black mb-2">직업 / 소속</h2>
-                            <p className="text-sm text-gray-500">현재 주로 활동하는 분야를 알려주세요.</p>
+                            <p className="text-sm text-chef-text opacity-40">현재 주로 활동하는 분야를 알려주세요.</p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">

@@ -119,11 +119,11 @@ export default function SignupPage() {
       <div className="flex min-h-screen flex-col items-center justify-center py-24 px-6">
         {/* Decorative Ornaments */}
         <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none select-none">
-          <div className="text-[120px] font-black text-white leading-none tracking-tighter">JOIN</div>
+          <div className="text-[120px] font-black text-foreground leading-none tracking-tighter">JOIN</div>
         </div>
 
         <div className="w-full max-w-md relative z-10">
-          <div className="rounded-xl border border-white/5 p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] backdrop-blur-3xl">
+          <div className="rounded-xl border border-gray-200 dark:border-white/5 p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] backdrop-blur-3xl">
             {/* 로고 영역 */}
             <div className="flex justify-center mb-10">
               <Image
@@ -132,7 +132,7 @@ export default function SignupPage() {
                 width={360}
                 height={108}
                 quality={100}
-                className="h-9 w-auto invert brightness-0"
+                className="h-9 w-auto dark:invert dark:brightness-0"
               />
             </div>
 
@@ -179,7 +179,7 @@ export default function SignupPage() {
 
             <div className="relative mb-8">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/5" />
+                <div className="w-full border-t border-gray-200 dark:border-white/5" />
               </div>
               <div className="relative flex justify-center text-[8px] font-black uppercase tracking-[0.4em]">
                 <span className="bg-chef-card px-4 text-chef-text opacity-20">또는 이메일 가입</span>
@@ -199,7 +199,7 @@ export default function SignupPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="CHEF@MYRATING.IS"
-                    className="w-full h-16 bg-chef-panel/50 border-2 border-white/5 text-chef-text font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-chef-panel outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-lg"
+                    className="w-full h-16 bg-gray-50 dark:bg-chef-panel/50 border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-chef-panel outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-lg"
                     disabled={loading}
                   />
                 </div>
@@ -215,7 +215,7 @@ export default function SignupPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full h-16 bg-chef-panel/50 border-2 border-white/5 text-chef-text font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-chef-panel outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-lg"
+                    className="w-full h-16 bg-gray-50 dark:bg-chef-panel/50 border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-chef-panel outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-lg"
                     disabled={loading}
                   />
                 </div>
@@ -231,7 +231,7 @@ export default function SignupPage() {
                     value={passwordConfirm}
                     onChange={(e) => setPasswordConfirm(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full h-16 bg-chef-panel/50 border-2 border-white/5 text-chef-text font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-chef-panel outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-lg"
+                    className="w-full h-16 bg-gray-50 dark:bg-chef-panel/50 border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-chef-panel outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-lg"
                     disabled={loading}
                   />
                 </div>

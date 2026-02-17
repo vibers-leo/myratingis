@@ -381,7 +381,7 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
            </div>
            <div className="text-center">
               <h4 className="text-3xl font-black text-chef-text uppercase tracking-tighter mb-2">{activeCategory.label}</h4>
-              <p className="text-chef-text opacity-40 font-bold uppercase tracking-widest text-xs">{activeCategory.desc}</p>
+              <p className="text-chef-text opacity-60 font-bold uppercase tracking-widest text-xs">{activeCategory.desc}</p>
            </div>
         </div>
 
@@ -393,10 +393,10 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
                   ))}
                </div>
                <div className="text-right">
-                  <span className={cn("text-7xl font-black tabular-nums tracking-tighter transition-all", (scores[activeCategory.id] !== undefined) ? "opacity-100 scale-105" : "opacity-20")} style={{ color: activeCategory.color || '#f59e0b' }}>
+                  <span className={cn("text-7xl font-black tabular-nums tracking-tighter transition-all", (scores[activeCategory.id] !== undefined) ? "opacity-100 scale-105" : "opacity-50")} style={{ color: activeCategory.color || '#f59e0b' }}>
                      {(scores[activeCategory.id] ?? 3).toFixed(1)}
                   </span>
-                  <p className="text-[10px] font-black text-chef-text opacity-20 uppercase tracking-widest">Score / 5.0</p>
+                  <p className="text-[10px] font-black text-chef-text opacity-50 uppercase tracking-widest">Score / 5.0</p>
                </div>
             </div>
 
@@ -477,7 +477,7 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
            </div>
         </div>
         
-        <p className="text-chef-text opacity-40 font-bold uppercase tracking-widest text-[10px] animate-pulse">
+        <p className="text-chef-text opacity-60 font-bold uppercase tracking-widest text-[10px] animate-pulse">
             Tip: 차트의 꼭지점을 드래그하여 점수를 조정여보세요!
         </p>
 
@@ -492,14 +492,14 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
                     </div>
                     <div>
                       <p className="text-sm font-black text-chef-text uppercase tracking-tight">{cat.label}</p>
-                      <p className="text-[10px] text-chef-text opacity-40 font-bold uppercase">{cat.desc}</p>
+                      <p className="text-[10px] text-chef-text opacity-60 font-bold uppercase">{cat.desc}</p>
                     </div>
                   </div>
                   <div className="text-center">
                     <span className="text-3xl font-black tabular-nums tracking-tighter" style={{ color: cat.color || '#f59e0b' }}>
                       {(scores[cat.id] ?? 3).toFixed(1)}
                     </span>
-                    <p className="text-[8px] font-black text-chef-text opacity-20 uppercase tracking-widest">Score</p>
+                    <p className="text-[8px] font-black text-chef-text opacity-50 uppercase tracking-widest">Score</p>
                   </div>
                 </div>
                 

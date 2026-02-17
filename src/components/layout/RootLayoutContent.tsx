@@ -39,12 +39,12 @@ export function RootLayoutContent({
 
   // Prevent flash or mismatch during hydration
   if (!mounted) {
-    return <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden bg-[#050505]">{children}</div>;
+    return <div className="min-h-screen flex flex-col relative w-full overflow-x-hidden bg-background">{children}</div>;
   }
 
   // Show blank screen briefly while auth loads, but never more than 2 seconds
   if (authLoading && !maxWaitReached && !hideLayout && pathname !== '/login' && pathname !== '/signup') {
-    return <div className="min-h-screen bg-[#050505]" />;
+    return <div className="min-h-screen bg-background" />;
   }
 
   return (

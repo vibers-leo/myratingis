@@ -70,8 +70,10 @@ export default function ProjectUploadPage() {
   const { user, loading: authLoading, isAdmin } = useAuth();
   const titleRef = useRef<HTMLInputElement>(null);
 
-  const [rewardType, setRewardType] = useState<'none' | 'point' | 'coupon'>('none');
-  const [rewardAmount, setRewardAmount] = useState(500);
+  const [selectedRewardItem, setSelectedRewardItem] = useState<any>(null);
+  const [rewardItems, setRewardItems] = useState<any[]>([]);
+  const [rewardItemsLoading, setRewardItemsLoading] = useState(false);
+  const [rewardCategory, setRewardCategory] = useState('all');
   const [recipientCount, setRecipientCount] = useState(10);
   const [distributeMethod, setDistributeMethod] = useState<'fcfs' | 'author'>('fcfs');
   const [step, setStep] = useState(1);
@@ -110,6 +112,8 @@ export default function ProjectUploadPage() {
   const [analyzeUrl, setAnalyzeUrl] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiApplied, setAiApplied] = useState(false);
+  const [analyzeProgress, setAnalyzeProgress] = useState(0);
+  const [analyzePhase, setAnalyzePhase] = useState<'idle' | 'fetching' | 'analyzing' | 'complete'>('idle');
 
   const totalSteps = isAdmin ? 10 : 9;
 
@@ -135,6 +139,25 @@ export default function ProjectUploadPage() {
   useEffect(() => {
     if (!pollOptions.length) setPollOptions(STICKER_PRESETS.professional);
   }, []);
+
+  // Fetch reward catalog when entering step 10
+  useEffect(() => {
+    if (step === 10 && isAdmin && rewardItems.length === 0) {
+      const fetchCatalog = async () => {
+        setRewardItemsLoading(true);
+        try {
+          const res = await fetch('/api/rewards/catalog');
+          const data = await res.json();
+          if (data.success) setRewardItems(data.items || []);
+        } catch (e) {
+          console.error('[Catalog]', e);
+        } finally {
+          setRewardItemsLoading(false);
+        }
+      };
+      fetchCatalog();
+    }
+  }, [step, isAdmin]);
 
   const editId = searchParams.get('edit');
   useEffect(() => {
@@ -204,16 +227,24 @@ export default function ProjectUploadPage() {
     setIsSubmitting(true);
     try {
       if (!user) { toast.error("로그인이 필요합니다."); router.push("/login?returnTo=/project/upload"); return; }
+      const siteUrl = analyzeUrl.trim()
+        ? (analyzeUrl.startsWith('http') ? analyzeUrl : `https://${analyzeUrl}`)
+        : (auditType === 'link' && typeof mediaData === 'string' && mediaData.trim()
+          ? (mediaData.startsWith('http') ? mediaData : `https://${mediaData}`)
+          : null);
       const projectData = {
         title, summary: summary || title, content_text: summary || title, description: summary || title,
         category_id: 1, thumbnail_url: linkPreview?.image || null, visibility, audit_deadline: auditDeadline,
         is_growth_requested: true, author_id: user.id, author_email: user.email,
+        site_url: siteUrl,
         custom_data: {
           result_visibility: resultVisibility, is_feedback_requested: true,
           audit_config: {
              type: auditType, mediaA: mediaData, categories: customCategories,
              poll: { desc: pollDesc, options: pollOptions }, questions: auditQuestions,
-             reward: { type: rewardType, amount: rewardAmount, count: recipientCount, method: distributeMethod }
+             reward: selectedRewardItem
+               ? { type: 'item', item_id: selectedRewardItem.id, item_name: selectedRewardItem.name, price: selectedRewardItem.retail_price, count: recipientCount, method: distributeMethod }
+               : { type: 'none' }
           }
         }
       };
@@ -226,13 +257,14 @@ export default function ProjectUploadPage() {
         if (error) throw error;
         projectId = data.id;
       }
-      if (rewardType !== 'none' && projectId) {
-        const totalCost = rewardAmount * recipientCount;
+      if (selectedRewardItem && projectId) {
+        const unitPrice = selectedRewardItem.retail_price;
+        const totalCost = unitPrice * recipientCount;
         const platformFee = Math.round(totalCost * 0.1);
         const tax = Math.round((totalCost + platformFee) * 0.1);
         await (supabase as any).from('project_rewards').upsert({
-          project_id: projectId, reward_type: rewardType, amount_per_person: rewardAmount,
-          total_slots: recipientCount, distribution_method: distributeMethod,
+          project_id: projectId, reward_type: 'coupon', reward_item_id: selectedRewardItem.id,
+          amount_per_person: unitPrice, total_slots: recipientCount, distribution_method: distributeMethod,
           total_cost: totalCost, platform_fee: platformFee, tax, total_charged: totalCost + platformFee + tax,
           status: distributeMethod === 'lottery' ? 'pending_lottery' : 'active',
         }, { onConflict: 'project_id' });
@@ -254,6 +286,20 @@ export default function ProjectUploadPage() {
   const handleAiAnalyze = async () => {
     if (!analyzeUrl.trim()) return toast.error("URL을 입력해주세요.");
     setIsAnalyzing(true);
+    setAnalyzePhase('fetching');
+    setAnalyzeProgress(0);
+
+    // Progress simulation
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += progress < 30 ? Math.random() * 5 + 2
+        : progress < 60 ? Math.random() * 3 + 1
+        : Math.random() * 1.5 + 0.3;
+      if (progress >= 95) { progress = 95; clearInterval(interval); }
+      if (progress >= 30 && progress < 60) setAnalyzePhase('analyzing');
+      setAnalyzeProgress(progress);
+    }, 150);
+
     try {
       const res = await fetch('/api/ai/analyze-url', {
         method: 'POST',
@@ -261,19 +307,23 @@ export default function ProjectUploadPage() {
         body: JSON.stringify({ url: analyzeUrl.trim() }),
       });
       const data = await res.json();
+      clearInterval(interval);
+
       if (!data.success) {
+        setAnalyzeProgress(0);
+        setAnalyzePhase('idle');
         toast.error(data.error || 'AI 분석에 실패했습니다.');
         return;
       }
+
+      setAnalyzeProgress(100);
+      setAnalyzePhase('complete');
+
       const { title: aiTitle, summary: aiSummary, categories, questions, ogImage, ogTitle, ogDescription } = data.data;
       if (aiTitle) setTitle(aiTitle);
       if (aiSummary) setSummary(aiSummary);
-      if (categories?.length >= 3) {
-        setCustomCategories(categories);
-      }
-      if (questions?.length >= 1) {
-        setAuditQuestions(questions);
-      }
+      if (categories?.length >= 3) setCustomCategories(categories);
+      if (questions?.length >= 1) setAuditQuestions(questions);
       // Auto-fill media link
       const urlForMedia = analyzeUrl.startsWith('http') ? analyzeUrl : `https://${analyzeUrl}`;
       setAuditType('link');
@@ -283,11 +333,17 @@ export default function ProjectUploadPage() {
         setLinkPreview({ title: ogTitle, description: ogDescription, image: ogImage });
       }
       setAiApplied(true);
-      toast.success('AI가 폼을 자동으로 채웠습니다! 각 항목을 확인해주세요.');
+
+      // Show 100% briefly before navigating
+      await new Promise(r => setTimeout(r, 800));
+      toast.success('AI가 폼을 자동으로 채웠습니다!');
       goNext();
     } catch (err: any) {
+      clearInterval(interval);
       console.error('[AI Analyze]', err);
       toast.error('AI 분석 중 오류가 발생했습니다.');
+      setAnalyzeProgress(0);
+      setAnalyzePhase('idle');
     } finally {
       setIsAnalyzing(false);
     }
@@ -299,62 +355,90 @@ export default function ProjectUploadPage() {
     <div className="flex flex-col min-h-[60vh] justify-between">
       <div className="space-y-6 flex-1">
         <p className="text-sm text-chef-text/40 font-medium">Step 1 / {totalSteps}</p>
-        <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
-          MVP 링크가<br />있으신가요?
-        </h2>
-        <p className="text-sm text-chef-text/50">
-          URL을 입력하면 AI가 분석해서 폼을 자동으로 채워드려요.<br />
-          없으면 건너뛰고 직접 작성할 수 있어요.
-        </p>
 
-        <div className="pt-4 space-y-4">
-          <div className="relative">
-            <input
-              autoFocus
-              placeholder="my-project.com"
-              value={analyzeUrl}
-              onChange={e => setAnalyzeUrl(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && analyzeUrl.trim() && !isAnalyzing && handleAiAnalyze()}
-              disabled={isAnalyzing}
-              className="w-full h-16 md:h-20 bg-chef-panel border border-chef-border/30 hover:border-orange-500/50 focus:border-orange-500 text-lg md:text-xl font-black text-chef-text px-4 md:px-6 pr-14 placeholder:text-chef-text/20 outline-none transition-colors rounded-sm disabled:opacity-50"
-            />
-            {isAnalyzing && (
-              <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />
-              </div>
-            )}
-          </div>
-
-          <Button
-            onClick={handleAiAnalyze}
-            disabled={!analyzeUrl.trim() || isAnalyzing}
-            className="w-full h-14 bg-gradient-to-r from-violet-600 to-orange-500 hover:from-violet-500 hover:to-orange-400 text-white text-lg font-black transition-all disabled:opacity-30 rounded-sm flex items-center justify-center gap-3"
-          >
-            {isAnalyzing ? (
-              <><Loader2 className="w-5 h-5 animate-spin" /> AI 분석 중...</>
-            ) : (
-              <><Wand2 className="w-5 h-5" /> AI로 자동 채우기</>
-            )}
-          </Button>
-
-          {aiApplied && (
-            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-sm px-4 py-3 flex items-center gap-3">
-              <Sparkles className="w-5 h-5 text-emerald-500 shrink-0" />
-              <p className="text-sm font-bold text-emerald-500">AI 분석이 완료되었습니다. 각 항목을 확인하고 수정해주세요.</p>
+        {isAnalyzing ? (
+          /* Progress UI */
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 py-8">
+            <div className="w-full h-2 bg-chef-panel rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-violet-600 to-orange-500 rounded-full"
+                style={{ width: `${analyzeProgress}%` }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
             </div>
-          )}
-        </div>
-      </div>
-      <div className="flex gap-3 pt-8">
-        <Button onClick={goNext} variant="ghost" className="h-14 flex-1 text-chef-text opacity-40 hover:opacity-100 text-base font-black transition-all rounded-sm">
-          건너뛰기 — 직접 작성할게요
-        </Button>
-        {analyzeUrl.trim() && !isAnalyzing && (
-          <Button onClick={goNext} className="h-14 px-8 bg-chef-text text-chef-bg hover:opacity-90 text-base font-black transition-all rounded-sm">
-            다음 <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
+            <div className="text-center space-y-3">
+              <p className="text-5xl font-black text-chef-text tabular-nums">{Math.round(analyzeProgress)}%</p>
+              <AnimatePresence mode="wait">
+                <motion.p key={analyzePhase} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="text-sm text-chef-text/50">
+                  {analyzePhase === 'fetching' && 'URL에 접근하고 있어요...'}
+                  {analyzePhase === 'analyzing' && 'AI가 프로젝트를 분석하고 있어요...'}
+                  {analyzePhase === 'complete' && 'AI 분석이 완료되었어요!'}
+                </motion.p>
+              </AnimatePresence>
+              {analyzePhase === 'complete' && (
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300 }}>
+                  <Sparkles className="w-10 h-10 text-emerald-500 mx-auto" />
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        ) : (
+          /* Input UI */
+          <>
+            <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
+              MVP 링크가<br />있으신가요?
+            </h2>
+            <p className="text-sm text-chef-text/50">
+              URL을 입력하면 AI가 분석해서 폼을 자동으로 채워드려요.<br />
+              없으면 건너뛰고 직접 작성할 수 있어요.
+            </p>
+
+            <div className="pt-4 space-y-4">
+              <input
+                autoFocus
+                placeholder="my-project.com"
+                value={analyzeUrl}
+                onChange={e => setAnalyzeUrl(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && analyzeUrl.trim() && handleAiAnalyze()}
+                className="w-full h-16 md:h-20 bg-chef-panel border border-chef-border/30 hover:border-orange-500/50 focus:border-orange-500 text-lg md:text-xl font-black text-chef-text px-4 md:px-6 placeholder:text-chef-text/20 outline-none transition-colors rounded-sm"
+              />
+
+              <Button
+                onClick={handleAiAnalyze}
+                disabled={!analyzeUrl.trim()}
+                className="w-full h-14 bg-gradient-to-r from-violet-600 to-orange-500 hover:from-violet-500 hover:to-orange-400 text-white text-lg font-black transition-all disabled:opacity-30 rounded-sm flex items-center justify-center gap-3"
+              >
+                <Wand2 className="w-5 h-5" /> AI로 자동 채우기
+              </Button>
+
+              {aiApplied && (
+                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-sm px-4 py-3 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="w-5 h-5 text-emerald-500 shrink-0" />
+                    <p className="text-sm font-bold text-emerald-500">AI 분석이 완료되었습니다. 각 항목을 확인하고 수정해주세요.</p>
+                  </div>
+                  <div className="text-xs text-chef-text/40 pl-8 space-y-1">
+                    <p>- 입력하신 URL이 <strong className="text-chef-text/60">제품 링크</strong>로 자동 등록됩니다.</p>
+                    {linkPreview?.image && <p>- OG 이미지가 프로젝트 <strong className="text-chef-text/60">썸네일</strong>로 사용됩니다.</p>}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
         )}
       </div>
+      {!isAnalyzing && (
+        <div className="flex gap-3 pt-8">
+          <Button onClick={goNext} variant="ghost" className="h-14 flex-1 text-chef-text opacity-40 hover:opacity-100 text-base font-black transition-all rounded-sm">
+            건너뛰기 — 직접 작성할게요
+          </Button>
+          {analyzeUrl.trim() && (
+            <Button onClick={goNext} className="h-14 px-8 bg-chef-text text-chef-bg hover:opacity-90 text-base font-black transition-all rounded-sm">
+              다음 <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 
@@ -766,75 +850,161 @@ export default function ProjectUploadPage() {
     );
   };
 
-  const renderStepReward = () => (
-    <div className="flex flex-col min-h-[60vh] justify-between">
-      <div className="space-y-6 flex-1">
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-chef-text/40 font-medium">Step 10 / {totalSteps}</p>
-          <span className="px-3 py-1 bg-chef-panel border border-chef-border text-[10px] font-black text-orange-500 uppercase tracking-widest rounded-full animate-pulse">유료 플랜 (베타)</span>
-        </div>
-        <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
-          보상을<br />설정해주세요
-        </h2>
+  const REWARD_CATEGORIES = [
+    { key: 'all', label: '전체' },
+    { key: 'coffee', label: '☕ 커피' },
+    { key: 'convenience', label: '🏪 편의점' },
+    { key: 'chicken', label: '🍗 치킨' },
+    { key: 'etc', label: '🎁 기타' },
+  ];
 
-        <div className="space-y-5">
-          <div className="space-y-3">
-            <Label className="text-xs font-black text-chef-text opacity-30 uppercase tracking-widest">보상 종류</Label>
-            <div className="grid grid-cols-2 gap-3">
-              <button onClick={() => setRewardType('point')} className={cn(
-                "p-5 border-2 transition-all flex flex-col items-center gap-3 rounded-sm",
-                rewardType === 'point' ? "border-orange-500 bg-orange-500/5 text-orange-500" : "border-chef-border bg-chef-card opacity-40 hover:opacity-100"
-              )}>
-                <FontAwesomeIcon icon={faCoins} size="xl" />
-                <span className="font-black text-xs">포인트</span>
+  const filteredRewardItems = rewardCategory === 'all'
+    ? rewardItems
+    : rewardItems.filter(item => item.category === rewardCategory);
+
+  const renderStepReward = () => {
+    const unitPrice = selectedRewardItem?.retail_price || 0;
+    const totalCost = unitPrice * recipientCount;
+    const platformFee = Math.round(totalCost * 0.1);
+    const tax = Math.round((totalCost + platformFee) * 0.1);
+    const totalCharged = totalCost + platformFee + tax;
+
+    return (
+      <div className="flex flex-col min-h-[60vh] justify-between">
+        <div className="space-y-5 flex-1">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-chef-text/40 font-medium">Step 10 / {totalSteps}</p>
+            <span className="px-3 py-1 bg-chef-panel border border-chef-border text-[10px] font-black text-orange-500 uppercase tracking-widest rounded-full animate-pulse">유료 플랜 (베타)</span>
+          </div>
+          <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
+            평가자에게 줄<br />보상을 선택하세요
+          </h2>
+          <p className="text-sm text-chef-text/50">평가에 참여한 분들에게 기프티콘을 보상으로 제공할 수 있어요.</p>
+
+          {/* Category filter */}
+          <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+            {REWARD_CATEGORIES.map(cat => (
+              <button
+                key={cat.key}
+                onClick={() => setRewardCategory(cat.key)}
+                className={cn(
+                  "px-3 py-2 text-xs font-black whitespace-nowrap transition-all rounded-sm border",
+                  rewardCategory === cat.key
+                    ? "bg-orange-500 border-orange-500 text-white"
+                    : "bg-chef-panel border-chef-border text-chef-text/50 hover:text-chef-text"
+                )}
+              >
+                {cat.label}
               </button>
-              <button onClick={() => setRewardType('coupon')} className={cn(
-                "p-5 border-2 transition-all flex flex-col items-center gap-3 rounded-sm",
-                rewardType === 'coupon' ? "border-orange-500 bg-orange-500/5 text-orange-500" : "border-chef-border bg-chef-card opacity-40 hover:opacity-100"
-              )}>
-                <FontAwesomeIcon icon={faGift} size="xl" />
-                <span className="font-black text-xs">기프티콘</span>
-              </button>
-            </div>
+            ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-[10px] font-black text-chef-text opacity-30 uppercase tracking-widest">인당 금액 (P)</Label>
-              <input type="number" value={rewardAmount} onChange={e => setRewardAmount(Number(e.target.value))} className="w-full h-12 bg-chef-panel border border-chef-border text-chef-text font-black px-4 outline-none focus:border-orange-500 rounded-sm" />
+          {/* Product grid */}
+          {rewardItemsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-6 h-6 text-orange-500 animate-spin" />
+              <span className="ml-2 text-sm text-chef-text/40 font-bold">상품 불러오는 중...</span>
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-[10px] font-black text-chef-text opacity-30 uppercase tracking-widest">모집 인원</Label>
-              <input type="number" value={recipientCount} onChange={e => setRecipientCount(Number(e.target.value))} className="w-full h-12 bg-chef-panel border border-chef-border text-chef-text font-black px-4 outline-none focus:border-orange-500 rounded-sm" />
+          ) : filteredRewardItems.length === 0 ? (
+            <div className="text-center py-12 text-chef-text/30 text-sm font-bold">
+              등록된 상품이 없습니다.
             </div>
-          </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 max-h-[35vh] overflow-y-auto pr-1">
+              {filteredRewardItems.map((item: any) => (
+                <button
+                  key={item.id}
+                  onClick={() => setSelectedRewardItem(selectedRewardItem?.id === item.id ? null : item)}
+                  className={cn(
+                    "p-3 border-2 transition-all text-left rounded-sm flex flex-col gap-2",
+                    selectedRewardItem?.id === item.id
+                      ? "border-orange-500 bg-orange-500/5"
+                      : "border-chef-border bg-chef-panel hover:border-chef-text/20"
+                  )}
+                >
+                  {item.image_url ? (
+                    <img src={item.image_url} alt={item.name} className="w-full h-20 object-contain rounded-sm bg-white" />
+                  ) : (
+                    <div className="w-full h-20 bg-chef-bg border border-chef-border rounded-sm flex items-center justify-center">
+                      <FontAwesomeIcon icon={faGift} className="text-chef-text/15 text-2xl" />
+                    </div>
+                  )}
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-black text-chef-text leading-tight line-clamp-2">{item.name}</p>
+                    <p className="text-[10px] text-chef-text/40 font-medium line-clamp-1">{item.description}</p>
+                    <p className="text-sm font-black text-orange-500">{item.retail_price?.toLocaleString()}원</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
 
-          <div className="bg-chef-card border border-chef-border rounded-sm p-5 space-y-3">
-            <h4 className="text-sm font-black text-chef-text flex items-center gap-2">
-              <FontAwesomeIcon icon={faCoins} className="text-orange-500" /> 청구 내역
-            </h4>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between text-chef-text font-medium"><span className="opacity-40">보상 원금</span><span>{(rewardAmount * recipientCount).toLocaleString()}P</span></div>
-              <div className="flex justify-between text-chef-text font-medium"><span className="opacity-40">수수료 (10%)</span><span className="text-orange-500">+{Math.round(rewardAmount * recipientCount * 0.1).toLocaleString()}P</span></div>
-              <div className="flex justify-between text-chef-text font-medium"><span className="opacity-40">부가세 (10%)</span><span className="text-orange-500">+{Math.round(rewardAmount * recipientCount * 1.1 * 0.1).toLocaleString()}P</span></div>
-              <div className="border-t border-chef-border pt-2 flex justify-between items-end">
-                <span className="text-xs font-black text-chef-text opacity-40">합계</span>
-                <span className="text-2xl font-black text-chef-text">{Math.round(rewardAmount * recipientCount * 1.21).toLocaleString()}P</span>
+          {/* Selected item details + recipient count */}
+          {selectedRewardItem && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+              <div className="flex items-center gap-3 bg-orange-500/5 border border-orange-500/20 rounded-sm px-4 py-3">
+                <FontAwesomeIcon icon={faGift} className="text-orange-500" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-black text-chef-text truncate">{selectedRewardItem.name}</p>
+                  <p className="text-xs text-chef-text/40">{selectedRewardItem.retail_price?.toLocaleString()}원 × {recipientCount}명</p>
+                </div>
+                <button onClick={() => setSelectedRewardItem(null)} className="text-chef-text/30 hover:text-red-500 transition-colors p-1">
+                  <X size={16} />
+                </button>
               </div>
-            </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-[10px] font-black text-chef-text opacity-30 uppercase tracking-widest">보상 인원</Label>
+                <div className="flex items-center gap-2">
+                  {[5, 10, 20, 50].map(n => (
+                    <button key={n} onClick={() => setRecipientCount(n)} className={cn(
+                      "flex-1 h-10 text-xs font-black border transition-all rounded-sm",
+                      recipientCount === n ? "border-orange-500 bg-orange-500/10 text-orange-500" : "border-chef-border text-chef-text/40 hover:text-chef-text"
+                    )}>{n}명</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Cost breakdown */}
+              <div className="bg-chef-card border border-chef-border rounded-sm p-4 space-y-2">
+                <h4 className="text-xs font-black text-chef-text flex items-center gap-2">
+                  <FontAwesomeIcon icon={faCoins} className="text-orange-500" /> 예상 비용
+                </h4>
+                <div className="space-y-1.5 text-sm">
+                  <div className="flex justify-between text-chef-text font-medium"><span className="opacity-40">상품 비용</span><span>{totalCost.toLocaleString()}원</span></div>
+                  <div className="flex justify-between text-chef-text font-medium"><span className="opacity-40">수수료 (10%)</span><span className="text-orange-500">+{platformFee.toLocaleString()}원</span></div>
+                  <div className="flex justify-between text-chef-text font-medium"><span className="opacity-40">부가세 (10%)</span><span className="text-orange-500">+{tax.toLocaleString()}원</span></div>
+                  <div className="border-t border-chef-border pt-2 flex justify-between items-end">
+                    <span className="text-[10px] font-black text-chef-text opacity-40">합계</span>
+                    <span className="text-xl font-black text-chef-text">{totalCharged.toLocaleString()}원</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-2 pt-6">
+          <div className="flex gap-3">
+            <Button variant="ghost" onClick={goPrev} className="h-14 px-6 font-black text-chef-text opacity-40 hover:opacity-100 text-sm">
+              <ArrowLeft className="mr-1 w-4 h-4" /> 이전
+            </Button>
+            <Button onClick={handleSubmit} disabled={isSubmitting || !selectedRewardItem} className="h-14 flex-1 bg-orange-600 hover:bg-orange-700 text-white text-lg font-black transition-all rounded-sm disabled:opacity-30">
+              {isSubmitting ? "게시 중..." : <><ChefHat className="w-5 h-5 mr-2" /> 게시 완료</>}
+            </Button>
           </div>
+          <Button
+            variant="ghost"
+            onClick={() => { setSelectedRewardItem(null); handleSubmit(); }}
+            disabled={isSubmitting}
+            className="h-12 w-full text-chef-text/30 hover:text-chef-text/60 text-sm font-bold transition-all rounded-sm"
+          >
+            건너뛰기 — 보상 없이 등록할게요
+          </Button>
         </div>
       </div>
-      <div className="flex gap-3 pt-8">
-        <Button variant="ghost" onClick={goPrev} className="h-14 px-6 font-black text-chef-text opacity-40 hover:opacity-100 text-sm">
-          <ArrowLeft className="mr-1 w-4 h-4" /> 이전
-        </Button>
-        <Button onClick={handleSubmit} disabled={isSubmitting} className="h-14 flex-1 bg-orange-600 hover:bg-orange-700 text-white text-lg font-black transition-all rounded-sm">
-          {isSubmitting ? "게시 중..." : <><ChefHat className="w-5 h-5 mr-2" /> 게시 완료</>}
-        </Button>
-      </div>
-    </div>
-  );
+    );
+  };
 
   const stepRenderers = [
     renderStepAiUrl,      // 1

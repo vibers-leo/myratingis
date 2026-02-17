@@ -1315,7 +1315,7 @@ export function ProjectDetailModalV2({
                  {/* Audit Expert Section */}
                  {isAuditMode && (
                    <div className="max-w-4xl mx-auto px-6 mb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                     <div className="bg-slate-950 rounded-xl p-10 text-white relative overflow-hidden shadow-2xl border border-white/10">
+                     <div className="bg-slate-950 rounded-xl p-10 text-white relative overflow-hidden shadow-2xl border border-gray-200 dark:border-white/10">
                         <div className="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
                            <FontAwesomeIcon icon={faStar} className="text-9xl text-orange-500" />
                         </div>
@@ -1388,13 +1388,13 @@ export function ProjectDetailModalV2({
                </div>
              )}
                    {/* Black Action Bar */}
-                   <div className="w-full bg-[#18181b] text-white py-10">
+                   <div className="w-full bg-muted text-foreground py-10">
                       <div className="max-w-3xl mx-auto px-4 text-center">
                           <div className="flex items-center justify-center gap-4 mb-8">
                              <Button 
                                onClick={handleLike}
                                className={`h-11 px-6 rounded-full text-base font-bold transition-all shadow-md hover:scale-105 gap-2 border-0 ${
-                                 liked ? 'bg-[#ff4e4e] hover:bg-[#e04545] text-white' : 'bg-[#333] hover:bg-[#444] text-white'
+                                 liked ? 'bg-[#ff4e4e] hover:bg-[#e04545] text-white' : 'bg-secondary hover:bg-secondary/80 text-foreground'
                                }`}
                              >
                                 <FontAwesomeIcon icon={liked ? faHeart : faHeartRegular} className="w-4 h-4" />
@@ -1597,7 +1597,7 @@ export function ProjectDetailModalV2({
                        </>
                    ) : (
                        <div className="flex flex-col items-center justify-center h-40 text-gray-400 text-sm">
-                          <FontAwesomeIcon icon={faComment} className="w-8 h-8 mb-2 opacity-20" />
+                          <FontAwesomeIcon icon={faComment} className="w-8 h-8 mb-2 opacity-50" />
                           <p>첫 댓글을 남겨보세요!</p>
                        </div>
                    )}

@@ -370,7 +370,7 @@ export function ProjectDetailModal({
                     <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-transparent hover:border-white transition-all ring-1 ring-white/20">
                       <OptimizedImage src={project.user.profile_image.large} alt="profile" className="w-full h-full object-cover" width={48} height={48} />
                     </div>
-                    <span className="text-[10px] text-white/80 font-medium opacity-0 group-hover:opacity-100 transition-opacity">프로필</span>
+                    <span className="text-[10px] text-foreground/80 font-medium opacity-0 group-hover:opacity-100 transition-opacity">프로필</span>
                 </div>
 
                 {/* 제안하기 */}
@@ -378,7 +378,7 @@ export function ProjectDetailModal({
                     <div className="w-12 h-12 rounded-full bg-gray-800/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-green-600 transition-colors">
                         <Send size={20} />
                     </div>
-                    <span className="text-[10px] text-white/80 font-medium opacity-0 group-hover:opacity-100 transition-opacity">제안하기</span>
+                    <span className="text-[10px] text-foreground/80 font-medium opacity-0 group-hover:opacity-100 transition-opacity">제안하기</span>
                 </div>
 
                 {/* 좋아요 */}
@@ -392,7 +392,7 @@ export function ProjectDetailModal({
                           <Heart size={20} fill={liked ? "currentColor" : "none"} />
                         )}
                     </div>
-                    <span className="text-[10px] text-white/80 font-medium">{addCommas(likesCount)}</span>
+                    <span className="text-[10px] text-foreground/80 font-medium">{addCommas(likesCount)}</span>
                 </div>
 
                 {/* 컬렉션 (북마크) */}
@@ -406,7 +406,7 @@ export function ProjectDetailModal({
                           <Bookmark size={20} fill={bookmarked ? "currentColor" : "none"} />
                         )}
                     </div>
-                    <span className="text-[10px] text-white/80 font-medium opacity-0 group-hover:opacity-100 transition-opacity">컬렉션</span>
+                    <span className="text-[10px] text-foreground/80 font-medium opacity-0 group-hover:opacity-100 transition-opacity">컬렉션</span>
                 </div>
 
                 {/* 댓글 */}
@@ -414,7 +414,7 @@ export function ProjectDetailModal({
                     <div className="w-12 h-12 rounded-full bg-gray-800/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors">
                         <MessageCircle size={20} />
                     </div>
-                    <span className="text-[10px] text-white/80 font-medium">{comments.length}</span>
+                    <span className="text-[10px] text-foreground/80 font-medium">{comments.length}</span>
                 </div>
 
                 {/* 공유하기 */}
@@ -422,7 +422,7 @@ export function ProjectDetailModal({
                     <div className="w-12 h-12 rounded-full bg-gray-800/80 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white hover:text-black transition-colors">
                         <Share2 size={20} />
                     </div>
-                    <span className="text-[10px] text-white/80 font-medium opacity-0 group-hover:opacity-100 transition-opacity">공유하기</span>
+                    <span className="text-[10px] text-foreground/80 font-medium opacity-0 group-hover:opacity-100 transition-opacity">공유하기</span>
                 </div>
             </div>
 
