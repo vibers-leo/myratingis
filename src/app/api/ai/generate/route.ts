@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Server configuration error: Missing API Key" }, { status: 500 });
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" }); // Use efficient model
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // Use efficient model
 
     let prompt = "";
     
