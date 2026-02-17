@@ -1,11 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { model } from '@/lib/ai/client';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
+async function callGemini(prompt: string, apiKey: string): Promise<string> {
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
+      }),
+      signal: AbortSignal.timeout(20000),
+    }
+  );
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error('[Gemini REST] Error:', res.status, errBody);
+    throw new Error(`Gemini API ${res.status}: ${errBody.slice(0, 200)}`);
+  }
+
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
 export async function POST(req: NextRequest) {
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (!apiKey) {
     return NextResponse.json({
       success: false,
       error: 'AI 서비스가 현재 사용 불가합니다.',
@@ -56,14 +80,13 @@ export async function POST(req: NextRequest) {
         },
       });
       const html = await htmlRes.text();
-      // Extract text content from HTML (simple extraction)
       pageText = html
         .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
         .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
         .replace(/<[^>]+>/g, ' ')
         .replace(/\s+/g, ' ')
         .trim()
-        .slice(0, 3000); // Limit to 3000 chars for Gemini context
+        .slice(0, 3000);
     } catch (e) {
       console.warn('[analyze-url] HTML fetch failed:', e);
     }
@@ -103,11 +126,9 @@ export async function POST(req: NextRequest) {
 
 JSON만 출력하세요:`;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const text = await callGemini(prompt, apiKey);
 
-    // Parse JSON from response (handle markdown code blocks)
+    // Parse JSON from response
     let parsed;
     try {
       const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -144,7 +165,8 @@ JSON만 출력하세요:`;
     });
   } catch (error: any) {
     console.error('[analyze-url] Error:', error);
-    const isQuota = error.message?.includes('429') || error.message?.includes('quota') || error.message?.includes('Quota');
+    const msg = error.message || '';
+    const isQuota = msg.includes('429') || msg.includes('quota') || msg.includes('Quota');
     return NextResponse.json({
       success: false,
       error: isQuota
