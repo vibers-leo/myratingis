@@ -141,7 +141,7 @@ function LoginContent() {
 
             <div className="text-center mb-6 md:mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-chef-text uppercase italic">
-                LOG IN
+                로그인
               </h2>
               <div className="h-1.5 w-10 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto mt-3 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.4)]" />
             </div>
@@ -166,7 +166,7 @@ function LoginContent() {
               <div className="space-y-6">
                 <div className="space-y-2">
                   <label htmlFor="email-address" className="text-[11px] font-black text-chef-text opacity-40 uppercase tracking-[0.2em] ml-1">
-                    Email Address
+                    이메일 주소
                   </label>
                   <input
                     id="email-address"
@@ -182,7 +182,7 @@ function LoginContent() {
 
                 <div className="space-y-2">
                   <label htmlFor="password" className="text-[11px] font-black text-chef-text opacity-40 uppercase tracking-[0.2em] ml-1">
-                    Password
+                    비밀번호
                   </label>
                   <input
                     id="password"
@@ -224,7 +224,7 @@ function LoginContent() {
                 disabled={loading}
                 className="w-full h-14 md:h-16 bg-gradient-to-br from-orange-500 to-orange-600 text-white hover:to-orange-700 text-base md:text-lg font-black rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_20px_40px_-10px_rgba(249,115,22,0.4)] border-t border-white/20"
               >
-                {loading ? "AUTHENTICATING..." : "SIGN IN"}
+                {loading ? "인증 중..." : "로그인"}
               </Button>
             </form>
 

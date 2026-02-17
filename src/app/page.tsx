@@ -30,7 +30,7 @@ export default function Home() {
         <div className="animate-fade-in-down mb-6 mt-12 md:mt-0 flex items-center gap-2 px-3 md:px-5 py-2 rounded-full border border-chef-border bg-chef-panel/50 backdrop-blur-md shadow-2xl">
           <Star className="w-3 h-3 md:w-3.5 md:h-3.5 text-orange-500 fill-orange-500" />
           <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] text-orange-500/90">
-            Professional Evaluation Stage
+            전문 평가 플랫폼
           </span>
         </div>
 
@@ -108,8 +108,8 @@ export default function Home() {
           className="animate-fade-in flex gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-chef-text/20 pt-8"
           style={{ animationDelay: '0.6s' }}
         >
-          <Link href="/about/features" className="hover:text-orange-500 transition-colors">Platform Features</Link>
-          <Link href="/faq" className="hover:text-orange-500 transition-colors">User Support &amp; FAQ</Link>
+          <Link href="/about/features" className="hover:text-orange-500 transition-colors">서비스 소개</Link>
+          <Link href="/faq" className="hover:text-orange-500 transition-colors">고객 지원 · FAQ</Link>
         </div>
       </main>
     </div>

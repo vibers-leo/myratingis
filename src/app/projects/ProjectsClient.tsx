@@ -240,7 +240,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
            <div className="space-y-4">
               <div className="flex items-center gap-3 px-4 py-2 bg-orange-600/10 border border-orange-600/20 rounded-full w-fit">
                  <ChefHat className="w-4 h-4 text-orange-600" />
-                 <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">Ongoing Audit Requests</span>
+                 <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">진행 중인 평가 의뢰</span>
               </div>
               <h1 className="text-4xl md:text-6xl font-black text-chef-text tracking-tighter italic uppercase">
                 평가 참여하기
@@ -280,7 +280,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
                <div className="text-center md:text-left space-y-2">
                   <h3 className="text-2xl font-black italic uppercase tracking-tight flex items-center gap-2 justify-center md:justify-start">
-                     <Sparkles className="w-6 h-6" /> Join the Kitchen
+                     <Sparkles className="w-6 h-6" /> 평가 의뢰하기
                   </h3>
                   <p className="text-white/80 font-bold">로그인하고 셰프가 되어 프로젝트를 평가해보세요. <br className="hidden md:block" />참여 시 다양한 리워드와 전문성 배지가 제공됩니다.</p>
                </div>
@@ -361,7 +361,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                       
                       {p.has_rated && (
                         <div className="absolute top-3 left-3 px-3 py-1 bg-green-600/90 backdrop-blur-md rounded-full text-[8px] font-black text-white uppercase tracking-widest z-10">
-                          Completed
+                          마감
                         </div>
                       )}
                    </div>
@@ -369,7 +369,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                    {/* Middle: Content Section */}
                    <div className="flex-1 flex flex-col justify-center min-w-0 py-2">
                       <div className="flex items-center gap-2 mb-2">
-                         <span className="px-3 py-1 bg-orange-600/10 text-orange-600 text-[8px] font-black uppercase tracking-widest rounded-full">{p.category_name || "New Project"}</span>
+                         <span className="px-3 py-1 bg-orange-600/10 text-orange-600 text-[8px] font-black uppercase tracking-widest rounded-full">{p.category_name || "새 프로젝트"}</span>
                          <span className="text-[10px] text-chef-text opacity-50 font-black italic">by {p.User?.username || "Unknown"}</span>
                       </div>
                       
@@ -397,7 +397,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                         </div>
                         <div className="flex items-center gap-1.5">
                            <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-                           <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">Audits {p.rating_count || 0}</span>
+                           <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">평가 {p.rating_count || 0}</span>
                         </div>
                         <div className="flex items-center gap-1.5 ml-auto md:ml-0">
                            <Clock className="w-3.5 h-3.5 text-chef-text opacity-50" />
@@ -492,7 +492,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                 <ChefHat className="w-10 h-10 text-chef-text opacity-50" />
              </div>
              <div className="space-y-2">
-                <h3 className="text-3xl font-black text-chef-text italic uppercase">No Audits Found</h3>
+                <h3 className="text-3xl font-black text-chef-text italic uppercase">등록된 평가가 없습니다</h3>
                 <p className="text-chef-text opacity-60 font-bold">평가를 기다리는 프로젝트가 아직 없습니다. 직접 의뢰를 시작해 보세요.</p>
              </div>
              <Button 

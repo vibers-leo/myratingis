@@ -131,7 +131,7 @@ export default function FeaturesPage() {
       id: "expert-audit",
       icon: Star,
       title: "전문가 검증 리포트",
-      tag: "Professional Grade",
+      tag: "전문가 수준",
       desc: "전문가의 시각으로 프로젝트를 정밀 분석합니다. 기획력, 독창성, 심미성 등 6가지 핵심 지표를 통해 당신의 작업물이 가진 진정한 가치를 정량화하여 제공합니다.",
       color: "text-orange-500",
       bgColor: "bg-orange-500/10"
@@ -140,7 +140,7 @@ export default function FeaturesPage() {
       id: "guest-flow",
       icon: ChefHat,
       title: "장벽 없는 비회원 평가",
-      tag: "Zero Barrier",
+      tag: "진입 장벽 제로",
       desc: "평가 참여의 허들을 완전히 제거했습니다. 링크를 받은 누구나 가입 절차 없이 즉시 평가를 시작할 수 있으며, 고유의 식별 기술을 통해 중복 참여를 방지합니다.",
       color: "text-blue-500",
       bgColor: "bg-blue-500/10"
@@ -149,7 +149,7 @@ export default function FeaturesPage() {
       id: "data-merging",
       icon: Fingerprint,
       title: "스마트 데이터 통합",
-      tag: "Continuity",
+      tag: "연속성",
       desc: "비회원 시절의 모든 활동 데이터는 소중히 보관됩니다. 추후 가입하거나 로그인하는 즉시, 과거의 평가 기록들이 새 계정으로 자동 통합되어 나만의 인사이트 자산이 됩니다.",
       color: "text-emerald-500",
       bgColor: "bg-emerald-500/10"
@@ -158,7 +158,7 @@ export default function FeaturesPage() {
       id: "sticker-poll",
       icon: Target,
       title: "인터랙티브 스티커 판정",
-      tag: "Real Reaction",
+      tag: "실제 반응",
       desc: "단순한 별점을 넘어선 직관적인 반응 수집 도구입니다. 커스텀 스티커를 통해 프로젝트에 대한 시장의 즉각적이고 리얼한 반응을 한눈에 확인할 수 있습니다.",
       color: "text-indigo-500",
       bgColor: "bg-indigo-500/10"

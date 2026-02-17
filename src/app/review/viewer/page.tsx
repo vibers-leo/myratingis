@@ -55,7 +55,7 @@ function ReviewIntro({ onStart, project, loading }: { onStart: () => void, proje
       <main className="relative z-10 w-full max-w-lg mx-auto px-2 md:px-6 flex flex-col items-center text-center space-y-6 md:space-y-10">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-2">
           <Star className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
-          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">Professional Evaluation Stage</span>
+          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">전문 평가 플랫폼</span>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Image src="/logo-white.png" alt="제 평가는요?" width={400} height={160} quality={100} className="h-10 md:h-20 w-auto object-contain" priority />
@@ -69,7 +69,7 @@ function ReviewIntro({ onStart, project, loading }: { onStart: () => void, proje
              <Image src="/review/cloche-cover.png" alt="Start Review" width={256} height={256} className="w-full h-full object-contain filter drop-shadow-[0_20px_50px_rgba(255,165,0,0.3)] transition-all duration-500 group-hover:brightness-110" priority />
              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <span className="bg-black/50 text-white px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest backdrop-blur-md border border-white/20">
-                    {loading ? "Loading..." : "Click to Open"}
+                    {loading ? "로딩 중..." : "클릭하여 시작"}
                 </span>
              </div>
            </motion.div>
@@ -371,8 +371,8 @@ function ViewerContent() {
     }
   };
 
-  if (loading) return <div className="h-screen bg-background flex flex-col items-center justify-center gap-4"><div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin" /><p className="text-orange-600 font-black uppercase text-[10px] animate-pulse">Loading Project...</p></div>;
-  if (!project) return <div className="h-screen bg-background flex flex-col items-center justify-center gap-6"><X size={40} /><h2 className="text-2xl font-black">NOT FOUND</h2><Button onClick={() => router.push('/')}>Go Home</Button></div>;
+  if (loading) return <div className="h-screen bg-background flex flex-col items-center justify-center gap-4"><div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin" /><p className="text-orange-600 font-black uppercase text-[10px] animate-pulse">프로젝트 불러오는 중...</p></div>;
+  if (!project) return <div className="h-screen bg-background flex flex-col items-center justify-center gap-6"><X size={40} /><h2 className="text-2xl font-black">페이지를 찾을 수 없습니다</h2><Button onClick={() => router.push('/')}>홈으로</Button></div>;
 
   const auditType = project.custom_data?.audit_config?.type || 'link';
   const mediaData = project.custom_data?.audit_config?.mediaA || project.site_url || '';
@@ -385,7 +385,7 @@ function ViewerContent() {
        <div className="flex flex-col h-full overflow-y-auto pb-10 space-y-8 px-1 scrollbar-hide">
           <div className="space-y-4">
              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full mb-1">
-                <span className="text-[11px] font-black uppercase text-orange-500 tracking-wider">PROJECT OVERVIEW</span>
+                <span className="text-[11px] font-black uppercase text-orange-500 tracking-wider">프로젝트 개요</span>
              </div>
              <h3 className="text-xl md:text-3xl font-black heading-font text-chef-text leading-tight break-keep tracking-tight">{project.title}</h3>
           </div>
@@ -418,13 +418,13 @@ function ViewerContent() {
           </div>
 
           <div className="space-y-6 pt-8 border-t border-chef-border/30">
-             <h4 className="text-xs font-black uppercase text-chef-text opacity-50 tracking-[0.2em]">Evaluation Process</h4>
+             <h4 className="text-xs font-black uppercase text-chef-text opacity-50 tracking-[0.2em]">평가 절차</h4>
              
              <ul className="space-y-6">
                 <li className="flex gap-3 md:gap-5">
                    <div className="w-10 h-10 shrink-0 rounded-2xl bg-orange-500/10 text-orange-500 flex items-center justify-center text-sm font-black shadow-sm">1</div>
                    <div className="space-y-1">
-                      <p className="text-sm font-bold text-chef-text">평점 평가 <span className="text-xs font-medium opacity-40 ml-1">Rating</span></p>
+                      <p className="text-sm font-bold text-chef-text">평점 평가 <span className="text-xs font-medium opacity-40 ml-1">평점</span></p>
                       <p className="text-xs font-medium text-chef-text opacity-60 leading-relaxed">
                         첫 번째로 <span className="text-orange-500 font-bold">기획력, 심미성, 상업성</span> 등에 대한<br className="hidden md:block"/>냉철한 평점을 평가해주세요.
                       </p>
@@ -433,7 +433,7 @@ function ViewerContent() {
                 <li className="flex gap-3 md:gap-5">
                    <div className="w-10 h-10 shrink-0 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-sm font-black shadow-sm">2</div>
                    <div className="space-y-1">
-                      <p className="text-sm font-bold text-chef-text">판정 투표 <span className="text-xs font-medium opacity-40 ml-1">Voting</span></p>
+                      <p className="text-sm font-bold text-chef-text">판정 투표 <span className="text-xs font-medium opacity-40 ml-1">투표</span></p>
                       <p className="text-xs font-medium text-chef-text opacity-60 leading-relaxed">
                         두 번째로 <span className="text-indigo-500 font-bold">합격 / 보류 / 불합격</span>에 대한<br className="hidden md:block"/>판정 투표를 진행해주세요.
                       </p>
@@ -442,7 +442,7 @@ function ViewerContent() {
                 <li className="flex gap-3 md:gap-5">
                    <div className="w-10 h-10 shrink-0 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-sm font-black shadow-sm">3</div>
                    <div className="space-y-1">
-                      <p className="text-sm font-bold text-chef-text">종합 의견 <span className="text-xs font-medium opacity-40 ml-1">Feedback</span></p>
+                      <p className="text-sm font-bold text-chef-text">종합 의견 <span className="text-xs font-medium opacity-40 ml-1">의견</span></p>
                       <p className="text-xs font-medium text-chef-text opacity-60 leading-relaxed">
                         마지막으로 의뢰자가 남긴 질문에 대해<br className="hidden md:block"/>여러분의 <span className="text-emerald-500 font-bold">진심 어린 평가 의견</span>을 작성해주세요.
                       </p>
@@ -457,8 +457,8 @@ function ViewerContent() {
        </div>
     );
 
-    if (st === 'rating') return <div className="flex flex-col h-full"><div className="text-center space-y-3 mb-8 shrink-0"><div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-600/10 rounded-full"><span className="text-[10px] font-black text-orange-600">STAGE 01. STAR RATING</span></div><h3 className="text-lg md:text-xl font-black">평점 평가</h3></div><div className="flex-1 overflow-y-auto pb-10"><MichelinRating ref={michelinRef} projectId={projectId!} guestId={guestId || undefined} onChange={setMichelinScores} /></div></div>;
-    if (st === 'voting') return <div className="flex flex-col h-full"><div className="text-center space-y-3 mb-8 shrink-0"><div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600/10 rounded-full"><span className="text-[10px] font-black text-indigo-600">STAGE 02. STICKER</span></div><h3 className="text-base md:text-xl font-black">판정 투표</h3></div><div className="flex-1 overflow-y-auto pb-10"><FeedbackPoll ref={pollRef} projectId={projectId!} guestId={guestId || undefined} onChange={setPollSelection} /></div></div>;
+    if (st === 'rating') return <div className="flex flex-col h-full"><div className="text-center space-y-3 mb-8 shrink-0"><div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-600/10 rounded-full"><span className="text-[10px] font-black text-orange-600">단계 01. 평점 평가</span></div><h3 className="text-lg md:text-xl font-black">평점 평가</h3></div><div className="flex-1 overflow-y-auto pb-10"><MichelinRating ref={michelinRef} projectId={projectId!} guestId={guestId || undefined} onChange={setMichelinScores} /></div></div>;
+    if (st === 'voting') return <div className="flex flex-col h-full"><div className="text-center space-y-3 mb-8 shrink-0"><div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600/10 rounded-full"><span className="text-[10px] font-black text-indigo-600">단계 02. 스티커 투표</span></div><h3 className="text-base md:text-xl font-black">판정 투표</h3></div><div className="flex-1 overflow-y-auto pb-10"><FeedbackPoll ref={pollRef} projectId={projectId!} guestId={guestId || undefined} onChange={setPollSelection} /></div></div>;
     if (st.startsWith('question_')) {
         const qIndex = parseInt(st.split('_')[1]);
         const q = questions[qIndex];
@@ -467,7 +467,7 @@ function ViewerContent() {
           <div className="flex flex-col h-full">
             <div className="text-center space-y-2 mb-4 shrink-0">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-600/10 rounded-full">
-                <span className="text-[10px] font-black text-emerald-600 uppercase">STAGE 03. QUESTION {qIndex + 1}/{questions.length}</span>
+                <span className="text-[10px] font-black text-emerald-600 uppercase">단계 03. 심층 질문 {qIndex + 1}/{questions.length}</span>
               </div>
               <h3 className="text-lg md:text-xl font-black">심층 질문</h3>
             </div>
@@ -539,7 +539,7 @@ function ViewerContent() {
         <div className="hidden md:flex flex-col flex-1 relative min-w-0 h-full bg-[#0f0f0f]">
           <div className="h-16 bg-chef-card border-b flex items-center justify-between px-6">
             <div className="flex items-center gap-4"><button onClick={() => router.back()}><ArrowLeft size={16} /></button><div className="bg-chef-panel px-4 py-1.5 rounded-full text-[10px] truncate w-64 uppercase">{finalDisplayUrl}</div></div>
-            <div className="flex gap-4"><Monitor className={cn("cursor-pointer", viewerMode === 'desktop' ? "text-orange-500" : "opacity-20")} onClick={() => setViewerMode('desktop')} /><Smartphone className={cn("cursor-pointer", viewerMode === 'mobile' ? "text-orange-500" : "opacity-20")} onClick={() => setViewerMode('mobile')} /><Button size="sm" onClick={() => window.open(finalDisplayUrl, '_blank')}><Maximize2 size={12} /> Open</Button></div>
+            <div className="flex gap-4"><Monitor className={cn("cursor-pointer", viewerMode === 'desktop' ? "text-orange-500" : "opacity-20")} onClick={() => setViewerMode('desktop')} /><Smartphone className={cn("cursor-pointer", viewerMode === 'mobile' ? "text-orange-500" : "opacity-20")} onClick={() => setViewerMode('mobile')} /><Button size="sm" onClick={() => window.open(finalDisplayUrl, '_blank')}><Maximize2 size={12} /> 열기</Button></div>
           </div>
           <div className="flex-1 flex items-center justify-center p-4">
             <div className={cn("transition-all shadow-2xl bg-white overflow-hidden", viewerMode === 'mobile' ? "w-[375px] h-[812px] rounded-[3rem] border-[12px] border-chef-border" : "w-full h-full rounded-xl")}><MediaPreview type={auditType as any} data={mediaData} /></div>
@@ -609,5 +609,5 @@ function ViewerContent() {
 }
 
 export default function Page() {
-  return <Suspense fallback={<div>Loading...</div>}><ViewerContent /></Suspense>;
+  return <Suspense fallback={<div>로딩 중...</div>}><ViewerContent /></Suspense>;
 }

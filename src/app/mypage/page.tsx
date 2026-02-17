@@ -798,10 +798,10 @@ export default function MyPage() {
                          <div className="flex-1 flex flex-col justify-center min-w-0 py-2">
                             <div className="flex items-center gap-2 mb-2">
                                <span className="px-3 py-1 bg-orange-600/10 text-orange-600 text-[8px] font-black uppercase tracking-widest rounded-full">
-                                    {project.custom_data?.audit_config ? "Audit Request" : "Project"}
+                                    {project.custom_data?.audit_config ? "평가 의뢰" : "프로젝트"}
                                </span>
                                <span className="text-[10px] text-chef-text opacity-50 font-black italic">
-                                    {project.visibility === 'public' ? 'Published' : 'Private'}
+                                    {project.visibility === 'public' ? '공개' : '비공개'}
                                </span>
                             </div>
 
@@ -1057,21 +1057,21 @@ export default function MyPage() {
                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div className="bg-chef-card p-8 rounded-xl border border-chef-border shadow-sm space-y-2">
-                          <p className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">Total Impressions</p>
+                          <p className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">총 노출수</p>
                           <h4 className="text-4xl font-black italic tracking-tighter text-chef-text">24,802</h4>
                           <div className="text-xs font-bold text-green-600 flex items-center gap-1">
                              <Rocket size={14} /> +12% from last week
                           </div>
                       </div>
                       <div className="bg-chef-card p-8 rounded-xl border border-chef-border shadow-sm space-y-2">
-                          <p className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">Feedback Rate</p>
+                          <p className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">평가 참여율</p>
                           <h4 className="text-4xl font-black italic tracking-tighter text-chef-text">4.8%</h4>
                           <div className="text-xs font-bold text-orange-600 flex items-center gap-1">
                              <Sparkles size={14} /> High Engagement
                           </div>
                       </div>
                       <div className="bg-chef-card p-8 rounded-xl border border-chef-border shadow-sm space-y-2">
-                          <p className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">Conversion Point</p>
+                          <p className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">전환 포인트</p>
                           <h4 className="text-4xl font-black italic tracking-tighter text-chef-text">860P</h4>
                           <div className="text-xs font-bold text-blue-600 flex items-center gap-1">
                              <BarChart size={14} /> Stable Flow

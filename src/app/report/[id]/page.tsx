@@ -596,11 +596,11 @@ export default function ReportPage() {
             <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex justify-center">
                <div className="px-4 py-1.5 rounded-full border border-orange-500/20 bg-orange-500/5 text-orange-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
                    <ChefHat size={14} /> 
-                   {reportStats?.isPersonalView 
-                      ? "Personal Evaluation Report" 
-                      : (!reportStats?.isResultPublic && reportStats?.isOwner 
-                          ? "🔒 Private Report (Owner Access)" 
-                          : "Evaluation Final Report")}
+                   {reportStats?.isPersonalView
+                      ? "개인 평가 리포트"
+                      : (!reportStats?.isResultPublic && reportStats?.isOwner
+                          ? "🔒 비공개 리포트 (의뢰자 전용)"
+                          : "종합 평가 리포트")}
                </div>
             </motion.div>
             <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="text-2xl md:text-5xl font-black tracking-tighter">
@@ -704,7 +704,7 @@ export default function ReportPage() {
                             : "bg-gray-100 dark:bg-white/5 border-border hover:bg-gray-200 dark:hover:bg-white/[0.08]"
                     )}>
                        {d.isMyChoice && (
-                           <div className="absolute top-0 right-0 px-3 py-1 bg-indigo-500 text-white text-[9px] font-black uppercase rounded-bl-xl z-20 shadow-lg">You Voted</div>
+                           <div className="absolute top-0 right-0 px-3 py-1 bg-indigo-500 text-white text-[9px] font-black uppercase rounded-bl-xl z-20 shadow-lg">내 투표</div>
                        )}
                        
                        <div className="flex items-center gap-4 z-10 mr-4">
@@ -725,7 +725,7 @@ export default function ReportPage() {
 
                        <div className="flex flex-col items-end z-10 shrink-0">
                           <span className="text-2xl font-black">{d.value}</span>
-                          <span className="text-[10px] font-bold text-muted-foreground uppercase">Votes</span>
+                          <span className="text-[10px] font-bold text-muted-foreground uppercase">투표</span>
                        </div>
                        
                        {/* Background Fill for Progress visualization */}
@@ -941,7 +941,7 @@ export default function ReportPage() {
                                      {(r.user_nickname || r.username || 'A').substring(0, 1)}
                                 </div>
                                 <div className="flex flex-col">
-                                    <h4 className="text-sm font-black text-foreground">{r.user_nickname || r.username || 'Anonymous Expert'}</h4>
+                                    <h4 className="text-sm font-black text-foreground">{r.user_nickname || r.username || '익명 평가위원'}</h4>
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         {r.user_job && (
                                             <span className="px-2 py-0.5 bg-emerald-500/10 text-[9px] font-bold text-emerald-400 rounded border border-emerald-500/10 uppercase tracking-tighter">
@@ -997,7 +997,7 @@ export default function ReportPage() {
                             ) : !hasProposal ? (
                                 <div className="h-full flex flex-col items-center justify-center py-12 space-y-3 opacity-50">
                                    <MessageSquare size={32} />
-                                   <p className="text-xs font-bold uppercase tracking-widest">No detailed comments provided</p>
+                                   <p className="text-xs font-bold uppercase tracking-widest">상세 코멘트가 없습니다</p>
                                 </div>
                             ) : null}
 
@@ -1074,7 +1074,7 @@ export default function ReportPage() {
       <footer className="border-t border-border py-12 px-2 md:py-20 md:px-6 text-center text-muted-foreground/60">
          <div className="flex flex-col items-center gap-6">
             <ChefHat size={32} />
-            <p className="text-xs font-black uppercase tracking-[0.4em]">MyRatingIs Evaluation System &copy; 2026</p>
+            <p className="text-xs font-black uppercase tracking-[0.4em]">제 평가는요? 평가 시스템 &copy; 2026</p>
          </div>
       </footer>
     </div>

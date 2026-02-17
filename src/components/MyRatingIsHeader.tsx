@@ -111,7 +111,7 @@ export function MyRatingIsHeader() {
                 {isMenuOpen && (
                   <div className="absolute top-full right-0 mt-4 w-60 bg-chef-card border border-chef-border py-2 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-xl animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
                     <div className="px-5 py-4 border-b border-chef-border/50 mb-2 bg-chef-panel/30">
-                        <p className="text-[10px] font-black text-chef-text opacity-30 uppercase tracking-widest mb-1">My Account</p>
+                        <p className="text-[10px] font-black text-chef-text opacity-30 uppercase tracking-widest mb-1">내 계정</p>
                         <p className="text-sm font-black text-chef-text truncate">{(userProfile as any)?.nickname || userProfile?.username || user?.user_metadata?.full_name || "Chef"}</p>
                         <p className="text-[10px] font-bold text-chef-text opacity-40 truncate">{user.email}</p>
                     </div>
@@ -243,8 +243,7 @@ export function MyRatingIsHeader() {
               ) : (
                  <div className="mb-10 space-y-3">
                     <div className="text-center mb-6">
-                        <h3 className="text-xl font-black text-chef-text italic mb-2">Welcome Chef!</h3>
-                        <p className="text-sm text-chef-text/50">로그인하고 모든 기능을 이용해보세요.</p>
+                        <p className="text-sm text-chef-text/50 font-medium">로그인하고 모든 기능을 이용해보세요.</p>
                     </div>
                     <Link href="/login" onClick={() => setIsMenuOpen(false)}>
                        <Button variant="outline" className="w-full rounded-2xl h-14 font-black text-chef-text bg-chef-panel border border-chef-border text-sm uppercase tracking-widest mb-3">
@@ -262,10 +261,10 @@ export function MyRatingIsHeader() {
               {/* Navigation Links */}
               <div className="space-y-4 flex-1">
                  {[
-                   { href: "/about/features", label: "서비스 소개", sub: "Mission" },
-                   { href: "/projects", label: "평가 참여하기", sub: "Projects", highlight: true },
-                   { href: "/growth", label: "명예의 전당", sub: "Hall of Fame" },
-                   { href: "/faq", label: "자주 묻는 질문", sub: "FAQ" },
+                   { href: "/about/features", label: "서비스 소개" },
+                   { href: "/projects", label: "평가 참여하기", highlight: true },
+                   { href: "/growth", label: "명예의 전당" },
+                   { href: "/faq", label: "자주 묻는 질문" },
                  ].map((link, i) => (
                     <Link key={link.href} href={link.href} onClick={() => setIsMenuOpen(false)}>
                        <motion.div 
@@ -280,7 +279,6 @@ export function MyRatingIsHeader() {
                          )}
                        >
                           <div>
-                             <p className={cn("text-xs font-black uppercase tracking-widest mb-1", link.highlight ? "text-orange-200" : "text-chef-text/40")}>{link.sub}</p>
                              <p className={cn("text-lg font-black italic tracking-tighter", link.highlight ? "text-white" : "text-chef-text")}>{link.label}</p>
                           </div>
                           <ArrowRight className={cn("opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300", link.highlight ? "text-white" : "text-chef-text/40")} />
@@ -291,13 +289,13 @@ export function MyRatingIsHeader() {
 
                {/* Footer / Theme Toggle */}
                <div className="mt-10 pt-6 border-t border-chef-border flex items-center justify-between">
-                  <span className="text-[10px] font-black text-chef-text/40 uppercase tracking-widest">Theme Settings</span>
+                  <span className="text-[10px] font-black text-chef-text/40 uppercase tracking-widest">테마 설정</span>
                   <button
                     onClick={toggleTheme}
                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-chef-panel border border-chef-border text-xs font-bold text-chef-text hover:bg-chef-card"
                   >
                     {theme === 'dark' ? <Sun size={14} className="text-orange-400" /> : <Moon size={14} />}
-                    {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                    {theme === 'dark' ? '다크 모드' : '라이트 모드'}
                   </button>
                </div>
             </div>
