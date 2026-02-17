@@ -302,9 +302,11 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
             y1={start.y} 
             x2={end.x} 
             y2={end.y} 
-            stroke="#e5e5e5" 
-            strokeWidth="1" 
-            strokeDasharray="4 4" 
+            stroke="currentColor"
+            strokeOpacity={0.2}
+            strokeWidth="1"
+            strokeDasharray="4 4"
+            className="text-chef-text" 
           />
       );
   });
@@ -442,11 +444,11 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
                     onPointerUp={handlePointerUp}
                     onPointerLeave={handlePointerUp}
                 >
-                    <polygon points={getPolygonPoints(1.0)} fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-                    <polygon points={getPolygonPoints(0.8)} fill="none" stroke="rgba(255,255,255,0.1)" strokeDasharray="3 3" />
-                    <polygon points={getPolygonPoints(0.6)} fill="none" stroke="rgba(255,255,255,0.1)" strokeDasharray="3 3" />
-                    <polygon points={getPolygonPoints(0.4)} fill="none" stroke="rgba(255,255,255,0.1)" strokeDasharray="3 3" />
-                    <polygon points={getPolygonPoints(0.2)} fill="none" stroke="rgba(255,255,255,0.1)" strokeDasharray="3 3" />
+                    <polygon points={getPolygonPoints(1.0)} fill="none" stroke="currentColor" strokeOpacity={0.15} strokeWidth="1" className="text-chef-text" />
+                    <polygon points={getPolygonPoints(0.8)} fill="none" stroke="currentColor" strokeOpacity={0.1} strokeDasharray="3 3" className="text-chef-text" />
+                    <polygon points={getPolygonPoints(0.6)} fill="none" stroke="currentColor" strokeOpacity={0.1} strokeDasharray="3 3" className="text-chef-text" />
+                    <polygon points={getPolygonPoints(0.4)} fill="none" stroke="currentColor" strokeOpacity={0.1} strokeDasharray="3 3" className="text-chef-text" />
+                    <polygon points={getPolygonPoints(0.2)} fill="none" stroke="currentColor" strokeOpacity={0.1} strokeDasharray="3 3" className="text-chef-text" />
                     {axes}
                     {totalAvg > 0 && (
                         <polygon points={avgPoints} fill="currentColor" fillOpacity={0.05} stroke="currentColor" strokeOpacity={0.2} className="text-chef-text" />

@@ -1045,8 +1045,16 @@ export default function MyPage() {
                 </div>
               </div>
             )}
-            {activeTab === 'rewards' && user && (
-               <RewardTab userId={user.id} currentPoints={userProfile?.points || 0} />
+            {activeTab === 'rewards' && (
+               <div className="bg-chef-card rounded-xl border border-chef-border p-12 text-center space-y-4 shadow-sm">
+                 <div className="w-16 h-16 mx-auto bg-orange-500/10 rounded-full flex items-center justify-center">
+                   <Coins className="w-8 h-8 text-orange-500" />
+                 </div>
+                 <h3 className="text-xl font-black text-chef-text">포인트/보상 시스템 준비중</h3>
+                 <p className="text-sm text-chef-text/60 font-medium max-w-md mx-auto">
+                   평가 참여에 대한 포인트 적립 및 보상 기능을 준비하고 있습니다.<br />더 나은 서비스로 곧 찾아뵙겠습니다.
+                 </p>
+               </div>
             )}
             {activeTab === 'settings' && userProfile && (
                <div className="bg-chef-card rounded-xl border border-chef-border p-8 shadow-sm">

@@ -45,24 +45,28 @@ import {
 // --- Review Intro Component ---
 function ReviewIntro({ onStart, project, loading }: { onStart: () => void, project: any, loading: boolean }) {
   return (
-    <div className="absolute inset-x-0 bottom-0 top-0 z-50 bg-[#050505] text-white flex flex-col items-center justify-center overflow-hidden">
-      <div className="absolute inset-0 z-0">
+    <div className="absolute inset-x-0 bottom-0 top-0 z-50 bg-chef-bg text-chef-text flex flex-col items-center justify-center overflow-hidden">
+      <div className="absolute inset-0 z-0 hidden dark:block">
         <div className="absolute inset-0 bg-[url('/dark-texture-bg.jpg')] bg-cover bg-center opacity-30 mix-blend-overlay" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#050505]/80 to-[#050505]" />
       </div>
+      <div className="absolute inset-0 z-0 dark:hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-orange-50/50 via-transparent to-white" />
+      </div>
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-orange-500/10 rounded-full blur-[100px] animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/5 rounded-full blur-[100px] animate-pulse delay-1000" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-chef-text/5 rounded-full blur-[100px] animate-pulse delay-1000" />
       <main className="relative z-10 w-full max-w-lg mx-auto px-2 md:px-6 flex flex-col items-center text-center space-y-6 md:space-y-10">
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-md mb-2">
-          <Star className="w-3.5 h-3.5 text-orange-400 fill-orange-400" />
-          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-orange-400">전문 평가 플랫폼</span>
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-chef-border bg-chef-panel/50 backdrop-blur-md mb-2">
+          <Star className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
+          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-orange-500">전문 평가 플랫폼</span>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Image src="/logo-white.png" alt="제 평가는요?" width={400} height={160} quality={100} className="h-10 md:h-20 w-auto object-contain" priority />
+          <Image src="/logo-white.png" alt="제 평가는요?" width={400} height={160} quality={100} className="h-10 md:h-20 w-auto object-contain hidden dark:block" priority />
+          <Image src="/myratingis-logo.png" alt="제 평가는요?" width={400} height={160} quality={100} className="h-10 md:h-20 w-auto object-contain brightness-0 dark:hidden" priority />
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="space-y-4">
-             <p className="text-sm md:text-xl text-white font-bold break-keep">당신은 오늘, 이 창작물의 운명을 결정할<br />전문 심사위원으로 초대되었습니다.</p>
-             <p className="text-[10px] md:text-xs text-white/40 font-medium max-w-[280px] md:max-w-none mx-auto break-keep">냉철하고 객관적인 심미안으로 창작자의 성장을 위해<br />진정성 있는 최고의 평가를 남겨주시겠습니까?</p>
+             <p className="text-sm md:text-xl font-bold break-keep">당신은 오늘, 이 창작물의 운명을 결정할<br />전문 심사위원으로 초대되었습니다.</p>
+             <p className="text-[10px] md:text-xs text-chef-text/40 font-medium max-w-[280px] md:max-w-none mx-auto break-keep">냉철하고 객관적인 심미안으로 창작자의 성장을 위해<br />진정성 있는 최고의 평가를 남겨주시겠습니까?</p>
         </motion.div>
         <div className="w-full space-y-6 md:space-y-8 flex flex-col items-center">
            <motion.div onClick={!loading ? onStart : undefined} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} whileHover={{ scale: 1.05 }} className={cn("relative w-72 h-72 md:w-64 md:h-64 cursor-pointer group", loading && "opacity-50 cursor-wait")}>
@@ -539,10 +543,11 @@ function ViewerContent() {
         <div className="hidden md:flex flex-col flex-1 relative min-w-0 h-full bg-[#0f0f0f]">
           <div className="h-16 bg-chef-card border-b flex items-center justify-between px-6">
             <div className="flex items-center gap-4"><button onClick={() => router.back()}><ArrowLeft size={16} /></button><div className="bg-chef-panel px-4 py-1.5 rounded-full text-[10px] truncate w-64 uppercase">{finalDisplayUrl}</div></div>
-            <div className="flex gap-4"><Monitor className={cn("cursor-pointer", viewerMode === 'desktop' ? "text-orange-500" : "opacity-20")} onClick={() => setViewerMode('desktop')} /><Smartphone className={cn("cursor-pointer", viewerMode === 'mobile' ? "text-orange-500" : "opacity-20")} onClick={() => setViewerMode('mobile')} /><Button size="sm" onClick={() => window.open(finalDisplayUrl, '_blank')}><Maximize2 size={12} /> 열기</Button></div>
+            <div className="flex gap-4"><Monitor className={cn("cursor-pointer", viewerMode === 'desktop' ? "text-orange-500" : "opacity-20")} onClick={() => setViewerMode('desktop')} /><Smartphone className={cn("cursor-pointer", viewerMode === 'mobile' ? "text-orange-500" : "opacity-20")} onClick={() => setViewerMode('mobile')} /><Button size="sm" onClick={() => window.open(finalDisplayUrl, '_blank')}><ExternalLink size={12} /> 새창에서 열기</Button></div>
           </div>
-          <div className="flex-1 flex items-center justify-center p-4">
+          <div className="flex-1 flex flex-col items-center justify-center p-4 gap-2">
             <div className={cn("transition-all shadow-2xl bg-white overflow-hidden", viewerMode === 'mobile' ? "w-[375px] h-[812px] rounded-[3rem] border-[12px] border-chef-border" : "w-full h-full rounded-xl")}><MediaPreview type={auditType as any} data={mediaData} /></div>
+            <p className="text-[10px] text-chef-text/30 font-medium flex items-center gap-1"><AlertCircle size={10} /> 미리보기에서 일부 폰트가 깨질 수 있습니다. 정확한 확인은 &apos;새창에서 열기&apos;를 이용해주세요.</p>
           </div>
         </div>
         <div className="fixed inset-0 md:relative z-20 bg-chef-card flex flex-col h-full w-full md:border-l" style={{ width: (typeof window !== 'undefined' && window.innerWidth > 768) ? panelWidth : '100%' }}>

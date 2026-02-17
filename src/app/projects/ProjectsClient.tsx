@@ -246,7 +246,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                 평가 참여하기
               </h1>
               <p className="text-chef-text opacity-60 font-bold max-w-xl text-lg">
-                도전하는 창작자들의 다양한 프로젝트를 만나보세요.<br />
+                공개를 희망한 프로젝트만 모아 보여드립니다.<br />
                 당신의 소중한 의견이 창작자에게 큰 힘이 됩니다.
               </p>
            </div>
@@ -282,7 +282,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                   <h3 className="text-2xl font-black italic uppercase tracking-tight flex items-center gap-2 justify-center md:justify-start">
                      <Sparkles className="w-6 h-6" /> 평가 의뢰하기
                   </h3>
-                  <p className="text-white/80 font-bold">로그인하고 셰프가 되어 프로젝트를 평가해보세요. <br className="hidden md:block" />참여 시 다양한 리워드와 전문성 배지가 제공됩니다.</p>
+                  <p className="text-white/80 font-bold">로그인하고 셰프가 되어 프로젝트를 평가해보세요. <br className="hidden md:block" />참여 시 다양한 리워드가 제공됩니다.</p>
                </div>
                <div className="flex gap-3">
                   <Button onClick={() => router.push('/login')} variant="secondary" className="h-14 px-8 rounded-lg font-black bg-white text-orange-600 hover:bg-white/90">로그인하기</Button>
@@ -390,8 +390,8 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                         </div>
                       )}
 
-                      <div className="flex items-center gap-6 mt-auto">
-                        <div className="flex items-center gap-1.5 ">
+                      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-auto">
+                        <div className="flex items-center gap-1.5">
                            <Eye className="w-3.5 h-3.5 text-chef-text opacity-50" />
                            <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">조회수 {p.views_count || 0}</span>
                         </div>
@@ -399,6 +399,19 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                            <Sparkles className="w-3.5 h-3.5 text-orange-500" />
                            <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">평가 {p.rating_count || 0}</span>
                         </div>
+                        {(() => {
+                          const deadline = p.audit_deadline || p.custom_data?.audit_config?.deadline;
+                          if (!deadline) return null;
+                          const daysLeft = Math.ceil((new Date(deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                          if (daysLeft < 0) return (
+                            <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">마감됨</span>
+                          );
+                          return (
+                            <span className={cn("text-[10px] font-black uppercase tracking-widest", daysLeft <= 3 ? "text-red-500" : daysLeft <= 7 ? "text-orange-500" : "text-emerald-500")}>
+                              D-{daysLeft}
+                            </span>
+                          );
+                        })()}
                         <div className="flex items-center gap-1.5 ml-auto md:ml-0">
                            <Clock className="w-3.5 h-3.5 text-chef-text opacity-50" />
                            <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest leading-none">
