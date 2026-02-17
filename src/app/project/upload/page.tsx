@@ -114,6 +114,8 @@ export default function ProjectUploadPage() {
   const [aiApplied, setAiApplied] = useState(false);
   const [analyzeProgress, setAnalyzeProgress] = useState(0);
   const [analyzePhase, setAnalyzePhase] = useState<'idle' | 'fetching' | 'analyzing' | 'complete'>('idle');
+  const [customThumbnail, setCustomThumbnail] = useState<string | null>(null);
+  const [thumbnailUploading, setThumbnailUploading] = useState(false);
 
   const totalSteps = isAdmin ? 10 : 9;
 
@@ -234,7 +236,7 @@ export default function ProjectUploadPage() {
           : null);
       const projectData = {
         title, summary: summary || title, content_text: summary || title, description: summary || title,
-        category_id: 1, thumbnail_url: linkPreview?.image || null, visibility, audit_deadline: auditDeadline,
+        category_id: 1, thumbnail_url: customThumbnail || linkPreview?.image || null, visibility, audit_deadline: auditDeadline,
         is_growth_requested: true, author_id: user.id, author_email: user.email,
         site_url: siteUrl,
         custom_data: {
@@ -386,7 +388,7 @@ export default function ProjectUploadPage() {
           /* Input UI */
           <>
             <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
-              MVP 링크가<br />있으신가요?
+              평가받고 싶은 제품의<br />링크가 있나요?
             </h2>
             <p className="text-sm text-chef-text/50">
               URL을 입력하면 AI가 분석해서 폼을 자동으로 채워드려요.<br />
@@ -412,14 +414,83 @@ export default function ProjectUploadPage() {
               </Button>
 
               {aiApplied && (
-                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-sm px-4 py-3 space-y-2">
-                  <div className="flex items-center gap-3">
-                    <Sparkles className="w-5 h-5 text-emerald-500 shrink-0" />
-                    <p className="text-sm font-bold text-emerald-500">AI 분석이 완료되었습니다. 각 항목을 확인하고 수정해주세요.</p>
+                <div className="space-y-4">
+                  <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-sm px-4 py-3 space-y-2">
+                    <div className="flex items-center gap-3">
+                      <Sparkles className="w-5 h-5 text-emerald-500 shrink-0" />
+                      <p className="text-sm font-bold text-emerald-500">AI 분석이 완료되었습니다. 각 항목을 확인하고 수정해주세요.</p>
+                    </div>
+                    <div className="text-xs text-chef-text/40 pl-8 space-y-1">
+                      <p>- 입력하신 URL이 <strong className="text-chef-text/60">제품 링크</strong>로 자동 등록됩니다.</p>
+                    </div>
                   </div>
-                  <div className="text-xs text-chef-text/40 pl-8 space-y-1">
-                    <p>- 입력하신 URL이 <strong className="text-chef-text/60">제품 링크</strong>로 자동 등록됩니다.</p>
-                    {linkPreview?.image && <p>- OG 이미지가 프로젝트 <strong className="text-chef-text/60">썸네일</strong>로 사용됩니다.</p>}
+
+                  {/* Thumbnail Upload Section */}
+                  <div className="bg-chef-panel border border-chef-border/30 rounded-sm p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <h4 className="text-sm font-black text-chef-text">프로젝트 썸네일</h4>
+                        <p className="text-[11px] text-chef-text/40 font-medium">매력적인 썸네일은 더 많은 평가 참여를 이끌어냅니다.</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                      <div className="relative group">
+                        <div className="w-24 h-24 md:w-28 md:h-28 bg-chef-bg border border-chef-border rounded-sm overflow-hidden shrink-0">
+                          {(customThumbnail || linkPreview?.image) ? (
+                            <img src={customThumbnail || linkPreview?.image} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex flex-col items-center justify-center text-chef-text/15">
+                              <ImageIcon className="w-8 h-8" />
+                            </div>
+                          )}
+                        </div>
+                        {customThumbnail && (
+                          <button
+                            onClick={() => setCustomThumbnail(null)}
+                            className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10"
+                          >
+                            <X size={12} />
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <label className={cn(
+                          "flex items-center justify-center gap-2 h-10 border border-dashed border-chef-border rounded-sm cursor-pointer transition-all text-xs font-black text-chef-text/50 hover:text-chef-text hover:border-orange-500/50",
+                          thumbnailUploading && "pointer-events-none opacity-50"
+                        )}>
+                          {thumbnailUploading ? (
+                            <><Loader2 className="w-4 h-4 animate-spin" /> 업로드 중...</>
+                          ) : (
+                            <><FontAwesomeIcon icon={faCamera} className="text-xs" /> 직접 이미지 올리기</>
+                          )}
+                          <input type="file" accept="image/*" className="hidden" onChange={async e => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            setThumbnailUploading(true);
+                            try {
+                              const url = await uploadImage(file);
+                              setCustomThumbnail(url);
+                              toast.success("썸네일이 등록되었습니다!");
+                            } catch {
+                              toast.error("이미지 업로드에 실패했습니다.");
+                            } finally {
+                              setThumbnailUploading(false);
+                            }
+                          }} />
+                        </label>
+                        {linkPreview?.image && !customThumbnail && (
+                          <p className="text-[10px] text-chef-text/30 font-medium">현재 OG 이미지가 사용됩니다.</p>
+                        )}
+                        {customThumbnail && (
+                          <p className="text-[10px] text-emerald-500 font-bold">직접 올린 이미지가 사용됩니다.</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="bg-orange-500/5 border border-orange-500/10 rounded-sm px-3 py-2.5">
+                      <p className="text-[11px] text-orange-600 dark:text-orange-400 font-bold leading-relaxed">
+                        💡 좋은 썸네일을 올리면 더 많은 평가위원의 관심을 받을 수 있어요!
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -577,6 +648,50 @@ export default function ProjectUploadPage() {
                    </div>
                  </div>
               )}
+
+              {/* Thumbnail upload in media step */}
+              <div className="bg-chef-panel/50 border border-chef-border/20 rounded-sm p-3 space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-16 h-16 bg-chef-bg border border-chef-border rounded-sm overflow-hidden shrink-0 relative group">
+                    {(customThumbnail || linkPreview?.image) ? (
+                      <img src={customThumbnail || linkPreview?.image} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-chef-text/15">
+                        <ImageIcon className="w-5 h-5" />
+                      </div>
+                    )}
+                    {customThumbnail && (
+                      <button onClick={() => setCustomThumbnail(null)} className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-lg z-10">
+                        <X size={10} />
+                      </button>
+                    )}
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <p className="text-xs font-black text-chef-text">프로젝트 썸네일</p>
+                    <label className={cn(
+                      "inline-flex items-center gap-1.5 px-3 py-1.5 border border-dashed border-chef-border rounded-sm cursor-pointer transition-all text-[10px] font-black text-chef-text/50 hover:text-chef-text hover:border-orange-500/50",
+                      thumbnailUploading && "pointer-events-none opacity-50"
+                    )}>
+                      {thumbnailUploading ? <><Loader2 className="w-3 h-3 animate-spin" /> 업로드 중...</> : <><FontAwesomeIcon icon={faCamera} className="text-[10px]" /> 이미지 변경</>}
+                      <input type="file" accept="image/*" className="hidden" onChange={async e => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        setThumbnailUploading(true);
+                        try {
+                          const url = await uploadImage(file);
+                          setCustomThumbnail(url);
+                          toast.success("썸네일이 등록되었습니다!");
+                        } catch {
+                          toast.error("이미지 업로드에 실패했습니다.");
+                        } finally {
+                          setThumbnailUploading(false);
+                        }
+                      }} />
+                    </label>
+                    <p className="text-[10px] text-orange-500/70 font-bold">좋은 썸네일 = 더 많은 평가 참여!</p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>
