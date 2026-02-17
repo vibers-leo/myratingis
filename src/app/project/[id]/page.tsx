@@ -158,10 +158,8 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
         }
       })));
 
-      // Record the view
-      if (user) {
-        await recordView(projectId);
-      }
+      // Record the view (로그인/비로그인 모두 카운팅)
+      await recordView(projectId);
 
       // Fetch likes, bookmarks, views, comments, and versions
       const [likeCount, viewCount, comments, versionsData] = await Promise.all([

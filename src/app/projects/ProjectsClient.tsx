@@ -393,7 +393,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                       <div className="flex items-center gap-6 mt-auto">
                         <div className="flex items-center gap-1.5 ">
                            <Eye className="w-3.5 h-3.5 text-chef-text opacity-50" />
-                           <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">Views {p.views_count || 0}</span>
+                           <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest">조회수 {p.views_count || 0}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                            <Sparkles className="w-3.5 h-3.5 text-orange-500" />

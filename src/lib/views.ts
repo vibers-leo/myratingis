@@ -14,14 +14,48 @@ async function getUser() {
 }
 
 /**
+ * Project.views_count를 1 증가시키는 API 호출
+ */
+async function incrementViewCount(projectId: string | number): Promise<void> {
+  try {
+    await fetch(`/api/projects/${projectId}/view`, { method: 'POST' });
+  } catch (e) {
+    console.error("Error incrementing view count:", e);
+  }
+}
+
+/**
+ * 세션 내 중복 뷰 카운팅 방지 (sessionStorage 기반)
+ */
+function hasViewedInSession(projectId: string | number): boolean {
+  if (typeof window === 'undefined') return false;
+  const key = `viewed_${projectId}`;
+  return sessionStorage.getItem(key) === '1';
+}
+
+function markViewedInSession(projectId: string | number): void {
+  if (typeof window === 'undefined') return;
+  sessionStorage.setItem(`viewed_${projectId}`, '1');
+}
+
+/**
  * Records a view for a project.
- * Does not count multiple views from the same user within a short time frame.
+ * - 로그인 사용자: view 테이블에 고유 기록 + views_count 증가
+ * - 비로그인 사용자: views_count만 증가 (세션당 1회)
  */
 export async function recordView(projectId: string | number): Promise<void> {
+  const alreadyViewed = hasViewedInSession(projectId);
+  if (alreadyViewed) return;
+
+  markViewedInSession(projectId);
+
+  // views_count 증가 (모든 사용자)
+  incrementViewCount(projectId);
+
+  // 로그인 사용자: view 테이블에 고유 기록
   const user = await getUser();
   if (!user) return;
 
-  // Check if the user has already viewed this project
   const { data, error: selectError } = await supabase
     .from("view")
     .select("user_id")
@@ -29,12 +63,11 @@ export async function recordView(projectId: string | number): Promise<void> {
     .eq("project_id", Number(projectId))
     .single();
 
-  if (selectError && selectError.code !== "PGRST116") { // PGRST116 = no rows found
+  if (selectError && selectError.code !== "PGRST116") {
     console.error("Error checking for existing view:", selectError);
     return;
   }
 
-  // If the user has not viewed the project, add a new view
   if (!data) {
     const { error: insertError } = await supabase
       .from("view")

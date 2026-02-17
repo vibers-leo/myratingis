@@ -140,14 +140,10 @@ export function ImageDialog({ props }: { props: ImageDialogProps }) {
       postComment(text);
   };
 
-  // View Count Increment
+  // View Count Increment (로그인/비로그인 모두 카운팅)
   React.useEffect(() => {
-    // Only increment view if modal is open (component mounted)
-    if (currentUser) {
-       // Optional: Add strict check to avoid dev mode double count
-       recordView(props.id);
-    }
-  }, [props.id, currentUser]);
+    recordView(props.id);
+  }, [props.id]);
 
   return (
     <Dialog>

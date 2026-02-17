@@ -6,9 +6,8 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id: projectId } = await params;
-  const parsedId = parseInt(projectId);
 
-  if (isNaN(parsedId)) {
+  if (!projectId) {
     return NextResponse.json(
       { error: '잘못된 프로젝트 ID입니다.' },
       { status: 400 }
@@ -16,51 +15,50 @@ export async function POST(
   }
 
   try {
-    // 1차 시도: RPC 함수 사용
-    const { error: rpcError } = await supabaseAdmin
-      .rpc('increment_views', { project_id: parsedId });
+    const parsedId = parseInt(projectId);
+    const isNumeric = !isNaN(parsedId);
 
-    if (rpcError) {
-      console.warn('RPC increment_views 실패, fallback 사용:', rpcError.message);
-      
-      // 2차 시도: 직접 업데이트 (views_count 컬럼 사용)
-      const { error: updateError } = await supabaseAdmin
-        .from('Project')
-        .update({ views_count: supabaseAdmin.rpc('increment_views_count_fallback', { pid: parsedId }) as any })
-        .eq('project_id', parsedId);
+    // 1. "Project" 테이블 (integer PK) 업데이트
+    if (isNumeric) {
+      const { error: rpcError } = await supabaseAdmin
+        .rpc('increment_views', { project_id: parsedId });
 
-      // 3차 시도: 가장 안전한 방식 - 현재 값을 조회 후 +1
-      if (updateError) {
-        console.warn('2차 업데이트 실패, 3차 시도:', updateError.message);
-        
+      if (rpcError) {
+        // RPC 실패 시 직접 업데이트
         const { data: currentProject } = await supabaseAdmin
           .from('Project')
           .select('views_count')
           .eq('project_id', parsedId)
           .single();
-        
-        const currentCount = currentProject?.views_count || 0;
-        
-        const { error: finalError } = await supabaseAdmin
-          .from('Project')
-          .update({ views_count: currentCount + 1 })
-          .eq('project_id', parsedId);
-        
-        if (finalError) {
-          console.error('조회수 증가 최종 실패:', finalError);
-          return NextResponse.json(
-            { error: '조회수 증가에 실패했습니다.', details: finalError.message },
-            { status: 500 }
-          );
+
+        if (currentProject) {
+          await supabaseAdmin
+            .from('Project')
+            .update({ views_count: (currentProject.views_count || 0) + 1 })
+            .eq('project_id', parsedId);
         }
       }
     }
 
+    // 2. "projects" 테이블 (UUID 또는 문자열 PK) 업데이트
+    const { data: proj } = await (supabaseAdmin as any)
+      .from('projects')
+      .select('id, views_count')
+      .eq('id', projectId)
+      .single();
+
+    if (proj) {
+      await (supabaseAdmin as any)
+        .from('projects')
+        .update({ views_count: (proj.views_count || 0) + 1 })
+        .eq('id', projectId);
+    }
+
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    console.error('서버 오류:', error);
+    console.error('조회수 증가 오류:', error);
     return NextResponse.json(
-      { error: '서버 오류가 발생했습니다.', details: error.message },
+      { error: '서버 오류가 발생했습니다.' },
       { status: 500 }
     );
   }
