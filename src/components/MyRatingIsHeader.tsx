@@ -190,20 +190,20 @@ export function MyRatingIsHeader() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[110] bg-white dark:bg-[#030712] md:hidden overflow-y-auto w-full h-[100dvh]"
+            className="fixed inset-0 z-[110] bg-chef-bg md:hidden overflow-y-auto w-full h-[100dvh]"
           >
             <div className="flex flex-col pt-16 px-4 pb-20 min-h-full">
               
               {/* User Section */}
               {isAuthenticated && user ? (
                  <div className="mb-10 space-y-6">
-                    <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 shadow-inner">
+                    <div className="flex items-center gap-4 p-4 rounded-xl bg-chef-panel border border-chef-border shadow-inner">
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center text-xl font-black text-white shadow-lg shrink-0">
                            {userProfile?.username?.charAt(0) || "U"}
                         </div>
                         <div className="overflow-hidden">
                            <p className="text-base font-black text-chef-text truncate">{(userProfile as any)?.nickname || userProfile?.username || user?.user_metadata?.full_name || "CHEF"}</p>
-                           <p className="text-xs text-muted-foreground font-bold truncate">{user.email}</p>
+                           <p className="text-xs text-chef-text/40 font-bold truncate">{user.email}</p>
                         </div>
                     </div>
                     
@@ -224,7 +224,7 @@ export function MyRatingIsHeader() {
                             setIsMenuOpen(false);
                           }}
                           variant="outline"
-                          className="w-full rounded-2xl h-12 font-bold text-foreground/80 border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5"
+                          className="w-full rounded-2xl h-12 font-bold text-chef-text border-chef-border bg-chef-panel"
                         >
                           마이페이지
                         </Button>
@@ -234,7 +234,7 @@ export function MyRatingIsHeader() {
                             setIsMenuOpen(false);
                           }}
                           variant="outline"
-                          className="w-full rounded-2xl h-12 font-bold text-red-500 border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 hover:bg-red-500/10"
+                          className="w-full rounded-2xl h-12 font-bold text-red-500 border-chef-border bg-chef-panel hover:bg-red-500/10"
                         >
                           로그아웃
                         </Button>
@@ -244,10 +244,10 @@ export function MyRatingIsHeader() {
                  <div className="mb-10 space-y-3">
                     <div className="text-center mb-6">
                         <h3 className="text-xl font-black text-chef-text italic mb-2">Welcome Chef!</h3>
-                        <p className="text-sm text-muted-foreground">로그인하고 모든 기능을 이용해보세요.</p>
+                        <p className="text-sm text-chef-text/50">로그인하고 모든 기능을 이용해보세요.</p>
                     </div>
                     <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                       <Button variant="outline" className="w-full rounded-2xl h-14 font-black text-chef-text bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 text-sm uppercase tracking-widest mb-3">
+                       <Button variant="outline" className="w-full rounded-2xl h-14 font-black text-chef-text bg-chef-panel border border-chef-border text-sm uppercase tracking-widest mb-3">
                         로그인
                       </Button>
                     </Link>
@@ -276,25 +276,25 @@ export function MyRatingIsHeader() {
                            "group flex items-center justify-between p-4 rounded-xl border transition-all active:scale-95",
                            link.highlight
                              ? "bg-orange-600 border-orange-500 shadow-[0_10px_30px_rgba(234,88,12,0.3)]"
-                             : "bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/5 hover:bg-gray-100 dark:hover:bg-white/10"
+                             : "bg-chef-panel border-chef-border hover:bg-chef-card"
                          )}
                        >
                           <div>
-                             <p className={cn("text-xs font-black uppercase tracking-widest mb-1", link.highlight ? "text-orange-200" : "text-muted-foreground")}>{link.sub}</p>
+                             <p className={cn("text-xs font-black uppercase tracking-widest mb-1", link.highlight ? "text-orange-200" : "text-chef-text/40")}>{link.sub}</p>
                              <p className={cn("text-lg font-black italic tracking-tighter", link.highlight ? "text-white" : "text-chef-text")}>{link.label}</p>
                           </div>
-                          <ArrowRight className={cn("opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300", link.highlight ? "text-white" : "text-muted-foreground")} />
+                          <ArrowRight className={cn("opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300", link.highlight ? "text-white" : "text-chef-text/40")} />
                        </motion.div>
                     </Link>
                  ))}
               </div>
 
                {/* Footer / Theme Toggle */}
-               <div className="mt-10 pt-6 border-t border-gray-200 dark:border-white/10 flex items-center justify-between">
-                  <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Theme Settings</span>
+               <div className="mt-10 pt-6 border-t border-chef-border flex items-center justify-between">
+                  <span className="text-[10px] font-black text-chef-text/40 uppercase tracking-widest">Theme Settings</span>
                   <button
                     onClick={toggleTheme}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-xs font-bold text-foreground hover:bg-gray-200 dark:hover:bg-white/10"
+                    className="flex items-center gap-2 px-4 py-2 rounded-full bg-chef-panel border border-chef-border text-xs font-bold text-chef-text hover:bg-chef-card"
                   >
                     {theme === 'dark' ? <Sun size={14} className="text-orange-400" /> : <Moon size={14} />}
                     {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
