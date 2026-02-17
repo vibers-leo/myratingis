@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Play, Maximize2 } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { ChevronLeft, ChevronRight, Play, Maximize2, ExternalLink, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
@@ -141,19 +141,82 @@ function RenderSingleMedia({ type, data }: { type: string, data: any }) {
   // Default: Link (Iframe)
   const finalUrl = ensureProtocol(data);
 
+  return data ? (
+    <LinkIframe url={finalUrl} />
+  ) : (
+    <div className="w-full h-full bg-white dark:bg-slate-900 relative overflow-hidden">
+      <Placeholder text="URL Missing" />
+    </div>
+  );
+}
+
+function LinkIframe({ url }: { url: string }) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoadFailed(false);
+    setLoading(true);
+    // iframe X-Frame-Options 차단은 onerror로 감지 불가하므로 타임아웃 활용
+    const timer = setTimeout(() => {
+      // 5초 뒤에도 로딩 중이면 차단된 것으로 간주
+      setLoading(prev => {
+        if (prev) setLoadFailed(true);
+        return false;
+      });
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [url]);
+
+  const handleLoad = useCallback(() => {
+    setLoading(false);
+  }, []);
+
+  if (loadFailed) {
+    return (
+      <div className="w-full h-full bg-chef-panel flex flex-col items-center justify-center gap-6 p-8 text-center">
+        <div className="w-16 h-16 rounded-full bg-orange-500/10 flex items-center justify-center">
+          <AlertTriangle className="w-8 h-8 text-orange-500" />
+        </div>
+        <div className="space-y-2">
+          <h3 className="text-lg font-black text-chef-text">미리보기를 불러올 수 없습니다</h3>
+          <p className="text-sm text-chef-text/50 max-w-sm leading-relaxed">
+            대상 사이트의 보안 정책(X-Frame-Options)으로 인해<br />
+            iframe 미리보기가 차단되었습니다.
+          </p>
+        </div>
+        <button
+          onClick={() => window.open(url, '_blank')}
+          className="inline-flex items-center gap-2 px-6 py-3 bg-orange-500 text-white font-black rounded-lg hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20"
+        >
+          <ExternalLink className="w-4 h-4" />
+          새 창에서 직접 열기
+        </button>
+        <p className="text-xs text-chef-text/30 font-medium break-all max-w-sm">{url}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full h-full bg-white dark:bg-slate-900 relative overflow-hidden">
-      {data ? (
-        <iframe 
-          src={finalUrl} 
-          className="w-full h-full border-none shadow-inner" 
-          title="Link Preview"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
-      ) : (
-        <Placeholder text="URL Missing" />
+      {loading && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-chef-panel">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-2 border-chef-border border-t-orange-500 rounded-full animate-spin" />
+            <p className="text-xs text-chef-text/40 font-bold">페이지 불러오는 중...</p>
+          </div>
+        </div>
       )}
+      <iframe
+        ref={iframeRef}
+        src={url}
+        className="w-full h-full border-none shadow-inner"
+        title="Link Preview"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        onLoad={handleLoad}
+      />
     </div>
   );
 }
