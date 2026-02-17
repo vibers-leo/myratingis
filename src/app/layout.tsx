@@ -121,12 +121,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
         {/* Naver Search Advisor */}
-        {process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION && (
-          <meta
-            name="naver-site-verification"
-            content={process.env.NEXT_PUBLIC_NAVER_SITE_VERIFICATION}
-          />
-        )}
+        <meta name="naver-site-verification" content="789d8371a26d4018307031798eb808bc19db1326" />
       </head>
       <body
         className={`${inter.variable} font-sans antialiased min-h-screen custom-scrollbar overscroll-none`}
