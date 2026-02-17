@@ -17,7 +17,7 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { supabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChefHat, Sparkles, Globe, Link, X, Lock, Eye, ArrowLeft, ArrowRight, Calendar, FileText, Image as ImageIcon, Video, LinkIcon, Wand2, Loader2 } from "lucide-react";
+import { ChefHat, Sparkles, Globe, Link, X, Lock, Eye, ArrowLeft, ArrowRight, Calendar, FileText, Image as ImageIcon, Video, LinkIcon, Wand2, Loader2, Check } from "lucide-react";
 import { MyRatingIsHeader } from "@/components/MyRatingIsHeader";
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
@@ -236,7 +236,7 @@ export default function ProjectUploadPage() {
           : null);
       const projectData = {
         title, summary: summary || title, content_text: summary || title, description: summary || title,
-        category_id: 1, thumbnail_url: customThumbnail || linkPreview?.image || null, visibility, audit_deadline: auditDeadline,
+        category_id: 1, thumbnail_url: customThumbnail || linkPreview?.image || null, visibility, audit_deadline: noDeadline ? null : auditDeadline || null,
         is_growth_requested: true, author_id: user.id, author_email: user.email,
         site_url: siteUrl,
         custom_data: {
@@ -782,6 +782,8 @@ export default function ProjectUploadPage() {
     </div>
   );
 
+  const [noDeadline, setNoDeadline] = useState(false);
+
   const renderStepDeadline = () => (
     <div className="flex flex-col min-h-[60vh] justify-between">
       <div className="space-y-6 flex-1">
@@ -790,8 +792,27 @@ export default function ProjectUploadPage() {
           평가 마감일을<br />설정해주세요
         </h2>
         <p className="text-sm text-chef-text/50">마감일이 지나면 새로운 평가를 받을 수 없습니다.</p>
-        <div className="pt-4 flex flex-col items-center gap-6">
-          <div className="w-full max-w-sm">
+        <div className="pt-4 flex flex-col items-center gap-6 w-full max-w-sm mx-auto">
+          {/* 마감일 없음 토글 */}
+          <button
+            onClick={() => { setNoDeadline(!noDeadline); if (!noDeadline) setAuditDeadline(''); }}
+            className={cn(
+              "w-full flex items-center justify-between px-5 py-4 rounded-sm border-2 transition-all",
+              noDeadline
+                ? "border-orange-500 bg-orange-500/10"
+                : "border-chef-border/30 bg-chef-panel hover:border-chef-border"
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <div className={cn("w-5 h-5 rounded-sm border-2 flex items-center justify-center transition-all", noDeadline ? "border-orange-500 bg-orange-500" : "border-chef-border")}>
+                {noDeadline && <Check className="w-3 h-3 text-white" />}
+              </div>
+              <span className={cn("text-sm font-black", noDeadline ? "text-orange-500" : "text-chef-text/60")}>마감일 없이 상시 평가 받기</span>
+            </div>
+          </button>
+
+          {/* 날짜 선택 */}
+          <div className={cn("w-full transition-all", noDeadline && "opacity-30 pointer-events-none")}>
             <div className="flex items-center gap-4 bg-chef-panel border border-chef-border/30 hover:border-orange-500/50 focus-within:border-orange-500 rounded-sm px-5 py-4 transition-colors">
               <Calendar className="w-6 h-6 text-orange-500 shrink-0" />
               <input
@@ -799,10 +820,12 @@ export default function ProjectUploadPage() {
                 value={auditDeadline}
                 onChange={e => setAuditDeadline(e.target.value)}
                 className="flex-1 bg-transparent text-chef-text font-black text-xl outline-none cursor-pointer"
+                disabled={noDeadline}
               />
             </div>
           </div>
-          <div className="bg-orange-500/5 border border-orange-500/10 rounded-sm px-5 py-4 max-w-sm w-full">
+
+          <div className="bg-orange-500/5 border border-orange-500/10 rounded-sm px-5 py-4 w-full">
             <div className="flex items-center gap-3">
               <Sparkles className="w-4 h-4 text-orange-500 shrink-0" />
               <p className="text-xs text-chef-text/60 font-medium">
