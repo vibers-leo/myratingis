@@ -106,10 +106,12 @@
 
   html {
     color-scheme: light;
+    background-color: #ffffff;
   }
 
   html.dark {
     color-scheme: dark;
+    background-color: #050505;
   }
 
   body {
