@@ -29,7 +29,7 @@ export default function Home() {
         {/* Badge Section */}
         <div className="animate-fade-in-down mb-6 mt-12 md:mt-0 flex items-center gap-2 px-3 md:px-5 py-2 rounded-full border border-chef-border bg-chef-panel/50 backdrop-blur-md shadow-2xl">
           <Star className="w-3 h-3 md:w-3.5 md:h-3.5 text-orange-500 fill-orange-500" />
-          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.25em] text-orange-500/90">
+          <span className="text-[11px] md:text-xs font-black uppercase tracking-[0.25em] text-orange-500/90">
             전문 평가 플랫폼
           </span>
         </div>

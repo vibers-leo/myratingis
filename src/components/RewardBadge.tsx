@@ -27,10 +27,10 @@ export function RewardBadge({ rewardConfig, ratingCount = 0 }: RewardBadgeProps)
       <span className="text-[10px] font-black text-orange-500 tracking-wide">
         {rewardConfig.amount.toLocaleString()}P
       </span>
-      <span className="text-[9px] font-bold text-chef-text/30 uppercase">
+      <span className="text-[11px] font-bold text-chef-text/30 uppercase">
         {methodLabel[rewardConfig.method] || '선착순'}
       </span>
-      <span className="text-[9px] font-bold text-chef-text/20 flex items-center gap-0.5">
+      <span className="text-[11px] font-bold text-chef-text/20 flex items-center gap-0.5">
         <Users className="w-2.5 h-2.5" />
         {rewardConfig.count}명
       </span>

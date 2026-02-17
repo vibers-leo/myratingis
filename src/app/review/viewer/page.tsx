@@ -58,7 +58,7 @@ function ReviewIntro({ onStart, project, loading }: { onStart: () => void, proje
       <main className="relative z-10 w-full max-w-lg mx-auto px-2 md:px-6 flex flex-col items-center text-center space-y-6 md:space-y-10">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-chef-border bg-chef-panel/50 backdrop-blur-md mb-2">
           <Star className="w-3.5 h-3.5 text-orange-500 fill-orange-500" />
-          <span className="text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] text-orange-500">전문 평가 플랫폼</span>
+          <span className="text-[11px] md:text-xs font-black uppercase tracking-[0.2em] text-orange-500">전문 평가 플랫폼</span>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <Image src="/logo-white.png" alt="제 평가는요?" width={400} height={160} quality={100} className="h-10 md:h-20 w-auto object-contain hidden dark:block" priority />
@@ -66,7 +66,7 @@ function ReviewIntro({ onStart, project, loading }: { onStart: () => void, proje
         </motion.div>
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="space-y-4">
              <p className="text-sm md:text-xl font-bold break-keep">당신은 오늘, 이 창작물의 운명을 결정할<br />전문 심사위원으로 초대되었습니다.</p>
-             <p className="text-[10px] md:text-xs text-chef-text/40 font-medium max-w-[280px] md:max-w-none mx-auto break-keep">냉철하고 객관적인 심미안으로 창작자의 성장을 위해<br />진정성 있는 최고의 평가를 남겨주시겠습니까?</p>
+             <p className="text-[11px] md:text-xs text-chef-text/40 font-medium max-w-[280px] md:max-w-none mx-auto break-keep">냉철하고 객관적인 심미안으로 창작자의 성장을 위해<br />진정성 있는 최고의 평가를 남겨주시겠습니까?</p>
         </motion.div>
         <div className="w-full space-y-6 md:space-y-8 flex flex-col items-center">
            <motion.div onClick={!loading ? onStart : undefined} initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} whileHover={{ scale: 1.05 }} className={cn("relative w-72 h-72 md:w-64 md:h-64 cursor-pointer group", loading && "opacity-50 cursor-wait")}>
@@ -375,7 +375,7 @@ function ViewerContent() {
     }
   };
 
-  if (loading) return <div className="h-screen bg-background flex flex-col items-center justify-center gap-4"><div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin" /><p className="text-orange-600 font-black uppercase text-[10px] animate-pulse">프로젝트 불러오는 중...</p></div>;
+  if (loading) return <div className="h-screen bg-background flex flex-col items-center justify-center gap-4"><div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin" /><p className="text-orange-600 font-black uppercase text-[11px] animate-pulse">프로젝트 불러오는 중...</p></div>;
   if (!project) return <div className="h-screen bg-background flex flex-col items-center justify-center gap-6"><X size={40} /><h2 className="text-2xl font-black">페이지를 찾을 수 없습니다</h2><Button onClick={() => router.push('/')}>홈으로</Button></div>;
 
   const auditType = project.custom_data?.audit_config?.type || 'link';
@@ -461,8 +461,8 @@ function ViewerContent() {
        </div>
     );
 
-    if (st === 'rating') return <div className="flex flex-col h-full"><div className="text-center space-y-3 mb-8 shrink-0"><div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-600/10 rounded-full"><span className="text-[10px] font-black text-orange-600">단계 01. 평점 평가</span></div><h3 className="text-lg md:text-xl font-black">평점 평가</h3></div><div className="flex-1 overflow-y-auto pb-10"><MichelinRating ref={michelinRef} projectId={projectId!} guestId={guestId || undefined} onChange={setMichelinScores} /></div></div>;
-    if (st === 'voting') return <div className="flex flex-col h-full"><div className="text-center space-y-3 mb-8 shrink-0"><div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600/10 rounded-full"><span className="text-[10px] font-black text-indigo-600">단계 02. 스티커 투표</span></div><h3 className="text-base md:text-xl font-black">판정 투표</h3></div><div className="flex-1 overflow-y-auto pb-10"><FeedbackPoll ref={pollRef} projectId={projectId!} guestId={guestId || undefined} onChange={setPollSelection} /></div></div>;
+    if (st === 'rating') return <div className="flex flex-col h-full"><div className="text-center space-y-3 mb-8 shrink-0"><div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-600/10 rounded-full"><span className="text-[11px] font-black text-orange-600">단계 01. 평점 평가</span></div><h3 className="text-lg md:text-xl font-black">평점 평가</h3></div><div className="flex-1 overflow-y-auto pb-10"><MichelinRating ref={michelinRef} projectId={projectId!} guestId={guestId || undefined} onChange={setMichelinScores} /></div></div>;
+    if (st === 'voting') return <div className="flex flex-col h-full"><div className="text-center space-y-3 mb-8 shrink-0"><div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600/10 rounded-full"><span className="text-[11px] font-black text-indigo-600">단계 02. 스티커 투표</span></div><h3 className="text-base md:text-xl font-black">판정 투표</h3></div><div className="flex-1 overflow-y-auto pb-10"><FeedbackPoll ref={pollRef} projectId={projectId!} guestId={guestId || undefined} onChange={setPollSelection} /></div></div>;
     if (st.startsWith('question_')) {
         const qIndex = parseInt(st.split('_')[1]);
         const q = questions[qIndex];
@@ -471,7 +471,7 @@ function ViewerContent() {
           <div className="flex flex-col h-full">
             <div className="text-center space-y-2 mb-4 shrink-0">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-600/10 rounded-full">
-                <span className="text-[10px] font-black text-emerald-600 uppercase">단계 03. 심층 질문 {qIndex + 1}/{questions.length}</span>
+                <span className="text-[11px] font-black text-emerald-600 uppercase">단계 03. 심층 질문 {qIndex + 1}/{questions.length}</span>
               </div>
               <h3 className="text-lg md:text-xl font-black">심층 질문</h3>
             </div>
@@ -542,12 +542,12 @@ function ViewerContent() {
         <AnimatePresence>{showIntro && <motion.div initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50"><ReviewIntro onStart={handleStartReview} project={project} loading={authLoading} /></motion.div>}</AnimatePresence>
         <div className="hidden md:flex flex-col flex-1 relative min-w-0 h-full bg-[#0f0f0f]">
           <div className="h-16 bg-chef-card border-b flex items-center justify-between px-6">
-            <div className="flex items-center gap-4"><button onClick={() => router.back()}><ArrowLeft size={16} /></button><div className="bg-chef-panel px-4 py-1.5 rounded-full text-[10px] truncate w-64 uppercase">{finalDisplayUrl}</div></div>
+            <div className="flex items-center gap-4"><button onClick={() => router.back()}><ArrowLeft size={16} /></button><div className="bg-chef-panel px-4 py-1.5 rounded-full text-[11px] truncate w-64 uppercase">{finalDisplayUrl}</div></div>
             <div className="flex gap-4"><Monitor className={cn("cursor-pointer", viewerMode === 'desktop' ? "text-orange-500" : "opacity-20")} onClick={() => setViewerMode('desktop')} /><Smartphone className={cn("cursor-pointer", viewerMode === 'mobile' ? "text-orange-500" : "opacity-20")} onClick={() => setViewerMode('mobile')} /><Button size="sm" onClick={() => window.open(finalDisplayUrl, '_blank')}><ExternalLink size={12} /> 새창에서 열기</Button></div>
           </div>
           <div className="flex-1 flex flex-col items-center justify-center p-4 gap-2">
             <div className={cn("transition-all shadow-2xl bg-white overflow-hidden", viewerMode === 'mobile' ? "w-[375px] h-[812px] rounded-[3rem] border-[12px] border-chef-border" : "w-full h-full rounded-xl")}><MediaPreview type={auditType as any} data={mediaData} /></div>
-            <p className="text-[10px] text-chef-text/30 font-medium flex items-center gap-1"><AlertCircle size={10} /> 미리보기에서 일부 폰트가 깨질 수 있습니다. 정확한 확인은 &apos;새창에서 열기&apos;를 이용해주세요.</p>
+            <p className="text-[11px] text-chef-text/30 font-medium flex items-center gap-1"><AlertCircle size={10} /> 미리보기에서 일부 폰트가 깨질 수 있습니다. 정확한 확인은 &apos;새창에서 열기&apos;를 이용해주세요.</p>
           </div>
         </div>
         <div className="fixed inset-0 md:relative z-20 bg-chef-card flex flex-col h-full w-full md:border-l" style={{ width: (typeof window !== 'undefined' && window.innerWidth > 768) ? panelWidth : '100%' }}>
@@ -562,7 +562,7 @@ function ViewerContent() {
                 <ExternalLink size={14} className="shrink-0" />
                 <span className="text-xs font-bold truncate">{project?.title || "프로젝트"} 보기</span>
               </div>
-              <span className="shrink-0 text-[10px] font-black uppercase tracking-wider opacity-80">새 창 열기 →</span>
+              <span className="shrink-0 text-[11px] font-black uppercase tracking-wider opacity-80">새 창 열기 →</span>
             </button>
           )}
           <div className="p-3 md:p-6 border-b">

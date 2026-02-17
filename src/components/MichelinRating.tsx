@@ -501,7 +501,7 @@ export const MichelinRating = React.forwardRef<MichelinRatingRef, MichelinRating
                     <span className="text-3xl font-black tabular-nums tracking-tighter" style={{ color: cat.color || '#f59e0b' }}>
                       {(scores[cat.id] ?? 3).toFixed(1)}
                     </span>
-                    <p className="text-[8px] font-black text-chef-text opacity-50 uppercase tracking-widest">Score</p>
+                    <p className="text-[11px] font-black text-chef-text opacity-50 uppercase tracking-widest">Score</p>
                   </div>
                 </div>
                 

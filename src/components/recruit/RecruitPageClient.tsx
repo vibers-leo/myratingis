@@ -1369,7 +1369,7 @@ function ItemCard({
               <p className="text-[10px] font-black text-[#16A34A] tracking-wider uppercase leading-none truncate max-w-[120px]">{item.company}</p>
             )}
             {getSourceFromLink(item.link) && (
-              <span className="text-[9px] px-1.5 py-0.5 bg-gray-100 text-gray-400 rounded-md font-bold tracking-tight">
+              <span className="text-[11px] px-1.5 py-0.5 bg-gray-100 text-gray-400 rounded-md font-bold tracking-tight">
                 via {getSourceFromLink(item.link)}
               </span>
             )}

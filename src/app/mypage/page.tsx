@@ -797,7 +797,7 @@ export default function MyPage() {
                          {/* Middle: Content Section */}
                          <div className="flex-1 flex flex-col justify-center min-w-0 py-2">
                             <div className="flex items-center gap-2 mb-2">
-                               <span className="px-3 py-1 bg-orange-600/10 text-orange-600 text-[8px] font-black uppercase tracking-widest rounded-full">
+                               <span className="px-3 py-1 bg-orange-600/10 text-orange-600 text-[11px] font-black uppercase tracking-widest rounded-full">
                                     {project.custom_data?.audit_config ? "평가 의뢰" : "프로젝트"}
                                </span>
                                <span className="text-[10px] text-chef-text opacity-50 font-black italic">
@@ -889,7 +889,7 @@ export default function MyPage() {
                              )}
 
                              {project.visibility === 'private' && (
-                                <p className="text-[9px] text-center font-bold text-chef-text opacity-50 uppercase tracking-tighter mt-1 leading-none">
+                                <p className="text-[11px] text-center font-bold text-chef-text opacity-50 uppercase tracking-tighter mt-1 leading-none">
                                     Private Project
                                 </p>
                              )}
@@ -921,9 +921,9 @@ export default function MyPage() {
                 <div className="flex flex-col items-center justify-center py-20 bg-chef-card rounded-xl border border-chef-border border-dashed">
                   {activeTab === 'likes' ? <Heart className="w-16 h-16 text-chef-text opacity-10 mb-4" /> : <Folder className="w-16 h-16 text-chef-text opacity-10 mb-4" />}
                   <h3 className="text-xl font-black text-chef-text uppercase tracking-widest">
-                    {activeTab === 'likes' ? '찜해둔 요리가 없습니다' : '스크랩북이 비어 있습니다'}
+                    {activeTab === 'likes' ? '찜해둔 프로젝트가 없습니다' : '스크랩북이 비어 있습니다'}
                   </h3>
-                  <Button onClick={() => router.push('/projects')} className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-8 h-12 mt-6 font-black uppercase tracking-widest text-[10px]">요리 탐색하기</Button>
+                  <Button onClick={() => router.push('/projects')} className="bg-orange-600 hover:bg-orange-700 text-white rounded-full px-8 h-12 mt-6 font-black uppercase tracking-widest text-[10px]">프로젝트 탐색하기</Button>
                 </div>
               )
             )}

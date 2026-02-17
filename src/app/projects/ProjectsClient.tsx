@@ -360,7 +360,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                       </div>
                       
                       {p.has_rated && (
-                        <div className="absolute top-3 left-3 px-3 py-1 bg-green-600/90 backdrop-blur-md rounded-full text-[8px] font-black text-white uppercase tracking-widest z-10">
+                        <div className="absolute top-3 left-3 px-3 py-1 bg-green-600/90 backdrop-blur-md rounded-full text-[11px] font-black text-white uppercase tracking-widest z-10">
                           마감
                         </div>
                       )}
@@ -369,7 +369,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                    {/* Middle: Content Section */}
                    <div className="flex-1 flex flex-col justify-center min-w-0 py-2">
                       <div className="flex items-center gap-2 mb-2">
-                         <span className="px-3 py-1 bg-orange-600/10 text-orange-600 text-[8px] font-black uppercase tracking-widest rounded-full">{p.category_name || "새 프로젝트"}</span>
+                         <span className="px-3 py-1 bg-orange-600/10 text-orange-600 text-[11px] font-black uppercase tracking-widest rounded-full">{p.category_name || "새 프로젝트"}</span>
                          <span className="text-[10px] text-chef-text opacity-50 font-black italic">by {p.User?.username || "Unknown"}</span>
                       </div>
                       
@@ -490,7 +490,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                       )}
 
                       {(!p.has_rated || !isAuthenticated) && (
-                        <p className="text-[9px] text-center font-bold text-orange-600 opacity-60 uppercase tracking-tighter mt-1 animate-pulse">
+                        <p className="text-[11px] text-center font-bold text-orange-600 opacity-60 uppercase tracking-tighter mt-1 animate-pulse">
                           의견이 필요합니다!
                         </p>
                       )}

@@ -222,7 +222,7 @@ export function ImageDialog({ props }: { props: ImageDialogProps }) {
                    {props.user.username}
                    {props.user.expertise?.fields && props.user.expertise.fields.length > 0 && (
                      <span 
-                       className="inline-flex items-center justify-center px-1.5 py-0.5 bg-blue-500 text-white text-[9px] font-bold rounded-full uppercase tracking-tighter"
+                       className="inline-flex items-center justify-center px-1.5 py-0.5 bg-blue-500 text-white text-[11px] font-bold rounded-full uppercase tracking-tighter"
                        title={`분야: ${props.user.expertise.fields.map((f: string) => getExpertiseLabel(f)).join(', ')}`}
                      >
                         Expert

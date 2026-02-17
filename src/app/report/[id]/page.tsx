@@ -704,7 +704,7 @@ export default function ReportPage() {
                             : "bg-gray-100 dark:bg-white/5 border-border hover:bg-gray-200 dark:hover:bg-white/[0.08]"
                     )}>
                        {d.isMyChoice && (
-                           <div className="absolute top-0 right-0 px-3 py-1 bg-indigo-500 text-white text-[9px] font-black uppercase rounded-bl-xl z-20 shadow-lg">내 투표</div>
+                           <div className="absolute top-0 right-0 px-3 py-1 bg-indigo-500 text-white text-[11px] font-black uppercase rounded-bl-xl z-20 shadow-lg">내 투표</div>
                        )}
                        
                        <div className="flex items-center gap-4 z-10 mr-4">
@@ -772,7 +772,7 @@ export default function ReportPage() {
                      {Object.entries(reportStats?.expertiseDistribution || {}).map(([id, count], i) => (
                         <div key={i} className="px-5 py-3 bg-gray-100 dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10 flex items-center gap-4 hover:border-blue-500/50 transition-all">
                            <div className="flex flex-col">
-                              <span className="text-[9px] font-black text-muted-foreground/60 uppercase tracking-widest leading-none mb-1">분야 전문가</span>
+                              <span className="text-[11px] font-black text-muted-foreground/60 uppercase tracking-widest leading-none mb-1">분야 전문가</span>
                               <span className="text-sm font-bold text-foreground/80">{ALL_LABELS[id] || id}</span>
                            </div>
                            <div className="h-8 w-px bg-gray-100 dark:bg-white/10 mx-1" />
@@ -944,12 +944,12 @@ export default function ReportPage() {
                                     <h4 className="text-sm font-black text-foreground">{r.user_nickname || r.username || '익명 평가위원'}</h4>
                                     <div className="flex flex-wrap gap-1 mt-1">
                                         {r.user_job && (
-                                            <span className="px-2 py-0.5 bg-emerald-500/10 text-[9px] font-bold text-emerald-400 rounded border border-emerald-500/10 uppercase tracking-tighter">
+                                            <span className="px-2 py-0.5 bg-emerald-500/10 text-[11px] font-bold text-emerald-400 rounded border border-emerald-500/10 uppercase tracking-tighter">
                                                 {r.user_job}
                                             </span>
                                         )}
                                         {!r.user_job && (r.expertise || []).map((exp: string, idx: number) => (
-                                            <span key={idx} className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-[9px] font-bold text-muted-foreground rounded border border-gray-200 dark:border-white/10">
+                                            <span key={idx} className="px-2 py-0.5 bg-gray-100 dark:bg-white/5 text-[11px] font-bold text-muted-foreground rounded border border-gray-200 dark:border-white/10">
                                                 #{ALL_LABELS[exp] || exp}
                                             </span>
                                         ))}

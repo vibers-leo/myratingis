@@ -183,12 +183,12 @@ export function RewardClaimCard({ projectId, rewardConfig, userId, onLoginClick 
         {claimList.length > 0 && (
           <div className="relative z-10 mb-4 flex flex-wrap gap-1">
             {claimList.slice(0, 5).map((c) => (
-              <span key={c.id} className="px-2 py-0.5 bg-chef-panel rounded text-[9px] font-bold text-chef-text/50">
+              <span key={c.id} className="px-2 py-0.5 bg-chef-panel rounded text-[11px] font-bold text-chef-text/50">
                 {c.maskedName} {c.status === 'claimed' ? '✓' : '⏳'}
               </span>
             ))}
             {claimList.length > 5 && (
-              <span className="px-2 py-0.5 text-[9px] font-bold text-chef-text/30">
+              <span className="px-2 py-0.5 text-[11px] font-bold text-chef-text/30">
                 +{claimList.length - 5}명
               </span>
             )}

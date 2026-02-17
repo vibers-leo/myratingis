@@ -63,7 +63,7 @@ export function MyRatingIsHeader() {
            </Link>
            <Link href="/growth" className="text-[13px] font-black text-chef-text opacity-50 hover:opacity-100 uppercase tracking-[0.2em] transition-all group relative flex items-center gap-2 py-2">
               명예의 전당
-              <span className="bg-orange-500/10 text-orange-500 text-[8px] px-1.5 py-0.5 rounded-md font-bold border border-orange-500/20">준비중</span>
+              <span className="bg-orange-500/10 text-orange-500 text-[11px] px-1.5 py-0.5 rounded-md font-bold border border-orange-500/20">준비중</span>
               <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-0.5 bg-orange-500 transition-all group-hover:w-full" />
            </Link>
            <Link href="/faq" className="text-[13px] font-black text-chef-text opacity-50 hover:opacity-100 uppercase tracking-[0.2em] transition-all group relative py-2">

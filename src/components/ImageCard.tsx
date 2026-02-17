@@ -201,7 +201,7 @@ export const ImageCard = forwardRef<HTMLDivElement, ImageCardProps>(
                 </div>
               )}
               {(props.is_growth_requested || props.is_feedback_requested) && (
-                <div className="bg-orange-600 text-white text-[9px] font-black px-2.5 py-1.5 rounded-full shadow-2xl flex items-center gap-1.5 border border-white/20">
+                <div className="bg-orange-600 text-white text-[11px] font-black px-2.5 py-1.5 rounded-full shadow-2xl flex items-center gap-1.5 border border-white/20">
                    <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
                    <span className="tracking-widest italic uppercase">Auditing</span>
                 </div>

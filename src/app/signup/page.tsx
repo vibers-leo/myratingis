@@ -181,7 +181,7 @@ export default function SignupPage() {
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200 dark:border-white/5" />
               </div>
-              <div className="relative flex justify-center text-[8px] font-black uppercase tracking-[0.4em]">
+              <div className="relative flex justify-center text-[11px] font-black uppercase tracking-[0.4em]">
                 <span className="bg-chef-card px-4 text-chef-text opacity-20">또는 이메일 가입</span>
               </div>
             </div>
@@ -257,7 +257,7 @@ export default function SignupPage() {
                 </Link>
               </p>
               
-              <p className="text-[8px] font-black text-chef-text opacity-10 uppercase tracking-widest leading-loose max-w-[200px] mx-auto">
+              <p className="text-[11px] font-black text-chef-text opacity-10 uppercase tracking-widest leading-loose max-w-[200px] mx-auto">
                 가입 시 <Link href="/policy/terms" className="underline">이용약관</Link> 및 <Link href="/policy/privacy" className="underline">개인정보처리방침</Link>에 동의하게 됩니다.
               </p>
             </div>

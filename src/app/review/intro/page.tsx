@@ -82,7 +82,7 @@ function IntroContent() {
                 className="flex items-center justify-center gap-2 px-4 py-1.5 rounded-full border border-chef-border bg-chef-panel/50 backdrop-blur-md mx-auto w-fit"
               >
                 <ChefHat className="w-4 h-4 text-orange-500" />
-                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-500">
+                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-orange-500">
                   전문 평가 플랫폼
                 </span>
               </motion.div>
@@ -106,7 +106,7 @@ function IntroContent() {
                   <h2 className="text-xl md:text-3xl font-bold text-chef-text/90 px-6">
                     &ldquo;{project?.summary || "심사위원을 기다리는 새로운 창작물"}&rdquo;
                   </h2>
-                  <p className="text-[10px] md:text-xs text-chef-text/20 max-w-lg mx-auto font-black uppercase tracking-[0.4em] italic">
+                  <p className="text-[11px] md:text-xs text-chef-text/20 max-w-lg mx-auto font-black uppercase tracking-[0.4em] italic">
                     Unknown Dish Under the Cloche
                   </p>
                 </motion.div>

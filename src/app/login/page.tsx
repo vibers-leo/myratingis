@@ -232,7 +232,7 @@ function LoginContent() {
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200 dark:border-white/5" />
               </div>
-              <div className="relative flex justify-center text-[8px] font-black uppercase tracking-[0.4em]">
+              <div className="relative flex justify-center text-[11px] font-black uppercase tracking-[0.4em]">
                 <span className="bg-chef-card px-4 text-chef-text opacity-20">또는 소셜 로그인</span>
               </div>
             </div>

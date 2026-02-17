@@ -77,16 +77,16 @@ function CommentItem({
                  {comment.user?.username || 'Unknown'}
                </span>
                {isAuthor && (
-                 <span className="px-1.5 py-0.5 bg-blue-600 text-white text-[7px] font-black rounded uppercase tracking-tighter shadow-sm flex-shrink-0">AUTHOR</span>
+                 <span className="px-1.5 py-0.5 bg-blue-600 text-white text-[11px] font-black rounded uppercase tracking-tighter shadow-sm flex-shrink-0">AUTHOR</span>
                )}
                {isSecret && (
-                  <span className={`${isProposal ? 'bg-emerald-600 text-white' : 'bg-amber-100 text-amber-600 border border-amber-200'} text-[8px] px-1.5 py-0.5 rounded-full font-black flex items-center gap-1 shadow-xs flex-shrink-0`}>
+                  <span className={`${isProposal ? 'bg-emerald-600 text-white' : 'bg-amber-100 text-amber-600 border border-amber-200'} text-[11px] px-1.5 py-0.5 rounded-full font-black flex items-center gap-1 shadow-xs flex-shrink-0`}>
                     <FontAwesomeIcon icon={isProposal ? faPaperPlane : faLock} className="w-1.5 h-1.5" /> 
                     {isProposal ? "PRIVATE INQUIRY" : "SECRET"}
                   </span>
                )}
             </div>
-            <span className="text-[9px] text-gray-300 font-bold tabular-nums ml-auto whitespace-nowrap">{dayjs(comment.created_at).fromNow()}</span>
+            <span className="text-[11px] text-gray-300 font-bold tabular-nums ml-auto whitespace-nowrap">{dayjs(comment.created_at).fromNow()}</span>
           </div>
 
           <div className="relative">
@@ -98,14 +98,14 @@ function CommentItem({
           <div className="flex items-center gap-3 mt-1.5 opacity-0 group-hover/item:opacity-100 transition-opacity">
             <button
               onClick={() => onReply(comment.comment_id, comment.user?.username || 'Unknown')}
-              className="text-[9px] font-black text-gray-400 hover:text-blue-600 transition-colors tracking-widest uppercase"
+              className="text-[11px] font-black text-gray-400 hover:text-blue-600 transition-colors tracking-widest uppercase"
             >
               Reply
             </button>
             {isOwner && (
               <button
                 onClick={() => onDelete(comment.comment_id)}
-                className="text-[9px] font-black text-gray-300 hover:text-red-500 transition-colors tracking-widest uppercase"
+                className="text-[11px] font-black text-gray-300 hover:text-red-500 transition-colors tracking-widest uppercase"
               >
                 Delete
               </button>
@@ -914,7 +914,7 @@ export function ProjectDetailModalV2({
                       className="w-10 h-10 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center relative"
                     >
                       <FontAwesomeIcon icon={faClock} className="w-5 h-5" />
-                      <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[8px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                      <span className="absolute -top-1 -right-1 bg-blue-600 text-white text-[11px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                         {versions.length}
                       </span>
                     </button>
@@ -1107,15 +1107,15 @@ export function ProjectDetailModalV2({
                 <div className="flex flex-col gap-2 mb-3">
                   <div className="flex gap-2">
                     {isAuditMode ? (
-                      <span className="px-2.5 py-1 bg-orange-500 text-white text-[9px] font-black rounded-full shadow-lg shadow-orange-100 flex items-center gap-1.5 uppercase tracking-wider">
+                      <span className="px-2.5 py-1 bg-orange-500 text-white text-[11px] font-black rounded-full shadow-lg shadow-orange-100 flex items-center gap-1.5 uppercase tracking-wider">
                          <FontAwesomeIcon icon={faStar} className="w-2.5 h-2.5" /> 평가 진행 중
                       </span>
                     ) : isGrowthMode ? (
-                      <span className="px-2.5 py-1 bg-green-500 text-white text-[9px] font-black rounded-full shadow-lg shadow-green-100 flex items-center gap-1.5 uppercase tracking-wider">
+                      <span className="px-2.5 py-1 bg-green-500 text-white text-[11px] font-black rounded-full shadow-lg shadow-green-100 flex items-center gap-1.5 uppercase tracking-wider">
                          <FontAwesomeIcon icon={faRocket} className="w-2.5 h-2.5" /> 성장 피드백 중
                       </span>
                     ) : (
-                      <span className="px-2.5 py-1 bg-gray-100 text-gray-500 text-[9px] font-black rounded-full flex items-center gap-1.5 uppercase tracking-wider border border-gray-200">
+                      <span className="px-2.5 py-1 bg-gray-100 text-gray-500 text-[11px] font-black rounded-full flex items-center gap-1.5 uppercase tracking-wider border border-gray-200">
                          <FontAwesomeIcon icon={faFolder} className="w-2.5 h-2.5" /> 일반 전시
                       </span>
                     )}
@@ -1140,7 +1140,7 @@ export function ProjectDetailModalV2({
                         <div className="w-8 h-8 rounded-full bg-orange-200 text-orange-600 flex items-center justify-center text-xs">🚀</div>
                         <div>
                           <p className="text-[11px] font-bold text-orange-900">이 작품으로 피드백을 받아볼까요?</p>
-                          <p className="text-[9px] text-orange-600">성장 섹션에 노출되어 조언을 얻을 수 있습니다.</p>
+                          <p className="text-[11px] text-orange-600">성장 섹션에 노출되어 조언을 얻을 수 있습니다.</p>
                         </div>
                       </div>
                       <Button 

@@ -204,7 +204,7 @@ export default function ShopPage() {
                       <span className="text-[10px] font-bold text-orange-500/60">P</span>
                     </div>
                     {item.stock !== -1 && (
-                      <span className="text-[9px] font-bold text-chef-text/30">
+                      <span className="text-[11px] font-bold text-chef-text/30">
                         {item.stock > 0 ? `${item.stock}개 남음` : '품절'}
                       </span>
                     )}

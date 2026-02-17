@@ -51,7 +51,7 @@ export function ProjectTimeline({ versions }: ProjectTimelineProps) {
                     >
                       <Tag className="w-3 h-3" />
                       {version.version_name}
-                      {isLatest && <span className="ml-1 text-[9px] bg-green-600 text-white px-1 rounded-sm">LATEST</span>}
+                      {isLatest && <span className="ml-1 text-[11px] bg-green-600 text-white px-1 rounded-sm">LATEST</span>}
                     </span>
                     <span className="text-xs text-gray-400 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
