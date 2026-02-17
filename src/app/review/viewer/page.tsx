@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense, useRef } from 'react';
+import React, { useState, useEffect, useMemo, Suspense, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { 
@@ -129,7 +129,14 @@ function ViewerContent() {
       isOpen: false, title: "", description: "", onConfirm: () => {}
   });
 
-  const steps = ['guide', 'rating', 'voting', 'subjective', 'summary'];
+  const questions = project?.custom_data?.audit_config?.questions || [];
+  const steps = useMemo(() => [
+    'guide',
+    'rating',
+    'voting',
+    ...questions.map((_: string, i: number) => `question_${i}`),
+    'summary'
+  ], [questions]);
 
   useEffect(() => {
     // Robust Guest ID generation
@@ -252,30 +259,39 @@ function ViewerContent() {
   }, [isResizing]);
 
   const handleNextStep = () => {
-    // 0: Guide
-    if (currentStep === 0) {
-        setCurrentStep(1); return;
+    const st = steps[currentStep];
+
+    // Guide
+    if (st === 'guide') {
+        setCurrentStep(currentStep + 1); return;
     }
-    // 1: Rating
-    if (currentStep === 1) {
+    // Rating
+    if (st === 'rating') {
         if (!michelinRef.current?.isValid()) { toast.error("모든 항목을 평가해주세요."); return; }
-        setCurrentStep(2); return;
+        setCurrentStep(currentStep + 1); return;
     }
-    // 2: Voting
-    if (currentStep === 2) {
+    // Voting
+    if (st === 'voting') {
         if (!pollRef.current?.isValid()) { toast.error("스티커를 선택해주세요."); return; }
-        setCurrentStep(3); return;
+        setCurrentStep(currentStep + 1); return;
     }
-    // 3: Subjective
-    if (currentStep === 3) {
-        const qs = project?.custom_data?.audit_config?.questions || [];
-        if (qs.some((q: string) => !customAnswers[q]?.trim()) && qs.length > 0) {
-            toast.error("아직 작성하지 않은 의견이 있습니다."); return;
+    // Question steps
+    if (st.startsWith('question_')) {
+        const qIndex = parseInt(st.split('_')[1]);
+        const q = questions[qIndex];
+        if (q && !customAnswers[q]?.trim()) {
+            toast.error("의견을 작성해주세요."); return;
         }
-        setConfirmModal({
-            isOpen: true, title: "최종 평가를 제출하시겠습니까?", description: "작성하신 모든 내용이 기록됩니다.",
-            onConfirm: () => { setConfirmModal(p => ({ ...p, isOpen: false })); handleFinalSubmit(); }
-        });
+        // If next step is summary, trigger submit
+        if (steps[currentStep + 1] === 'summary') {
+            setConfirmModal({
+                isOpen: true, title: "최종 평가를 제출하시겠습니까?", description: "작성하신 모든 내용이 기록됩니다.",
+                onConfirm: () => { setConfirmModal(p => ({ ...p, isOpen: false })); handleFinalSubmit(); }
+            });
+        } else {
+            setCurrentStep(currentStep + 1);
+        }
+        return;
     }
   };
 
@@ -366,15 +382,15 @@ function ViewerContent() {
     const st = steps[currentStep];
 
     if (st === 'guide') return (
-       <div className="flex flex-col h-full overflow-y-auto pb-10 space-y-8 px-2 scrollbar-hide">
+       <div className="flex flex-col h-full overflow-y-auto pb-10 space-y-8 px-1 scrollbar-hide">
           <div className="space-y-4">
              <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-full mb-1">
                 <span className="text-[11px] font-black uppercase text-orange-500 tracking-wider">PROJECT OVERVIEW</span>
              </div>
-             <h3 className="text-3xl md:text-4xl font-black heading-font text-chef-text leading-tight break-keep tracking-tight">{project.title}</h3>
+             <h3 className="text-xl md:text-3xl font-black heading-font text-chef-text leading-tight break-keep tracking-tight">{project.title}</h3>
           </div>
           
-          <div className="bg-chef-panel/50 p-6 rounded-xl border border-chef-border/50 shadow-inner">
+          <div className="bg-chef-panel/50 p-4 md:p-6 rounded-xl border border-chef-border/50 shadow-inner">
              <div 
                className="text-base font-medium text-chef-text leading-relaxed break-keep opacity-90 linkified-content"
                dangerouslySetInnerHTML={{ __html: linkify(project.summary || project.description || "프로젝트 소개가 없습니다.") }}
@@ -385,7 +401,7 @@ function ViewerContent() {
              <h4 className="text-xs font-black uppercase text-chef-text opacity-50 tracking-[0.2em]">Evaluation Process</h4>
              
              <ul className="space-y-6">
-                <li className="flex gap-5">
+                <li className="flex gap-3 md:gap-5">
                    <div className="w-10 h-10 shrink-0 rounded-2xl bg-orange-500/10 text-orange-500 flex items-center justify-center text-sm font-black shadow-sm">1</div>
                    <div className="space-y-1">
                       <p className="text-sm font-bold text-chef-text">평점 평가 <span className="text-xs font-medium opacity-40 ml-1">Rating</span></p>
@@ -394,7 +410,7 @@ function ViewerContent() {
                       </p>
                    </div>
                 </li>
-                <li className="flex gap-5">
+                <li className="flex gap-3 md:gap-5">
                    <div className="w-10 h-10 shrink-0 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center text-sm font-black shadow-sm">2</div>
                    <div className="space-y-1">
                       <p className="text-sm font-bold text-chef-text">판정 투표 <span className="text-xs font-medium opacity-40 ml-1">Voting</span></p>
@@ -403,7 +419,7 @@ function ViewerContent() {
                       </p>
                    </div>
                 </li>
-                <li className="flex gap-5">
+                <li className="flex gap-3 md:gap-5">
                    <div className="w-10 h-10 shrink-0 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-sm font-black shadow-sm">3</div>
                    <div className="space-y-1">
                       <p className="text-sm font-bold text-chef-text">종합 의견 <span className="text-xs font-medium opacity-40 ml-1">Feedback</span></p>
@@ -421,40 +437,36 @@ function ViewerContent() {
        </div>
     );
 
-    if (st === 'rating') return <div className="flex flex-col h-full"><div className="text-center space-y-3 mb-8 shrink-0"><div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-600/10 rounded-full"><span className="text-[10px] font-black text-orange-600">STAGE 01. STAR RATING</span></div><h3 className="text-2xl font-black">평점 평가</h3></div><div className="flex-1 overflow-y-auto pb-10"><MichelinRating ref={michelinRef} projectId={projectId!} guestId={guestId || undefined} onChange={setMichelinScores} /></div></div>;
-    if (st === 'voting') return <div className="flex flex-col h-full"><div className="text-center space-y-3 mb-8 shrink-0"><div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600/10 rounded-full"><span className="text-[10px] font-black text-indigo-600">STAGE 02. STICKER</span></div><h3 className="text-xl font-black">판정 투표</h3></div><div className="flex-1 overflow-y-auto pb-10"><FeedbackPoll ref={pollRef} projectId={projectId!} guestId={guestId || undefined} onChange={setPollSelection} /></div></div>;
-    if (st === 'subjective') {
-        const qs = project.custom_data?.audit_config?.questions || [];
+    if (st === 'rating') return <div className="flex flex-col h-full"><div className="text-center space-y-3 mb-8 shrink-0"><div className="inline-flex items-center gap-2 px-3 py-1 bg-orange-600/10 rounded-full"><span className="text-[10px] font-black text-orange-600">STAGE 01. STAR RATING</span></div><h3 className="text-lg md:text-xl font-black">평점 평가</h3></div><div className="flex-1 overflow-y-auto pb-10"><MichelinRating ref={michelinRef} projectId={projectId!} guestId={guestId || undefined} onChange={setMichelinScores} /></div></div>;
+    if (st === 'voting') return <div className="flex flex-col h-full"><div className="text-center space-y-3 mb-8 shrink-0"><div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600/10 rounded-full"><span className="text-[10px] font-black text-indigo-600">STAGE 02. STICKER</span></div><h3 className="text-base md:text-xl font-black">판정 투표</h3></div><div className="flex-1 overflow-y-auto pb-10"><FeedbackPoll ref={pollRef} projectId={projectId!} guestId={guestId || undefined} onChange={setPollSelection} /></div></div>;
+    if (st.startsWith('question_')) {
+        const qIndex = parseInt(st.split('_')[1]);
+        const q = questions[qIndex];
+        if (!q) return null;
         return (
           <div className="flex flex-col h-full">
-            <div className="text-center space-y-3 mb-8 shrink-0">
+            <div className="text-center space-y-2 mb-4 shrink-0">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-600/10 rounded-full">
-                <span className="text-[10px] font-black text-emerald-600 uppercase">STAGE 03. FEEDBACK</span>
+                <span className="text-[10px] font-black text-emerald-600 uppercase">STAGE 03. QUESTION {qIndex + 1}/{questions.length}</span>
               </div>
-              <h3 className="text-2xl font-black">종합 의견</h3>
+              <h3 className="text-lg md:text-xl font-black">심층 질문</h3>
             </div>
-            <div className="flex-1 space-y-10 overflow-y-auto pb-20">
-              {qs.map((q: string, i: number) => (
-                <div key={i} className="space-y-3">
-                  <label className="font-black italic text-chef-text/50 text-xs uppercase tracking-widest flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-orange-500/10 text-orange-500 flex items-center justify-center text-[10px] not-italic">Q{i+1}</span>
-                    Question
-                  </label>
-                  <p className="text-lg font-bold leading-relaxed break-keep">"{q}"</p>
-                  <textarea 
-                    value={customAnswers[q] || ""} 
-                    onChange={e => setCustomAnswers({ ...customAnswers, [q]: e.target.value })} 
-                    className="w-full h-32 bg-chef-panel rounded-2xl p-5 border border-chef-border/50 focus:border-orange-500 transition-colors outline-none text-chef-text" 
-                    placeholder="평가위원님의 진심 어린 의견을 남겨주세요."
-                  />
-                </div>
-              ))}
+            <div className="flex-1 flex flex-col pb-6">
+              <div className="bg-chef-panel/50 p-3 md:p-4 rounded-xl border border-chef-border/50 mb-3">
+                <p className="text-sm md:text-base font-bold leading-relaxed break-keep">&ldquo;{q}&rdquo;</p>
+              </div>
+              <textarea
+                value={customAnswers[q] || ""}
+                onChange={e => setCustomAnswers({ ...customAnswers, [q]: e.target.value })}
+                className="flex-1 min-h-[180px] bg-chef-panel rounded-xl p-3 md:p-4 border border-chef-border/50 focus:border-orange-500 transition-colors outline-none text-chef-text text-sm"
+                placeholder="평가위원님의 진심 어린 의견을 남겨주세요."
+              />
             </div>
           </div>
         );
     }
     if (st === 'summary') return (
-        <div className="flex flex-col items-center justify-center text-center h-full px-6 animate-in fade-in zoom-in duration-500">
+        <div className="flex flex-col items-center justify-center text-center h-full px-3 md:px-6 animate-in fade-in zoom-in duration-500">
             <div className="mb-8 relative">
                 <div className="absolute inset-0 bg-orange-500 blur-2xl opacity-20 rounded-full" />
                 <div className="relative bg-gradient-to-br from-orange-400 to-orange-600 w-24 h-24 rounded-xl flex items-center justify-center shadow-2xl rotate-3 transform transition-transform hover:rotate-6">
@@ -462,7 +474,7 @@ function ViewerContent() {
                 </div>
             </div>
             
-            <h3 className="text-3xl md:text-4xl font-black text-chef-text mb-4 italic tracking-tight">평가 제출 완료!</h3>
+            <h3 className="text-2xl md:text-3xl font-black text-chef-text mb-4 italic tracking-tight">평가 제출 완료!</h3>
             <p className="text-chef-text/60 font-medium text-sm md:text-base mb-6 max-w-sm leading-relaxed break-keep">
                 소중한 시간을 내어주셔서 감사합니다.<br/>
                 셰프님의 날카로운 통찰력은 창작자가 더 나은 결과물을 만드는 데 결정적인 역할을 할 것입니다.
@@ -502,7 +514,7 @@ function ViewerContent() {
   return (
     <main className="h-screen w-full bg-background flex flex-col overflow-hidden relative">
       <MyRatingIsHeader />
-      <div className="flex-1 flex flex-col md:flex-row mt-16 overflow-hidden relative">
+      <div className="flex-1 flex flex-col md:flex-row mt-14 md:mt-16 overflow-hidden relative">
         <AnimatePresence>{showIntro && <motion.div initial={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50"><ReviewIntro onStart={handleStartReview} project={project} loading={authLoading} /></motion.div>}</AnimatePresence>
         <div className="hidden md:flex flex-col flex-1 relative min-w-0 h-full bg-[#0f0f0f]">
           <div className="h-16 bg-chef-card border-b flex items-center justify-between px-6">
@@ -531,15 +543,15 @@ function ViewerContent() {
               새창 열기
             </Button>
           </div>
-          <div className="p-6 border-b">
-              <h3 className="text-xl font-black uppercase italic flex items-center gap-2"><ChefHat className="text-orange-500" /> 제 평가는요?</h3>
+          <div className="p-3 md:p-6 border-b">
+              <h3 className="text-base md:text-xl font-black uppercase italic flex items-center gap-2"><ChefHat className="text-orange-500" /> 제 평가는요?</h3>
               {currentStep < steps.length - 1 && <div className="mt-4 h-2 w-full bg-chef-panel rounded-full overflow-hidden shadow-inner border border-white/5"><div className="h-full bg-orange-600 transition-all shadow-[0_0_10px_rgba(234,88,12,0.4)]" style={{ width: `${((currentStep+1)/(steps.length-1))*100}%` }} /></div>}
           </div>
-          <div className="flex-1 overflow-hidden p-6 relative">{renderCurrentStep()}</div>
+          <div className="flex-1 overflow-hidden p-3 md:p-6 relative">{renderCurrentStep()}</div>
           {currentStep < steps.length - 1 && (
-            <div className="p-6 border-t flex gap-4">
+            <div className="p-3 md:p-6 border-t flex gap-4">
               {currentStep > 0 && <Button variant="outline" onClick={() => setCurrentStep(p => p - 1)}><ChevronLeft /></Button>}
-              <Button onClick={handleNextStep} className="flex-1 bg-orange-600 text-white font-black">{currentStep < steps.length - 2 ? (currentStep === 0 ? "네, 확인했어요. 평가 시작하기" : "다음 단계로") : "제출하기"}</Button>
+              <Button onClick={handleNextStep} className="flex-1 bg-orange-600 text-white font-black">{steps[currentStep + 1] === 'summary' ? "제출하기" : (currentStep === 0 ? "네, 확인했어요. 평가 시작하기" : (steps[currentStep]?.startsWith('question_') ? `다음 질문으로 (${parseInt(steps[currentStep].split('_')[1]) + 1}/${questions.length})` : "다음 단계로"))}</Button>
             </div>
           )}
         </div>

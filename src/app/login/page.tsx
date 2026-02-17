@@ -115,7 +115,7 @@ function LoginContent() {
     <div className="min-h-screen chef-bg-dark selection:bg-orange-500/30">
       <MyRatingIsHeader />
       
-      <div className="flex min-h-screen flex-col items-center justify-center py-24 px-6">
+      <div className="flex min-h-screen flex-col items-center justify-center py-16 md:py-24 px-2 md:px-6">
         {/* Decorative Ornaments */}
         <div className="absolute top-0 left-0 p-20 opacity-5 pointer-events-none select-none">
           <div className="text-[120px] font-black text-foreground leading-none tracking-tighter">STAGE</div>
@@ -123,10 +123,10 @@ function LoginContent() {
 
         <div className="w-full max-w-md relative z-10">
           <div 
-            className="rounded-xl p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] border-2 border-gray-200 dark:border-white/5 backdrop-blur-3xl"
+            className="rounded-xl p-5 md:p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] border-2 border-gray-200 dark:border-white/5 backdrop-blur-3xl"
           >
             {/* 로고 영역 */}
-            <div className="flex justify-center mb-10">
+            <div className="flex justify-center mb-6 md:mb-10">
               <div className="relative group">
                 <Image
                   src="/myratingis-logo.png"
@@ -139,8 +139,8 @@ function LoginContent() {
               </div>
             </div>
 
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-black tracking-tighter text-chef-text uppercase italic">
+            <div className="text-center mb-6 md:mb-10">
+              <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-chef-text uppercase italic">
                 LOG IN
               </h2>
               <div className="h-1.5 w-10 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto mt-3 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.4)]" />
@@ -176,7 +176,7 @@ function LoginContent() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     placeholder="CHEF@MYRATING.IS"
-                    className="w-full h-16 bg-gray-50 dark:bg-[#1a1a1a] border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-gray-100 dark:focus:bg-[#222] outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-lg"
+                    className="w-full h-12 md:h-14 bg-gray-50 dark:bg-[#1a1a1a] border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-4 md:px-8 rounded-2xl focus:border-orange-500/50 focus:bg-gray-100 dark:focus:bg-[#222] outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-sm md:text-base"
                   />
                 </div>
 
@@ -192,7 +192,7 @@ function LoginContent() {
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                     placeholder="••••••••"
-                    className="w-full h-16 bg-gray-50 dark:bg-[#1a1a1a] border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-gray-100 dark:focus:bg-[#222] outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-lg"
+                    className="w-full h-12 md:h-14 bg-gray-50 dark:bg-[#1a1a1a] border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-4 md:px-8 rounded-2xl focus:border-orange-500/50 focus:bg-gray-100 dark:focus:bg-[#222] outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-sm md:text-base"
                   />
                 </div>
               </div>
@@ -222,13 +222,13 @@ function LoginContent() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-18 bg-gradient-to-br from-orange-500 to-orange-600 text-white hover:to-orange-700 text-xl font-black rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_20px_40px_-10px_rgba(249,115,22,0.4)] border-t border-white/20"
+                className="w-full h-14 md:h-16 bg-gradient-to-br from-orange-500 to-orange-600 text-white hover:to-orange-700 text-base md:text-lg font-black rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_20px_40px_-10px_rgba(249,115,22,0.4)] border-t border-white/20"
               >
                 {loading ? "AUTHENTICATING..." : "SIGN IN"}
               </Button>
             </form>
 
-            <div className="relative my-10">
+            <div className="relative my-6 md:my-10">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200 dark:border-white/5" />
               </div>
@@ -242,7 +242,7 @@ function LoginContent() {
                 onClick={handleGoogleLogin}
                 disabled={googleLoading || kakaoLoading || loading}
                 variant="outline"
-                className="w-full h-14 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 rounded-xl font-semibold text-[15px] transition-all shadow-sm group"
+                className="w-full h-12 md:h-14 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 rounded-xl font-semibold text-sm transition-all shadow-sm group"
               >
                 {googleLoading ? (
                   <div className="flex items-center gap-3">
@@ -263,7 +263,7 @@ function LoginContent() {
                   try { await signInWithKakao(); } catch { setKakaoLoading(false); }
                 }}
                 disabled={googleLoading || kakaoLoading || loading}
-                className="w-full h-14 bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] rounded-xl font-semibold text-[15px] transition-all shadow-sm group border-0"
+                className="w-full h-12 md:h-14 bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] rounded-xl font-semibold text-sm transition-all shadow-sm group border-0"
               >
                 {kakaoLoading ? (
                   <div className="flex items-center gap-3">
@@ -279,7 +279,7 @@ function LoginContent() {
               </Button>
             </div>
 
-            <div className="mt-12 text-center">
+            <div className="mt-8 md:mt-12 text-center">
               <p className="text-[10px] font-black text-chef-text opacity-30 uppercase tracking-widest">
                 계정이 없으신가요?{" "}
                 <Link

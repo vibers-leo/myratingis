@@ -673,7 +673,7 @@ export default function MyPage() {
   return (
     <div className="w-full min-h-screen bg-chef-bg pb-20 transition-colors duration-300">
       
-      <div className="w-full max-w-[1440px] mx-auto px-2 md:px-10 pt-24">
+      <div className="w-full max-w-[1440px] mx-auto px-2 md:px-10 pt-18 md:pt-24">
         
 
         {/* 탭 네비게이션 */}

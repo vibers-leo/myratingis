@@ -116,16 +116,16 @@ export default function SignupPage() {
     <div className="min-h-screen chef-bg-dark selection:bg-orange-500/30">
       <MyRatingIsHeader />
       
-      <div className="flex min-h-screen flex-col items-center justify-center py-24 px-6">
+      <div className="flex min-h-screen flex-col items-center justify-center py-16 md:py-24 px-2 md:px-6">
         {/* Decorative Ornaments */}
         <div className="absolute top-0 right-0 p-20 opacity-5 pointer-events-none select-none">
           <div className="text-[120px] font-black text-foreground leading-none tracking-tighter">JOIN</div>
         </div>
 
         <div className="w-full max-w-md relative z-10">
-          <div className="rounded-xl border border-gray-200 dark:border-white/5 p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] backdrop-blur-3xl">
+          <div className="rounded-xl border border-gray-200 dark:border-white/5 p-5 md:p-10 chef-black-panel shadow-[0_40px_100px_-20px_rgba(0,0,0,0.5)] backdrop-blur-3xl">
             {/* 로고 영역 */}
-            <div className="flex justify-center mb-10">
+            <div className="flex justify-center mb-6 md:mb-10">
               <Image
                 src="/myratingis-logo.png"
                 alt="MyRatingIs"
@@ -136,8 +136,8 @@ export default function SignupPage() {
               />
             </div>
 
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-black tracking-tighter text-chef-text uppercase italic">
+            <div className="text-center mb-6 md:mb-8">
+              <h2 className="text-2xl md:text-3xl font-black tracking-tighter text-chef-text uppercase italic">
                 CREATE ACCOUNT
               </h2>
               <div className="h-1.5 w-10 bg-gradient-to-r from-orange-500 to-orange-600 mx-auto mt-3 rounded-full shadow-[0_0_10px_rgba(249,115,22,0.4)]" />
@@ -150,12 +150,12 @@ export default function SignupPage() {
             )}
 
             {/* 소셜 회원가입 */}
-            <div className="space-y-3 mb-8">
+            <div className="space-y-3 mb-6 md:mb-8">
               <Button
                 onClick={handleGoogleSignup}
                 disabled={loading}
                 variant="outline"
-                className="w-full h-14 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 rounded-xl font-semibold text-[15px] transition-all shadow-sm group"
+                className="w-full h-12 md:h-14 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 rounded-xl font-semibold text-sm transition-all shadow-sm group"
               >
                 <div className="flex items-center gap-3">
                   <FcGoogle className="h-5 w-5" />
@@ -168,7 +168,7 @@ export default function SignupPage() {
                   try { setLoading(true); await signInWithKakao(); } catch { setLoading(false); }
                 }}
                 disabled={loading}
-                className="w-full h-14 bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] rounded-xl font-semibold text-[15px] transition-all shadow-sm group border-0"
+                className="w-full h-12 md:h-14 bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] rounded-xl font-semibold text-sm transition-all shadow-sm group border-0"
               >
                 <div className="flex items-center gap-3">
                   <RiKakaoTalkFill className="h-5 w-5" />
@@ -177,7 +177,7 @@ export default function SignupPage() {
               </Button>
             </div>
 
-            <div className="relative mb-8">
+            <div className="relative mb-6 md:mb-8">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200 dark:border-white/5" />
               </div>
@@ -199,7 +199,7 @@ export default function SignupPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="CHEF@MYRATING.IS"
-                    className="w-full h-16 bg-gray-50 dark:bg-chef-panel/50 border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-chef-panel outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-lg"
+                    className="w-full h-12 md:h-14 bg-gray-50 dark:bg-chef-panel/50 border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-4 md:px-8 rounded-2xl focus:border-orange-500/50 focus:bg-chef-panel outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-sm md:text-base"
                     disabled={loading}
                   />
                 </div>
@@ -215,7 +215,7 @@ export default function SignupPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full h-16 bg-gray-50 dark:bg-chef-panel/50 border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-chef-panel outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-lg"
+                    className="w-full h-12 md:h-14 bg-gray-50 dark:bg-chef-panel/50 border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-4 md:px-8 rounded-2xl focus:border-orange-500/50 focus:bg-chef-panel outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-sm md:text-base"
                     disabled={loading}
                   />
                 </div>
@@ -231,7 +231,7 @@ export default function SignupPage() {
                     value={passwordConfirm}
                     onChange={(e) => setPasswordConfirm(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full h-16 bg-gray-50 dark:bg-chef-panel/50 border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-8 rounded-2xl focus:border-orange-500/50 focus:bg-chef-panel outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-lg"
+                    className="w-full h-12 md:h-14 bg-gray-50 dark:bg-chef-panel/50 border-2 border-gray-200 dark:border-white/5 text-chef-text font-bold px-4 md:px-8 rounded-2xl focus:border-orange-500/50 focus:bg-chef-panel outline-none transition-all placeholder:text-chef-text/10 shadow-inner text-sm md:text-base"
                     disabled={loading}
                   />
                 </div>
@@ -240,13 +240,13 @@ export default function SignupPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-18 bg-gradient-to-br from-orange-500 to-orange-600 text-white hover:to-orange-700 text-xl font-black rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_20px_40px_-10px_rgba(249,115,22,0.4)] border-t border-white/20 mt-4"
+                className="w-full h-14 md:h-16 bg-gradient-to-br from-orange-500 to-orange-600 text-white hover:to-orange-700 text-base md:text-lg font-black rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.98] shadow-[0_20px_40px_-10px_rgba(249,115,22,0.4)] border-t border-white/20 mt-4"
               >
                 {loading ? "PROCESSING..." : "JOIN THE KITCHEN"}
               </Button>
             </form>
 
-            <div className="mt-10 text-center space-y-4">
+            <div className="mt-6 md:mt-10 text-center space-y-4">
               <p className="text-[10px] font-black text-chef-text opacity-30 uppercase tracking-widest leading-relaxed">
                 이미 계정이 있으신가요?{" "}
                 <Link

@@ -101,10 +101,10 @@ export default function OnboardingPage() {
   if (loading) return <div className="min-h-screen bg-background flex items-center justify-center">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-2 md:p-4">
       <div className="w-full max-w-4xl bg-chef-card border border-chef-border rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row h-[80vh]">
         {/* Left Side: Progress & Info */}
-        <div className="w-full md:w-1/3 bg-chef-panel border-r border-chef-border p-8 flex flex-col">
+        <div className="w-full md:w-1/3 bg-chef-panel border-r border-chef-border p-4 md:p-8 flex flex-col">
             <h1 className="font-black text-2xl italic tracking-tighter text-chef-text mb-8">
                 제 평가는요?
             </h1>
@@ -139,14 +139,14 @@ export default function OnboardingPage() {
         </div>
 
         {/* Right Side: Main Content */}
-        <div className="flex-1 p-8 md:p-12 overflow-y-auto bg-chef-card relative">
+        <div className="flex-1 p-4 md:p-8 overflow-y-auto bg-chef-card relative">
              <AnimatePresence mode="wait"> 
                 {/* STEP 1: WELCOME */}
                 {step === 1 && (
                     <motion.div 
                         key="step1"
                         initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                        className="h-full flex flex-col items-center justify-center text-center space-y-8"
+                        className="h-full flex flex-col items-center justify-center text-center space-y-6 md:space-y-8"
                     >
                         <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center text-5xl mb-4">
                             👋
@@ -174,7 +174,7 @@ export default function OnboardingPage() {
                     <motion.div 
                         key="step2"
                         initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                        className="space-y-8 max-w-lg mx-auto py-10"
+                        className="space-y-6 md:space-y-8 max-w-lg mx-auto py-10"
                     >
                         <div>
                             <h2 className="text-2xl font-black mb-2 text-chef-text">닉네임 설정</h2>
@@ -211,7 +211,7 @@ export default function OnboardingPage() {
                     <motion.div 
                         key="step3"
                         initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                        className="space-y-8 max-w-lg mx-auto py-10"
+                        className="space-y-6 md:space-y-8 max-w-lg mx-auto py-10"
                     >
                         <div>
                             <h2 className="text-2xl font-black mb-2 text-chef-text">기본 정보</h2>
@@ -269,7 +269,7 @@ export default function OnboardingPage() {
                     <motion.div 
                         key="step4"
                         initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                        className="space-y-8 max-w-lg mx-auto py-10"
+                        className="space-y-6 md:space-y-8 max-w-lg mx-auto py-10"
                     >
                         <div>
                             <h2 className="text-2xl font-black mb-2">직업 / 소속</h2>
@@ -319,7 +319,7 @@ export default function OnboardingPage() {
                     <motion.div 
                         key="step5"
                         initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                        className="space-y-8 max-w-lg mx-auto py-10"
+                        className="space-y-6 md:space-y-8 max-w-lg mx-auto py-10"
                     >
                         <div>
                             <h2 className="text-2xl font-black mb-2 text-chef-text">전문 분야 (선택)</h2>

@@ -78,8 +78,8 @@ export default function FAQPage() {
          </div>
       </div>
 
-      <main className="max-w-4xl mx-auto px-2 md:px-6 pt-40 relative z-10">
-        <div className="text-center space-y-4 mb-20">
+      <main className="max-w-4xl mx-auto px-2 md:px-6 pt-24 md:pt-32 relative z-10">
+        <div className="text-center space-y-4 mb-10 md:mb-20">
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -91,7 +91,7 @@ export default function FAQPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-6xl font-bold text-chef-text leading-tight"
+            className="text-2xl md:text-4xl font-bold text-chef-text leading-tight"
           >
             자주 묻는 질문
           </motion.h1>
@@ -106,7 +106,7 @@ export default function FAQPage() {
           </motion.p>
         </div>
 
-        <div className="space-y-16">
+        <div className="space-y-10 md:space-y-16">
           {faqs.map((category, idx) => (
             <motion.section 
               key={idx}
@@ -125,19 +125,19 @@ export default function FAQPage() {
                   <AccordionItem 
                     key={i} 
                     value={`item-${idx}-${i}`} 
-                    className="border-none bg-chef-card/30 backdrop-blur-sm px-6 rounded-2xl border border-chef-border/10 overflow-hidden"
+                    className="border-none bg-chef-card/30 backdrop-blur-sm px-3 md:px-6 rounded-2xl border border-chef-border/10 overflow-hidden"
                   >
-                    <AccordionTrigger className="hover:no-underline py-6">
+                    <AccordionTrigger className="hover:no-underline py-4 md:py-6">
                       <div className="flex items-center gap-4 text-left">
-                        <div className="w-10 h-10 bg-chef-panel rounded-xl flex items-center justify-center text-orange-500 shrink-0 border border-chef-border/50">
-                           <item.icon className="w-5 h-5" />
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-chef-panel rounded-xl flex items-center justify-center text-orange-500 shrink-0 border border-chef-border/50">
+                           <item.icon className="w-4 h-4 md:w-5 md:h-5" />
                         </div>
-                        <span className="text-lg font-bold text-chef-text tracking-tight group-hover:text-orange-500 transition-colors">
+                        <span className="text-sm md:text-base font-bold text-chef-text tracking-tight group-hover:text-orange-500 transition-colors">
                           {item.q}
                         </span>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="pb-8 pt-2 pl-14">
+                    <AccordionContent className="pb-6 pt-2 pl-10 md:pl-14">
                       <p className="text-sm text-chef-text opacity-70 font-medium leading-relaxed max-w-2xl whitespace-pre-wrap">
                         {item.a}
                       </p>
@@ -154,17 +154,17 @@ export default function FAQPage() {
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="mt-32 p-12 bg-chef-text text-chef-bg rounded-[3rem] text-center space-y-6 shadow-2xl"
+          className="mt-16 md:mt-32 p-6 md:p-12 bg-chef-text text-chef-bg rounded-2xl md:rounded-[3rem] text-center space-y-6 shadow-2xl"
         >
-           <h3 className="text-3xl font-bold tracking-tight">더 궁금한 점이 있으신가요?</h3>
+           <h3 className="text-xl md:text-2xl font-bold tracking-tight">더 궁금한 점이 있으신가요?</h3>
            <p className="text-chef-bg opacity-60 font-medium max-w-sm mx-auto">
               도움이 더 필요하신가요? 저희 팀이 영업일 기준 24시간 이내에 답변을 드립니다.
            </p>
            <div className="flex flex-wrap justify-center gap-4">
-              <Button onClick={() => router.push('/contact')} className="h-14 px-10 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black text-lg transition-all scale-100 hover:scale-105 active:scale-95 shadow-xl shadow-orange-600/20">
+              <Button onClick={() => router.push('/contact')} className="h-11 md:h-14 px-6 md:px-10 rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black text-sm md:text-base transition-all scale-100 hover:scale-105 active:scale-95 shadow-xl shadow-orange-600/20">
                  1:1 문의하기
               </Button>
-              <Button variant="outline" onClick={() => router.push('/about/features')} className="h-14 px-10 rounded-2xl border-white/20 text-white hover:bg-white/10 font-black text-lg">
+              <Button variant="outline" onClick={() => router.push('/about/features')} className="h-11 md:h-14 px-6 md:px-10 rounded-2xl border-chef-bg/20 text-chef-bg hover:bg-chef-bg/10 font-black text-sm md:text-base">
                  기능 살펴보기
               </Button>
            </div>

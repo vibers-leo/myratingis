@@ -37,16 +37,16 @@ export function MyRatingIsHeader() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[100] chef-header-dark shadow-2xl backdrop-blur-md bg-white/80 dark:bg-black/20 border-b border-gray-200 dark:border-white/5">
-      <div className="w-full px-2 md:px-10 h-20 flex items-center justify-between">
+      <div className="w-full px-2 md:px-10 h-14 md:h-16 flex items-center justify-between">
         {/* Left: Logo */}
         <div className="flex-shrink-0 flex justify-start">
           <Link href="/" className="flex items-center gap-2 group">
               {!mounted ? (
-                <div className="h-7 w-24 bg-gray-100 dark:bg-white/5 animate-pulse rounded" />
+                <div className="h-5 md:h-6 w-24 bg-gray-100 dark:bg-white/5 animate-pulse rounded" />
               ) : theme === 'dark' ? (
-                <Image src="/logo-white.png" alt="제 평가는요?" width={140} height={56} quality={100} className="h-7 w-auto object-contain transition-all duration-300 group-hover:scale-105" />
+                <Image src="/logo-white.png" alt="제 평가는요?" width={140} height={56} quality={100} className="h-5 md:h-6 w-auto object-contain transition-all duration-300 group-hover:scale-105" />
               ) : (
-                <Image src="/myratingis-logo.png" alt="제 평가는요?" width={140} height={56} quality={100} className="h-7 w-auto object-contain transition-all duration-300 group-hover:scale-105 brightness-0" />
+                <Image src="/myratingis-logo.png" alt="제 평가는요?" width={140} height={56} quality={100} className="h-5 md:h-6 w-auto object-contain transition-all duration-300 group-hover:scale-105 brightness-0" />
               )}
           </Link>
         </div>
@@ -192,7 +192,7 @@ export function MyRatingIsHeader() {
             transition={{ duration: 0.2 }}
             className="fixed inset-0 z-[110] bg-white dark:bg-[#030712] md:hidden overflow-y-auto w-full h-[100dvh]"
           >
-            <div className="flex flex-col pt-24 px-4 pb-20 min-h-full">
+            <div className="flex flex-col pt-16 px-4 pb-20 min-h-full">
               
               {/* User Section */}
               {isAuthenticated && user ? (

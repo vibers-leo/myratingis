@@ -504,13 +504,13 @@ export default function ReportPage() {
     <div className="min-h-screen bg-background text-foreground font-pretendard">
       <MyRatingIsHeader />
 
-      <main className="max-w-7xl mx-auto px-6 pt-40 pb-24 space-y-20">
+      <main className="max-w-7xl mx-auto px-2 md:px-6 pt-24 md:pt-32 pb-16 md:pb-24 space-y-12 md:space-y-20">
          {/* My Evaluation Section (Only in 'mine' view) */}
          {viewMode === 'mine' && (
             <motion.section 
                 initial={{ y: -20, opacity: 0 }} 
                 animate={{ y: 0, opacity: 1 }}
-                className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 p-8 rounded-xl border border-indigo-500/30 mb-12 relative overflow-hidden ring-1 ring-inset ring-white/10"
+                className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 p-4 md:p-8 rounded-xl border border-indigo-500/30 mb-12 relative overflow-hidden ring-1 ring-inset ring-white/10"
             >
                  <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
                  
@@ -521,7 +521,7 @@ export default function ReportPage() {
                                  <Users size={24} />
                              </div>
                              <div>
-                                 <h2 className="text-2xl font-black text-white">나의 평가 리포트</h2>
+                                 <h2 className="text-xl md:text-2xl font-black text-foreground">나의 평가 리포트</h2>
                                  <p className="text-sm font-bold text-indigo-300 opacity-60">MY EVALUATION LOG</p>
                              </div>
                         </div>
@@ -534,33 +534,33 @@ export default function ReportPage() {
                          <div className="space-y-8">
                              {/* Score & Sticker */}
                              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                 <div className="bg-gray-100 dark:bg-black/40 p-8 rounded-2xl border border-border flex flex-col items-center justify-center text-center backdrop-blur-sm">
+                                 <div className="bg-gray-100 dark:bg-black/40 p-4 md:p-8 rounded-2xl border border-border flex flex-col items-center justify-center text-center backdrop-blur-sm">
                                      <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2">My Score</div>
-                                     <div className="text-6xl font-black text-white tracking-tighter">{myRating.score?.toFixed(1) || "0.0"}</div>
+                                     <div className="text-4xl md:text-6xl font-black text-foreground tracking-tighter">{myRating.score?.toFixed(1) || "0.0"}</div>
                                  </div>
-                                 <div className="bg-gray-100 dark:bg-black/40 p-8 rounded-2xl border border-border flex flex-col items-center justify-center text-center col-span-2 backdrop-blur-sm relative overflow-hidden group">
+                                 <div className="bg-gray-100 dark:bg-black/40 p-4 md:p-8 rounded-2xl border border-border flex flex-col items-center justify-center text-center col-span-2 backdrop-blur-sm relative overflow-hidden group">
                                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                                      <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2">My Vote</div>
-                                     <div className="text-3xl md:text-4xl font-black text-white tracking-tight leading-tight break-keep">
+                                     <div className="text-2xl md:text-3xl font-black text-foreground tracking-tight leading-tight break-keep">
                                         "{VOTE_LABEL_MAP[myRating.vote_type] || myRating.vote_type || "투표 없음"}"
                                      </div>
                                  </div>
                              </div>
                              
                              {/* Proposal */}
-                             <div className="bg-gray-100 dark:bg-black/40 p-8 rounded-2xl border border-border backdrop-blur-sm">
+                             <div className="bg-gray-100 dark:bg-black/40 p-4 md:p-8 rounded-2xl border border-border backdrop-blur-sm">
                                  <div className="flex items-center gap-2 mb-4">
                                     <MessageSquare className="w-4 h-4 text-indigo-400" />
                                     <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">한줄 코멘트 / 제안</span>
                                  </div>
-                                 <p className="text-xl md:text-2xl text-white font-bold leading-relaxed whitespace-pre-wrap">
+                                 <p className="text-base md:text-lg text-foreground font-bold leading-relaxed whitespace-pre-wrap">
                                     {myRating.proposal || "남긴 코멘트가 없습니다."}
                                  </p>
                              </div>
 
                              {/* Custom Answers */}
                              {myRating.custom_answers && Object.keys(myRating.custom_answers).length > 0 && (
-                                 <div className="bg-gray-100 dark:bg-black/40 p-8 rounded-2xl border border-border backdrop-blur-sm">
+                                 <div className="bg-gray-100 dark:bg-black/40 p-4 md:p-8 rounded-2xl border border-border backdrop-blur-sm">
                                      <div className="flex items-center gap-2 mb-6">
                                         <FileText className="w-4 h-4 text-indigo-400" />
                                         <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">상세 답변</span>
@@ -583,7 +583,7 @@ export default function ReportPage() {
                              <div className="w-16 h-16 bg-gray-100 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <Users className="w-8 h-8 text-muted-foreground/60" />
                              </div>
-                             <h3 className="text-xl font-bold text-white mb-2">내 평가 기록이 없습니다</h3>
+                             <h3 className="text-xl font-bold text-foreground mb-2">내 평가 기록이 없습니다</h3>
                              <p className="text-muted-foreground text-sm">이 프로젝트에 참여한 기록을 찾을 수 없습니다.</p>
                          </div>
                      )}
@@ -603,11 +603,11 @@ export default function ReportPage() {
                           : "Evaluation Final Report")}
                </div>
             </motion.div>
-            <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="text-4xl md:text-7xl font-black tracking-tighter">
+            <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="text-2xl md:text-5xl font-black tracking-tighter">
                {project?.title} <span className="text-muted-foreground/60">평가 결과</span>
             </motion.h1>
             <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="flex flex-col items-center gap-6">
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto font-medium break-keep">
+                <p className="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto font-medium break-keep">
                    {reportStats?.isPersonalView ? (
                        <>이 프로젝트는 의뢰자가 평가 결과를 <span className="text-orange-500 font-bold">비공개</span>로 설정하였습니다.<br/>따라서 셰프님께서 작성하신 <span className="text-foreground font-bold">본인의 평가 기록만 확인</span>하실 수 있습니다.</>
                    ) : (!reportStats?.isResultPublic && reportStats?.isOwner ? (
@@ -645,17 +645,17 @@ export default function ReportPage() {
          </section>
 
          {/* Charts Grid */}
-         <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+         <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8">
             {/* Michelin Radar */}
-            <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5 }} className="bg-gray-100 dark:bg-white/5 border border-border p-10 rounded-2xl space-y-8 flex flex-col">
-               <h3 className="text-2xl font-black flex items-center gap-3">
+            <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5 }} className="bg-gray-100 dark:bg-white/5 border border-border p-4 md:p-10 rounded-2xl space-y-8 flex flex-col">
+               <h3 className="text-xl md:text-2xl font-black flex items-center gap-3">
                   <div className="w-1.5 h-6 bg-orange-600 rounded-full" /> 평점 평가 분석
                </h3>
-               <div className="h-[400px] w-full min-h-[400px] relative">
+               <div className="h-[280px] md:h-[400px] w-full min-h-[280px] md:min-h-[400px] relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="70%" data={reportStats?.radarData}>
-                      <PolarGrid stroke="#ffffff10" radialLines={false} gridType="polygon" />
-                      <PolarAngleAxis dataKey="subject" tick={{ fill: '#ffffff40', fontSize: 12, fontWeight: 'bold' }} />
+                      <PolarGrid stroke="var(--chef-border)" radialLines={false} gridType="polygon" />
+                      <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--chef-text)', opacity: 0.4, fontSize: 12, fontWeight: 'bold' }} />
                       <PolarRadiusAxis domain={[0, 5]} tick={false} axisLine={false} />
                       <Radar
                         name="전체 평균"
@@ -673,8 +673,8 @@ export default function ReportPage() {
                           fillOpacity={0.4}
                         />
                       )}
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#0f0f0f', border: '1px solid #ffffff10', borderRadius: '12px', color: '#fff' }}
+                      <Tooltip
+                        contentStyle={{ backgroundColor: 'var(--chef-card-bg)', border: '1px solid var(--chef-border)', borderRadius: '12px', color: '#fff' }}
                         itemStyle={{ fontWeight: 'bold' }}
                       />
                     </RadarChart>
@@ -691,8 +691,8 @@ export default function ReportPage() {
             </motion.div>
 
             {/* Sticker Decisions */}
-            <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5 }} className="bg-gray-100 dark:bg-white/5 border border-border p-10 rounded-2xl space-y-8 flex flex-col">
-               <h3 className="text-2xl font-black flex items-center gap-3">
+            <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5 }} className="bg-gray-100 dark:bg-white/5 border border-border p-4 md:p-10 rounded-2xl space-y-8 flex flex-col">
+               <h3 className="text-xl md:text-2xl font-black flex items-center gap-3">
                   <div className="w-1.5 h-6 bg-indigo-600 rounded-full" /> 스티커 투표 현황
                </h3>
                <div className="grid grid-cols-1 gap-4">
@@ -717,7 +717,7 @@ export default function ReportPage() {
                            </div>
                            
                            <div className="flex flex-col min-w-0">
-                              <span className={cn("text-sm font-bold leading-tight break-keep", d.isMyChoice ? "text-white" : "text-muted-foreground")}>
+                              <span className={cn("text-sm font-bold leading-tight break-keep", d.isMyChoice ? "text-foreground" : "text-muted-foreground")}>
                                   {d.name}
                               </span>
                            </div>
@@ -739,25 +739,25 @@ export default function ReportPage() {
             </motion.div>
 
             {/* Expert Participation by Field */}
-            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6 }} className="bg-gray-100 dark:bg-white/5 border border-border p-10 rounded-2xl space-y-8 lg:col-span-2">
+            <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.6 }} className="bg-gray-100 dark:bg-white/5 border border-border p-4 md:p-10 rounded-2xl space-y-8 lg:col-span-2">
                <div className="flex items-center justify-between">
-                  <h3 className="text-2xl font-black flex items-center gap-3">
+                  <h3 className="text-xl md:text-2xl font-black flex items-center gap-3">
                      <div className="w-1.5 h-6 bg-blue-600 rounded-full" /> 분야별 전문가 참여 현황
                   </h3>
                   <div className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em]">참여 분석</div>
                </div>
                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <div className="h-[250px] w-full min-h-[250px] relative">
+                  <div className="h-[180px] md:h-[250px] w-full min-h-[180px] md:min-h-[250px] relative">
                      <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={Object.entries(reportStats?.expertiseDistribution || {}).map(([id, count]) => ({
                            name: ALL_LABELS[id] || id,
                            value: count
                         }))}>
-                           <XAxis dataKey="name" tick={{ fill: '#ffffff40', fontSize: 10 }} axisLine={false} tickLine={false} />
+                           <XAxis dataKey="name" tick={{ fill: 'var(--chef-text)', opacity: 0.4, fontSize: 10 }} axisLine={false} tickLine={false} />
                            <YAxis hide />
-                           <Tooltip 
+                           <Tooltip
                                cursor={{ fill: 'transparent' }}
-                               contentStyle={{ backgroundColor: '#0f0f0f', border: '1px solid #ffffff10', borderRadius: '16px' }}
+                               contentStyle={{ backgroundColor: 'var(--chef-card-bg)', border: '1px solid var(--chef-border)', borderRadius: '16px' }}
                                itemStyle={{ color: '#fff' }}
                            />
                            <Bar dataKey="value" fill="#6366f1" radius={[6, 6, 0, 0]}>
@@ -797,18 +797,18 @@ export default function ReportPage() {
               { label: '최고 평가 항목', value: reportStats?.radarData ? [...reportStats.radarData].sort((a:any, b:any) => b.value - a.value)[0]?.subject : '-', icon: Trophy, color: 'text-amber-300' },
               { label: '바이럴 점수', value: 'TOP 5%', icon: Rocket, color: 'text-emerald-400' },
             ].map((stat, i) => (
-              <motion.div key={i} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.3 + i*0.1 }} className="bg-gray-100 dark:bg-white/5 border border-border p-8 rounded-lg hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors group">
+              <motion.div key={i} initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.3 + i*0.1 }} className="bg-gray-100 dark:bg-white/5 border border-border p-4 md:p-8 rounded-lg hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors group">
                  <stat.icon className={cn("w-6 h-6 mb-4", stat.color)} />
                  <p className="text-muted-foreground text-[10px] font-black mb-1 uppercase tracking-widest">{stat.label}</p>
-                 <h3 className="text-3xl font-black">{stat.value}</h3>
+                 <h3 className="text-2xl md:text-3xl font-black">{stat.value}</h3>
               </motion.div>
             ))}
          </section>
 
          {/* Detailed Evaluation Table */}
-         <section className="space-y-10">
+         <section className="space-y-6 md:space-y-10">
             <div className="flex items-center justify-between">
-                <h3 className="text-3xl font-black flex items-center gap-3">
+                <h3 className="text-xl md:text-2xl font-black flex items-center gap-3">
                    <div className="w-1.5 h-6 bg-emerald-600 rounded-full" /> 평가 기록
                 </h3>
                 <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-widest italic">최신순</span>
@@ -817,19 +817,19 @@ export default function ReportPage() {
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="border-b border-gray-200 dark:border-white/10">
-                            <th onClick={() => handleSort('no')} className="px-8 py-6 text-[10px] font-black text-muted-foreground uppercase tracking-widest w-20 cursor-pointer hover:text-foreground transition-colors select-none group">
+                            <th onClick={() => handleSort('no')} className="px-3 py-3 md:px-6 md:py-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest w-20 cursor-pointer hover:text-foreground transition-colors select-none group">
                                 <div className="flex items-center">No.{sortConfig?.key === 'no' ? (sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3 ml-1 text-orange-500"/> : <ChevronDown className="w-3 h-3 ml-1 text-orange-500"/>) : <ChevronsUpDown className="w-3 h-3 ml-1 opacity-50 group-hover:opacity-50"/>}</div>
                             </th>
-                            <th onClick={() => handleSort('info')} className="px-8 py-6 text-[10px] font-black text-muted-foreground uppercase tracking-widest cursor-pointer hover:text-foreground transition-colors select-none group">
+                            <th onClick={() => handleSort('info')} className="px-3 py-3 md:px-6 md:py-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest cursor-pointer hover:text-foreground transition-colors select-none group">
                                 <div className="flex items-center">참여자 정보{sortConfig?.key === 'info' ? (sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3 ml-1 text-orange-500"/> : <ChevronDown className="w-3 h-3 ml-1 text-orange-500"/>) : <ChevronsUpDown className="w-3 h-3 ml-1 opacity-50 group-hover:opacity-50"/>}</div>
                             </th>
-                            <th onClick={() => handleSort('specialty')} className="px-8 py-6 text-[10px] font-black text-muted-foreground uppercase tracking-widest cursor-pointer hover:text-foreground transition-colors select-none group">
+                            <th onClick={() => handleSort('specialty')} className="px-3 py-3 md:px-6 md:py-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest cursor-pointer hover:text-foreground transition-colors select-none group">
                                 <div className="flex items-center">전문분야{sortConfig?.key === 'specialty' ? (sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3 ml-1 text-orange-500"/> : <ChevronDown className="w-3 h-3 ml-1 text-orange-500"/>) : <ChevronsUpDown className="w-3 h-3 ml-1 opacity-50 group-hover:opacity-50"/>}</div>
                             </th>
-                            <th onClick={() => handleSort('score')} className="px-8 py-6 text-[10px] font-black text-muted-foreground uppercase tracking-widest cursor-pointer hover:text-foreground transition-colors select-none group">
+                            <th onClick={() => handleSort('score')} className="px-3 py-3 md:px-6 md:py-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest cursor-pointer hover:text-foreground transition-colors select-none group">
                                 <div className="flex items-center">평가 결과{sortConfig?.key === 'score' ? (sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3 ml-1 text-orange-500"/> : <ChevronDown className="w-3 h-3 ml-1 text-orange-500"/>) : <ChevronsUpDown className="w-3 h-3 ml-1 opacity-50 group-hover:opacity-50"/>}</div>
                             </th>
-                            <th onClick={() => handleSort('date')} className="px-8 py-6 text-[10px] font-black text-muted-foreground uppercase tracking-widest text-right text-xs cursor-pointer hover:text-foreground transition-colors select-none group">
+                            <th onClick={() => handleSort('date')} className="px-3 py-3 md:px-6 md:py-4 text-[10px] font-black text-muted-foreground uppercase tracking-widest text-right text-xs cursor-pointer hover:text-foreground transition-colors select-none group">
                                 <div className="flex items-center justify-end">일시{sortConfig?.key === 'date' ? (sortConfig.direction === 'asc' ? <ChevronUp className="w-3 h-3 ml-1 text-orange-500"/> : <ChevronDown className="w-3 h-3 ml-1 text-orange-500"/>) : <ChevronsUpDown className="w-3 h-3 ml-1 opacity-50 group-hover:opacity-50"/>}</div>
                             </th>
                         </tr>
@@ -846,10 +846,10 @@ export default function ReportPage() {
                                   "border-b border-border transition-colors", 
                                   isMyReview ? "bg-indigo-500/10 hover:bg-indigo-500/20" : "hover:bg-gray-50 dark:hover:bg-white/[0.02]"
                               )}>
-                                  <td className={cn("px-8 py-6 text-sm font-black", isMyReview ? "text-indigo-400" : "text-muted-foreground/60")}>
+                                  <td className={cn("px-3 py-3 md:px-6 md:py-4 text-sm font-black", isMyReview ? "text-indigo-400" : "text-muted-foreground/60")}>
                                       {isMyReview ? "ME" : displayNo.toString().padStart(2, '0')}
                                   </td>
-                                  <td className="px-8 py-6">
+                                  <td className="px-3 py-3 md:px-6 md:py-4">
                                       <div className="flex flex-col gap-1">
                                           <div className="flex items-center gap-3">
                                               <div className={cn(
@@ -871,7 +871,7 @@ export default function ReportPage() {
                                           )}
                                       </div>
                                   </td>
-                                  <td className="px-8 py-6">
+                                  <td className="px-3 py-3 md:px-6 md:py-4">
                                       {r.expertise && r.expertise.length > 0 ? (
                                            <div className="flex flex-wrap gap-1">
                                                {r.expertise.map((exp: string, idx: number) => (
@@ -884,7 +884,7 @@ export default function ReportPage() {
                                           <span className="text-muted-foreground/60 text-[10px]">-</span>
                                       )}
                                   </td>
-                                  <td className="px-8 py-6">
+                                  <td className="px-3 py-3 md:px-6 md:py-4">
                                       <div className="flex items-center gap-3">
                                            <span className={cn("font-black text-lg leading-none", isMyReview ? "text-indigo-400" : "text-orange-500")}>
                                                {r.score ? r.score.toFixed(1) : '-'}
@@ -896,7 +896,7 @@ export default function ReportPage() {
                                            )}
                                       </div>
                                   </td>
-                                  <td className="px-8 py-6 text-xs text-muted-foreground/60 font-medium text-right font-mono">
+                                  <td className="px-3 py-3 md:px-6 md:py-4 text-xs text-muted-foreground/60 font-medium text-right font-mono">
                                       {new Date(r.created_at).toLocaleDateString()}
                                   </td>
                               </tr>
@@ -913,11 +913,11 @@ export default function ReportPage() {
          </section>
 
          {/* Reviews List */}
-         <section className="space-y-10">
-            <h3 className="text-3xl font-black flex items-center gap-3">
+         <section className="space-y-6 md:space-y-10">
+            <h3 className="text-xl md:text-2xl font-black flex items-center gap-3">
                <MessageSquare className="text-orange-600" /> 상세 평가 의견 리포트
             </h3>
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print-break-inside">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 print-break-inside">
                 {reportStats?.sortedRatings && reportStats.sortedRatings.length > 0 ? (
                   reportStats.sortedRatings
                     .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
@@ -932,7 +932,7 @@ export default function ReportPage() {
                         initial={{ y: 20, opacity: 0 }} 
                         whileInView={{ y: 0, opacity: 1 }} 
                         viewport={{ once: true }}
-                        className="p-8 rounded-lg bg-gray-100 dark:bg-white/5 border border-border hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-all flex flex-col gap-8 h-full break-inside-avoid"
+                        className="p-4 md:p-8 rounded-lg bg-gray-100 dark:bg-white/5 border border-border hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-all flex flex-col gap-8 h-full break-inside-avoid"
                       >
                          {/* ... (keep existing card content same as before, just copying structure for context match if needed, but since we are replacing the block container, we need to provide full content or use precise targeting) */}
                          <div className="flex items-center justify-between shrink-0">
@@ -975,7 +975,7 @@ export default function ReportPage() {
                                               <div className="h-px flex-1 bg-gray-100 dark:bg-white/5" />
                                            </div>
                                            <p className="text-xs font-bold text-muted-foreground leading-relaxed italic group-hover/q:text-foreground transition-colors">"{q}"</p>
-                                           <div className="bg-gray-100 dark:bg-white/5 border border-border p-5 rounded-lg">
+                                           <div className="bg-gray-100 dark:bg-white/5 border border-border p-3 md:p-5 rounded-lg">
                                               <p className="text-sm font-medium text-foreground leading-relaxed">{String(a)}</p>
                                            </div>
                                         </div>
@@ -989,7 +989,7 @@ export default function ReportPage() {
                                           <div className="h-px flex-1 bg-gray-100 dark:bg-white/5" />
                                        </div>
                                        <p className="text-xs font-bold text-muted-foreground leading-relaxed italic group-hover/q:text-foreground transition-colors">"{q}"</p>
-                                       <div className="bg-gray-100 dark:bg-white/5 border border-border p-5 rounded-lg">
+                                       <div className="bg-gray-100 dark:bg-white/5 border border-border p-3 md:p-5 rounded-lg">
                                           <p className="text-sm font-medium text-foreground leading-relaxed">{a as string}</p>
                                        </div>
                                     </div>
@@ -1008,7 +1008,7 @@ export default function ReportPage() {
                                       <span className="text-[10px] font-black text-blue-400/60 uppercase tracking-widest px-2 py-0.5 bg-blue-400/5 rounded border border-blue-400/10">종합 평가 의견</span>
                                       <div className="h-px flex-1 bg-gray-100 dark:bg-white/5" />
                                    </div>
-                                   <div className="bg-gradient-to-br from-gray-100 to-gray-50 dark:from-white/5 dark:to-white/[0.02] p-6 rounded-xl text-sm font-medium leading-relaxed italic text-orange-900 dark:text-orange-100 border border-gray-200 dark:border-white/10 shadow-inner">
+                                   <div className="bg-gradient-to-br from-gray-100 to-gray-50 dark:from-white/5 dark:to-white/[0.02] p-4 md:p-6 rounded-xl text-sm font-medium leading-relaxed italic text-orange-900 dark:text-orange-100 border border-gray-200 dark:border-white/10 shadow-inner">
                                      "{r.proposal}"
                                    </div>
                                 </div>
@@ -1071,7 +1071,7 @@ export default function ReportPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-20 px-6 text-center text-muted-foreground/60">
+      <footer className="border-t border-border py-12 px-2 md:py-20 md:px-6 text-center text-muted-foreground/60">
          <div className="flex flex-col items-center gap-6">
             <ChefHat size={32} />
             <p className="text-xs font-black uppercase tracking-[0.4em]">MyRatingIs Evaluation System &copy; 2026</p>

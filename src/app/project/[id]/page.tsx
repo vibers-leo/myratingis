@@ -372,7 +372,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       <div className="w-full bg-white dark:bg-card min-h-screen">
         
         {/* 1. 이미지 및 상세 내용 섹션 */}
-        <div className="max-w-[1240px] mx-auto px-4 md:px-6 py-8 md:py-12">
+        <div className="max-w-[1240px] mx-auto px-2 md:px-6 py-8 md:py-12">
            {/* 프로젝트 이미지 (흰색 배경 위) */}
            <div className="bg-gray-50/50 dark:bg-muted/50 rounded-xl border border-gray-100 dark:border-white/10 overflow-hidden mb-12 shadow-sm flex items-center justify-center min-h-[400px]">
              <Image
