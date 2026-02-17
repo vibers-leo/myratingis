@@ -389,9 +389,29 @@ function ViewerContent() {
              </div>
              <h3 className="text-xl md:text-3xl font-black heading-font text-chef-text leading-tight break-keep tracking-tight">{project.title}</h3>
           </div>
-          
+
+          {/* Mobile: 프로젝트 확인 유도 */}
+          {finalDisplayUrl && (
+            <div className="md:hidden bg-orange-500/5 border-2 border-orange-500/30 rounded-xl p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Eye size={16} className="text-orange-500 shrink-0" />
+                <p className="text-sm font-black text-chef-text">먼저 프로젝트를 확인해주세요!</p>
+              </div>
+              <p className="text-xs text-chef-text/50 font-medium leading-relaxed">
+                아래 버튼을 눌러 프로젝트를 새 창에서 확인한 뒤, 돌아와서 평가를 진행해주세요.
+              </p>
+              <Button
+                onClick={() => window.open(finalDisplayUrl, '_blank')}
+                className="w-full h-12 bg-orange-600 hover:bg-orange-500 text-white font-black text-sm rounded-xl flex items-center justify-center gap-2"
+              >
+                <ExternalLink size={16} />
+                프로젝트 새 창에서 보기
+              </Button>
+            </div>
+          )}
+
           <div className="bg-chef-panel/50 p-4 md:p-6 rounded-xl border border-chef-border/50 shadow-inner">
-             <div 
+             <div
                className="text-base font-medium text-chef-text leading-relaxed break-keep opacity-90 linkified-content"
                dangerouslySetInnerHTML={{ __html: linkify(project.summary || project.description || "프로젝트 소개가 없습니다.") }}
              />
@@ -528,21 +548,18 @@ function ViewerContent() {
         <div className="fixed inset-0 md:relative z-20 bg-chef-card flex flex-col h-full w-full md:border-l" style={{ width: (typeof window !== 'undefined' && window.innerWidth > 768) ? panelWidth : '100%' }}>
           <div onMouseDown={() => setIsResizing(true)} className="hidden md:block absolute top-0 -left-1 bottom-0 w-2 cursor-col-resize z-30" />
           {/* Mobile-only: Project Link Bar */}
-          <div className="md:hidden flex items-center justify-between px-4 py-3 bg-chef-panel/80 border-b border-chef-border">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <ExternalLink size={14} className="text-orange-500 shrink-0" />
-              <span className="text-xs font-medium text-chef-text opacity-70 truncate">{finalDisplayUrl || "프로젝트 링크"}</span>
-            </div>
-            <Button 
-              size="sm" 
-              variant="outline"
+          {finalDisplayUrl && (
+            <button
               onClick={() => window.open(finalDisplayUrl, '_blank')}
-              className="shrink-0 h-8 px-3 text-xs font-bold border-orange-500/50 text-orange-500 hover:bg-orange-500/10"
+              className="md:hidden flex items-center justify-between px-4 py-3 bg-orange-600 text-white active:bg-orange-700 transition-colors"
             >
-              <ExternalLink size={12} className="mr-1" />
-              새창 열기
-            </Button>
-          </div>
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <ExternalLink size={14} className="shrink-0" />
+                <span className="text-xs font-bold truncate">{project?.title || "프로젝트"} 보기</span>
+              </div>
+              <span className="shrink-0 text-[10px] font-black uppercase tracking-wider opacity-80">새 창 열기 →</span>
+            </button>
+          )}
           <div className="p-3 md:p-6 border-b">
               <h3 className="text-base md:text-xl font-black uppercase italic flex items-center gap-2"><ChefHat className="text-orange-500" /> 제 평가는요?</h3>
               {currentStep < steps.length - 1 && <div className="mt-4 h-2 w-full bg-chef-panel rounded-full overflow-hidden shadow-inner border border-white/5"><div className="h-full bg-orange-600 transition-all shadow-[0_0_10px_rgba(234,88,12,0.4)]" style={{ width: `${((currentStep+1)/(steps.length-1))*100}%` }} /></div>}
