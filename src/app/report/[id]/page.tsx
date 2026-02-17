@@ -20,10 +20,12 @@ import {
   ChevronUp,
   ChevronDown
 } from 'lucide-react';
-import { 
-  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, 
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell
+import {
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell,
+  PieChart, Pie
 } from 'recharts';
+import { Question, normalizeQuestions } from '@/lib/types/question';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -566,14 +568,31 @@ export default function ReportPage() {
                                         <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">상세 답변</span>
                                      </div>
                                      <div className="grid gap-6">
-                                         {Object.entries(myRating.custom_answers).map(([q, a], idx) => (
-                                             <div key={idx} className="space-y-2">
-                                                 <p className="text-indigo-300 font-bold text-sm">Q. {q}</p>
-                                                 <div className="p-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-border text-foreground/80 font-medium">
-                                                    {String(a)}
+                                         {(() => {
+                                           const nqs = normalizeQuestions(project?.custom_data?.audit_config?.questions);
+                                           if (nqs.length > 0) {
+                                             return nqs.map((q, idx) => {
+                                               const a = myRating.custom_answers?.[q.id] ?? myRating.custom_answers?.[q.text];
+                                               if (!a && a !== 0) return null;
+                                               return (
+                                                 <div key={idx} className="space-y-2">
+                                                   <p className="text-indigo-400 dark:text-indigo-300 font-bold text-sm">Q. {q.text}</p>
+                                                   <div className="p-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-border text-foreground/80 font-medium">
+                                                     {Array.isArray(a) ? a.join(', ') : String(a)}
+                                                   </div>
                                                  </div>
+                                               );
+                                             });
+                                           }
+                                           return Object.entries(myRating.custom_answers).map(([q, a], idx) => (
+                                             <div key={idx} className="space-y-2">
+                                               <p className="text-indigo-400 dark:text-indigo-300 font-bold text-sm">Q. {q}</p>
+                                               <div className="p-4 rounded-xl bg-gray-100 dark:bg-white/5 border border-border text-foreground/80 font-medium">
+                                                 {Array.isArray(a) ? (a as string[]).join(', ') : String(a)}
+                                               </div>
                                              </div>
-                                         ))}
+                                           ));
+                                         })()}
                                      </div>
                                  </div>
                              )}
@@ -912,6 +931,170 @@ export default function ReportPage() {
             </div>
          </section>
 
+         {/* Question Analytics */}
+         {(() => {
+           const rawQuestions = project?.custom_data?.audit_config?.questions;
+           const normalizedQs = normalizeQuestions(rawQuestions);
+           const CHART_COLORS = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444', '#f59e0b', '#06b6d4', '#ec4899'];
+           if (normalizedQs.length === 0 || !reportStats?.sortedRatings?.length) return null;
+
+           return (
+             <section className="space-y-6 md:space-y-10">
+               <h3 className="text-xl md:text-2xl font-black flex items-center gap-3">
+                 <FileText className="text-emerald-600" /> 심층 질문 분석
+               </h3>
+               <div className="grid grid-cols-1 gap-4 md:gap-6">
+                 {normalizedQs.map((q, qIdx) => {
+                   // Collect answers: try question ID first, then text (for legacy)
+                   const allAnswers = reportStats.sortedRatings
+                     .map((r: any) => r.custom_answers?.[q.id] ?? r.custom_answers?.[q.text])
+                     .filter((a: any) => a !== undefined && a !== null && a !== '');
+
+                   if (allAnswers.length === 0) return null;
+
+                   return (
+                     <motion.div
+                       key={q.id || qIdx}
+                       initial={{ y: 20, opacity: 0 }}
+                       whileInView={{ y: 0, opacity: 1 }}
+                       viewport={{ once: true }}
+                       className="p-4 md:p-8 rounded-lg bg-gray-100 dark:bg-white/5 border border-border"
+                     >
+                       <div className="flex items-center gap-2 mb-2">
+                         <span className="text-[11px] font-black text-emerald-500 uppercase tracking-widest px-2 py-0.5 bg-emerald-500/5 rounded border border-emerald-500/10">
+                           Q{qIdx + 1} · {q.type === 'textarea' ? '서술형' : q.type === 'short_text' ? '단답형' : q.type === 'single_choice' ? '단일선택' : q.type === 'multiple_choice' ? '복수선택' : '리커트'}
+                         </span>
+                         <span className="text-[11px] text-muted-foreground font-bold">응답 {allAnswers.length}명</span>
+                       </div>
+                       <p className="text-sm md:text-base font-bold text-foreground mb-4 break-keep">&ldquo;{q.text}&rdquo;</p>
+
+                       {/* Single Choice: Donut Chart */}
+                       {q.type === 'single_choice' && (() => {
+                         const counts: Record<string, number> = {};
+                         allAnswers.forEach((a: string) => { counts[a] = (counts[a] || 0) + 1; });
+                         const chartData = Object.entries(counts).map(([name, value]) => ({ name, value }));
+                         const total = allAnswers.length;
+                         return (
+                           <div className="flex flex-col md:flex-row items-center gap-6">
+                             <div className="w-48 h-48">
+                               <ResponsiveContainer width="100%" height="100%">
+                                 <PieChart>
+                                   <Pie data={chartData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} dataKey="value" stroke="none">
+                                     {chartData.map((_, idx) => <Cell key={idx} fill={CHART_COLORS[idx % CHART_COLORS.length]} />)}
+                                   </Pie>
+                                   <Tooltip formatter={(value: number) => [`${value}명 (${Math.round(value / total * 100)}%)`, '응답']} />
+                                 </PieChart>
+                               </ResponsiveContainer>
+                             </div>
+                             <div className="flex-1 space-y-2">
+                               {chartData.map((d, idx) => (
+                                 <div key={d.name} className="flex items-center gap-2 text-sm">
+                                   <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[idx % CHART_COLORS.length] }} />
+                                   <span className="font-medium text-foreground">{d.name}</span>
+                                   <span className="text-muted-foreground ml-auto font-bold">{d.value}명 ({Math.round(d.value / total * 100)}%)</span>
+                                 </div>
+                               ))}
+                             </div>
+                           </div>
+                         );
+                       })()}
+
+                       {/* Multiple Choice: Horizontal Bar Chart */}
+                       {q.type === 'multiple_choice' && (() => {
+                         const counts: Record<string, number> = {};
+                         allAnswers.forEach((a: any) => {
+                           const arr = Array.isArray(a) ? a : [a];
+                           arr.forEach((v: string) => { counts[v] = (counts[v] || 0) + 1; });
+                         });
+                         const chartData = Object.entries(counts)
+                           .map(([name, value]) => ({ name, value }))
+                           .sort((a, b) => b.value - a.value);
+                         const total = allAnswers.length;
+                         return (
+                           <div className="space-y-2">
+                             {chartData.map((d, idx) => (
+                               <div key={d.name} className="flex items-center gap-3">
+                                 <span className="text-xs font-medium text-foreground w-24 shrink-0 truncate">{d.name}</span>
+                                 <div className="flex-1 h-6 bg-gray-200 dark:bg-white/5 rounded-full overflow-hidden">
+                                   <div
+                                     className="h-full rounded-full transition-all"
+                                     style={{
+                                       width: `${Math.round(d.value / total * 100)}%`,
+                                       backgroundColor: CHART_COLORS[idx % CHART_COLORS.length],
+                                     }}
+                                   />
+                                 </div>
+                                 <span className="text-xs font-bold text-muted-foreground w-16 text-right">{d.value}명 ({Math.round(d.value / total * 100)}%)</span>
+                               </div>
+                             ))}
+                           </div>
+                         );
+                       })()}
+
+                       {/* Likert: Average + Distribution */}
+                       {q.type === 'likert' && (() => {
+                         const nums = allAnswers.map(Number).filter((n: number) => !isNaN(n));
+                         if (nums.length === 0) return null;
+                         const avg = nums.reduce((a: number, b: number) => a + b, 0) / nums.length;
+                         const scale = q.likertScale || 5;
+                         const dist: Record<number, number> = {};
+                         for (let i = 1; i <= scale; i++) dist[i] = 0;
+                         nums.forEach((n: number) => { if (dist[n] !== undefined) dist[n]++; });
+                         const maxCount = Math.max(...Object.values(dist));
+                         return (
+                           <div className="space-y-4">
+                             <div className="flex items-center gap-4">
+                               <div className="text-3xl font-black text-orange-500">{avg.toFixed(1)}</div>
+                               <div className="flex-1">
+                                 <div className="text-xs text-muted-foreground font-bold mb-1">/ {scale}.0 점</div>
+                                 <div className="h-3 bg-gray-200 dark:bg-white/5 rounded-full overflow-hidden">
+                                   <div className="h-full bg-orange-500 rounded-full transition-all" style={{ width: `${(avg / scale) * 100}%` }} />
+                                 </div>
+                               </div>
+                             </div>
+                             <div className="space-y-1.5">
+                               {Object.entries(dist).sort(([a], [b]) => Number(b) - Number(a)).map(([score, count]) => (
+                                 <div key={score} className="flex items-center gap-2 text-xs">
+                                   <span className="w-6 text-right font-black text-muted-foreground">{score}점</span>
+                                   <div className="flex-1 h-4 bg-gray-200 dark:bg-white/5 rounded overflow-hidden">
+                                     <div
+                                       className="h-full bg-orange-400 rounded transition-all"
+                                       style={{ width: maxCount > 0 ? `${(count / maxCount) * 100}%` : '0%' }}
+                                     />
+                                   </div>
+                                   <span className="w-8 font-bold text-muted-foreground">{count}명</span>
+                                 </div>
+                               ))}
+                             </div>
+                             <div className="flex justify-between text-[11px] text-muted-foreground/60 font-bold">
+                               <span>{q.likertLabels?.[0] || '매우 불만족'}</span>
+                               <span>{q.likertLabels?.[1] || '매우 만족'}</span>
+                             </div>
+                           </div>
+                         );
+                       })()}
+
+                       {/* Textarea / Short Text: Text cards */}
+                       {(q.type === 'textarea' || q.type === 'short_text') && (
+                         <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                           {allAnswers.slice(0, 10).map((a: string, aIdx: number) => (
+                             <div key={aIdx} className="bg-gray-200 dark:bg-white/5 border border-border p-3 rounded-lg">
+                               <p className="text-sm font-medium text-foreground leading-relaxed">{String(a)}</p>
+                             </div>
+                           ))}
+                           {allAnswers.length > 10 && (
+                             <p className="text-xs text-muted-foreground font-bold text-center py-2">+{allAnswers.length - 10}개 답변 더 있음</p>
+                           )}
+                         </div>
+                       )}
+                     </motion.div>
+                   );
+                 })}
+               </div>
+             </section>
+           );
+         })()}
+
          {/* Reviews List */}
          <section className="space-y-6 md:space-y-10">
             <h3 className="text-xl md:text-2xl font-black flex items-center gap-3">
@@ -963,43 +1146,51 @@ export default function ReportPage() {
                          
                          <div className="space-y-6 flex-1">
                             {/* Custom Answers */}
-                            {project.custom_data?.audit_config?.questions && Array.isArray(project.custom_data.audit_config.questions) && project.custom_data.audit_config.questions.length > 0 ? (
-                                project.custom_data.audit_config.questions.map((q: string, qIdx: number) => {
-                                    const a = r.custom_answers?.[q];
-                                    if (!a) return null; // Skip if no answer for this specific question
-                                    
-                                    return (
-                                        <div key={qIdx} className="space-y-2 group/q">
-                                           <div className="flex items-center gap-2">
-                                              <span className="text-[10px] font-black text-orange-500/60 uppercase tracking-widest px-2 py-0.5 bg-orange-500/5 rounded border border-orange-500/10">질문 {qIdx + 1}</span>
-                                              <div className="h-px flex-1 bg-gray-100 dark:bg-white/5" />
-                                           </div>
-                                           <p className="text-xs font-bold text-muted-foreground leading-relaxed italic group-hover/q:text-foreground transition-colors">"{q}"</p>
-                                           <div className="bg-gray-100 dark:bg-white/5 border border-border p-3 md:p-5 rounded-lg">
-                                              <p className="text-sm font-medium text-foreground leading-relaxed">{String(a)}</p>
-                                           </div>
-                                        </div>
-                                    );
-                                })
-                            ) : hasCustomAnswers ? (
-                                Object.entries(r.custom_answers || {}).map(([q, a], qIdx) => (
+                            {(() => {
+                              const nqs = normalizeQuestions(project.custom_data?.audit_config?.questions);
+                              if (nqs.length > 0) {
+                                return nqs.map((q, qIdx) => {
+                                  const a = r.custom_answers?.[q.id] ?? r.custom_answers?.[q.text];
+                                  if (!a && a !== 0) return null;
+                                  const displayAnswer = Array.isArray(a) ? a.join(', ') : String(a);
+                                  return (
                                     <div key={qIdx} className="space-y-2 group/q">
                                        <div className="flex items-center gap-2">
                                           <span className="text-[10px] font-black text-orange-500/60 uppercase tracking-widest px-2 py-0.5 bg-orange-500/5 rounded border border-orange-500/10">질문 {qIdx + 1}</span>
                                           <div className="h-px flex-1 bg-gray-100 dark:bg-white/5" />
                                        </div>
-                                       <p className="text-xs font-bold text-muted-foreground leading-relaxed italic group-hover/q:text-foreground transition-colors">"{q}"</p>
+                                       <p className="text-xs font-bold text-muted-foreground leading-relaxed italic group-hover/q:text-foreground transition-colors">&ldquo;{q.text}&rdquo;</p>
                                        <div className="bg-gray-100 dark:bg-white/5 border border-border p-3 md:p-5 rounded-lg">
-                                          <p className="text-sm font-medium text-foreground leading-relaxed">{a as string}</p>
+                                          <p className="text-sm font-medium text-foreground leading-relaxed">{displayAnswer}</p>
                                        </div>
                                     </div>
-                                ))
-                            ) : !hasProposal ? (
-                                <div className="h-full flex flex-col items-center justify-center py-12 space-y-3 opacity-50">
-                                   <MessageSquare size={32} />
-                                   <p className="text-xs font-bold uppercase tracking-widest">상세 코멘트가 없습니다</p>
-                                </div>
-                            ) : null}
+                                  );
+                                });
+                              }
+                              if (hasCustomAnswers) {
+                                return Object.entries(r.custom_answers || {}).map(([q, a], qIdx) => (
+                                  <div key={qIdx} className="space-y-2 group/q">
+                                     <div className="flex items-center gap-2">
+                                        <span className="text-[10px] font-black text-orange-500/60 uppercase tracking-widest px-2 py-0.5 bg-orange-500/5 rounded border border-orange-500/10">질문 {qIdx + 1}</span>
+                                        <div className="h-px flex-1 bg-gray-100 dark:bg-white/5" />
+                                     </div>
+                                     <p className="text-xs font-bold text-muted-foreground leading-relaxed italic group-hover/q:text-foreground transition-colors">&ldquo;{q}&rdquo;</p>
+                                     <div className="bg-gray-100 dark:bg-white/5 border border-border p-3 md:p-5 rounded-lg">
+                                        <p className="text-sm font-medium text-foreground leading-relaxed">{Array.isArray(a) ? (a as string[]).join(', ') : String(a)}</p>
+                                     </div>
+                                  </div>
+                                ));
+                              }
+                              if (!hasProposal) {
+                                return (
+                                  <div className="h-full flex flex-col items-center justify-center py-12 space-y-3 opacity-50">
+                                     <MessageSquare size={32} />
+                                     <p className="text-xs font-bold uppercase tracking-widest">상세 코멘트가 없습니다</p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })()}
 
                             {/* Final Proposal */}
                             {hasProposal && (

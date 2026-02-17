@@ -23,6 +23,7 @@ import { cn, linkify } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase/client';
+import { Question, normalizeQuestions, AnswerValue } from '@/lib/types/question';
 
 // ... (existing code)
 
@@ -122,7 +123,7 @@ function ViewerContent() {
       score_1: 3, score_2: 3, score_3: 3, score_4: 3, score_5: 3, score_6: 3
   });
   const [pollSelection, setPollSelection] = useState<string | null>(null);
-  const [customAnswers, setCustomAnswers] = useState<Record<string, string>>({});
+  const [customAnswers, setCustomAnswers] = useState<Record<string, AnswerValue>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [guestId, setGuestId] = useState<string | null>(null);
 
@@ -133,12 +134,12 @@ function ViewerContent() {
       isOpen: false, title: "", description: "", onConfirm: () => {}
   });
 
-  const questions = project?.custom_data?.audit_config?.questions || [];
+  const questions: Question[] = useMemo(() => normalizeQuestions(project?.custom_data?.audit_config?.questions), [project]);
   const steps = useMemo(() => [
     'guide',
     'rating',
     'voting',
-    ...questions.map((_: string, i: number) => `question_${i}`),
+    ...questions.map((_: Question, i: number) => `question_${i}`),
     'summary'
   ], [questions]);
 
@@ -283,8 +284,15 @@ function ViewerContent() {
     if (st.startsWith('question_')) {
         const qIndex = parseInt(st.split('_')[1]);
         const q = questions[qIndex];
-        if (q && !customAnswers[q]?.trim()) {
-            toast.error("의견을 작성해주세요."); return;
+        if (q?.required) {
+            const answer = customAnswers[q.id];
+            const isEmpty = answer === undefined || answer === null ||
+              (typeof answer === 'string' && !answer.trim()) ||
+              (Array.isArray(answer) && answer.length === 0) ||
+              (typeof answer === 'number' && isNaN(answer));
+            if (isEmpty) {
+                toast.error("응답을 작성해주세요."); return;
+            }
         }
         // If next step is summary, trigger submit
         if (steps[currentStep + 1] === 'summary') {
@@ -467,6 +475,7 @@ function ViewerContent() {
         const qIndex = parseInt(st.split('_')[1]);
         const q = questions[qIndex];
         if (!q) return null;
+        const answerKey = q.id;
         return (
           <div className="flex flex-col h-full">
             <div className="text-center space-y-2 mb-4 shrink-0">
@@ -477,14 +486,127 @@ function ViewerContent() {
             </div>
             <div className="flex-1 flex flex-col pb-6">
               <div className="bg-chef-panel/50 p-3 md:p-4 rounded-xl border border-chef-border/50 mb-3">
-                <p className="text-sm md:text-base font-bold leading-relaxed break-keep">&ldquo;{q}&rdquo;</p>
+                <p className="text-sm md:text-base font-bold leading-relaxed break-keep">&ldquo;{q.text}&rdquo;</p>
+                {!q.required && <span className="text-[11px] text-chef-text/30 font-medium mt-1 block">(선택 사항)</span>}
               </div>
-              <textarea
-                value={customAnswers[q] || ""}
-                onChange={e => setCustomAnswers({ ...customAnswers, [q]: e.target.value })}
-                className="flex-1 min-h-[180px] bg-chef-panel rounded-xl p-3 md:p-4 border border-chef-border/50 focus:border-orange-500 transition-colors outline-none text-chef-text text-sm"
-                placeholder="평가위원님의 진심 어린 의견을 남겨주세요."
-              />
+
+              {/* 서술형 */}
+              {q.type === 'textarea' && (
+                <textarea
+                  value={(customAnswers[answerKey] as string) || ""}
+                  onChange={e => setCustomAnswers({ ...customAnswers, [answerKey]: e.target.value })}
+                  className="flex-1 min-h-[180px] bg-chef-panel rounded-xl p-3 md:p-4 border border-chef-border/50 focus:border-orange-500 transition-colors outline-none text-chef-text text-sm"
+                  placeholder="평가위원님의 진심 어린 의견을 남겨주세요."
+                />
+              )}
+
+              {/* 단답형 */}
+              {q.type === 'short_text' && (
+                <input
+                  type="text"
+                  value={(customAnswers[answerKey] as string) || ""}
+                  onChange={e => setCustomAnswers({ ...customAnswers, [answerKey]: e.target.value })}
+                  className="bg-chef-panel rounded-xl px-4 py-3 border border-chef-border/50 focus:border-orange-500 transition-colors outline-none text-chef-text text-sm"
+                  placeholder="간결하게 답변해 주세요."
+                />
+              )}
+
+              {/* 단일 선택 */}
+              {q.type === 'single_choice' && (
+                <div className="space-y-2">
+                  {(q.options || []).map((opt, oi) => (
+                    <button
+                      key={oi}
+                      onClick={() => setCustomAnswers({ ...customAnswers, [answerKey]: opt })}
+                      className={cn(
+                        "w-full text-left px-4 py-3 rounded-xl border transition-all text-sm font-medium",
+                        customAnswers[answerKey] === opt
+                          ? "border-orange-500 bg-orange-500/10 text-orange-600"
+                          : "border-chef-border/50 bg-chef-panel hover:border-orange-500/30 text-chef-text"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={cn(
+                          "w-4 h-4 rounded-full border-2 shrink-0 flex items-center justify-center",
+                          customAnswers[answerKey] === opt ? "border-orange-500" : "border-chef-border"
+                        )}>
+                          {customAnswers[answerKey] === opt && <div className="w-2 h-2 rounded-full bg-orange-500" />}
+                        </div>
+                        {opt}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* 복수 선택 */}
+              {q.type === 'multiple_choice' && (
+                <div className="space-y-2">
+                  {(q.options || []).map((opt, oi) => {
+                    const selected = Array.isArray(customAnswers[answerKey]) && (customAnswers[answerKey] as string[]).includes(opt);
+                    return (
+                      <button
+                        key={oi}
+                        onClick={() => {
+                          const current = Array.isArray(customAnswers[answerKey]) ? [...(customAnswers[answerKey] as string[])] : [];
+                          if (selected) {
+                            setCustomAnswers({ ...customAnswers, [answerKey]: current.filter(v => v !== opt) });
+                          } else {
+                            setCustomAnswers({ ...customAnswers, [answerKey]: [...current, opt] });
+                          }
+                        }}
+                        className={cn(
+                          "w-full text-left px-4 py-3 rounded-xl border transition-all text-sm font-medium",
+                          selected
+                            ? "border-orange-500 bg-orange-500/10 text-orange-600"
+                            : "border-chef-border/50 bg-chef-panel hover:border-orange-500/30 text-chef-text"
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "w-4 h-4 rounded-sm border-2 shrink-0 flex items-center justify-center",
+                            selected ? "border-orange-500 bg-orange-500" : "border-chef-border"
+                          )}>
+                            {selected && <CheckCircle2 className="w-3 h-3 text-white" />}
+                          </div>
+                          {opt}
+                        </div>
+                      </button>
+                    );
+                  })}
+                  <p className="text-[11px] text-chef-text/30 font-medium">복수 선택 가능</p>
+                </div>
+              )}
+
+              {/* 리커트 척도 */}
+              {q.type === 'likert' && (
+                <div className="flex flex-col items-center gap-4 py-4">
+                  <div className="flex items-center gap-1 md:gap-2">
+                    {Array.from({ length: q.likertScale || 5 }, (_, i) => {
+                      const val = i + 1;
+                      const isSelected = customAnswers[answerKey] === val;
+                      return (
+                        <button
+                          key={val}
+                          onClick={() => setCustomAnswers({ ...customAnswers, [answerKey]: val })}
+                          className={cn(
+                            "w-10 h-10 md:w-12 md:h-12 rounded-full border-2 font-black text-sm md:text-base transition-all",
+                            isSelected
+                              ? "border-orange-500 bg-orange-500 text-white scale-110 shadow-lg shadow-orange-500/20"
+                              : "border-chef-border text-chef-text/40 hover:border-orange-500/50 hover:scale-105"
+                          )}
+                        >
+                          {val}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-between w-full max-w-xs text-[11px] text-chef-text/40 font-bold">
+                    <span>{q.likertLabels?.[0] || '매우 불만족'}</span>
+                    <span>{q.likertLabels?.[1] || '매우 만족'}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         );

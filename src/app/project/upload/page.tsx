@@ -17,7 +17,8 @@ import { useAuth } from "@/lib/auth/AuthContext";
 import { supabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChefHat, Sparkles, Globe, Link, X, Lock, Eye, ArrowLeft, ArrowRight, Calendar, FileText, Image as ImageIcon, Video, LinkIcon, Wand2, Loader2, Check } from "lucide-react";
+import { ChefHat, Sparkles, Globe, Link, X, Lock, Eye, ArrowLeft, ArrowRight, Calendar, FileText, Image as ImageIcon, Video, LinkIcon, Wand2, Loader2, Check, ChevronDown } from "lucide-react";
+import { Question, QuestionType, normalizeQuestions, createEmptyQuestion, getQuestionTypeLabel } from "@/lib/types/question";
 import { MyRatingIsHeader } from "@/components/MyRatingIsHeader";
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
@@ -101,11 +102,18 @@ export default function ProjectUploadPage() {
   const [selectedPreset, setSelectedPreset] = useState<'professional' | 'michelin' | 'mz'>('professional');
   const [pollOptions, setPollOptions] = useState<any[]>([]);
   const [pollDesc, setPollDesc] = useState("현업 마스터의 냉정한 피드백");
-  const [auditQuestions, setAuditQuestions] = useState<string[]>([
-    "이 프로젝트의 가장 큰 장점은 무엇인가요?",
-    "이 프로젝트에서 가장 시급하게 보완해야할 점은 무엇인가요?",
-    "발전을 위해 조언해 주실 부분이 있다면 자유롭게 말씀해 주세요."
-  ]);
+  const [auditQuestions, setAuditQuestions] = useState<Question[]>(() => [
+    createEmptyQuestion('textarea'),
+    createEmptyQuestion('textarea'),
+    createEmptyQuestion('textarea'),
+  ].map((q, i) => ({
+    ...q,
+    text: [
+      "이 프로젝트의 가장 큰 장점은 무엇인가요?",
+      "이 프로젝트에서 가장 시급하게 보완해야할 점은 무엇인가요?",
+      "발전을 위해 조언해 주실 부분이 있다면 자유롭게 말씀해 주세요.",
+    ][i],
+  })));
   const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [demoShapeN, setDemoShapeN] = useState(6);
   const [direction, setDirection] = useState(1); // 1=forward, -1=back
@@ -180,7 +188,7 @@ export default function ProjectUploadPage() {
               setMediaData(config.mediaA || "");
               if (config.categories) setCustomCategories(config.categories);
               if (config.poll) { setPollDesc(config.poll.desc || ""); setPollOptions(config.poll.options || []); }
-              if (config.questions) setAuditQuestions(config.questions);
+              if (config.questions) setAuditQuestions(normalizeQuestions(config.questions));
             }
           }
         } catch (e) {
@@ -325,7 +333,7 @@ export default function ProjectUploadPage() {
       if (aiTitle) setTitle(aiTitle);
       if (aiSummary) setSummary(aiSummary);
       if (categories?.length >= 3) setCustomCategories(categories);
-      if (questions?.length >= 1) setAuditQuestions(questions);
+      if (questions?.length >= 1) setAuditQuestions(normalizeQuestions(questions));
       // Auto-fill media link
       const urlForMedia = analyzeUrl.startsWith('http') ? analyzeUrl : `https://${analyzeUrl}`;
       setAuditType('link');
@@ -980,6 +988,38 @@ export default function ProjectUploadPage() {
     </div>
   );
 
+  const QUESTION_TYPE_OPTIONS: { value: QuestionType; label: string; desc: string }[] = [
+    { value: 'textarea', label: '서술형', desc: '자유롭게 의견을 작성' },
+    { value: 'short_text', label: '단답형', desc: '한 줄로 간결하게 응답' },
+    { value: 'single_choice', label: '단일 선택', desc: '하나만 선택 (라디오)' },
+    { value: 'multiple_choice', label: '복수 선택', desc: '여러 개 선택 (체크박스)' },
+    { value: 'likert', label: '만족도 척도', desc: '1~5점 또는 1~7점 스케일' },
+  ];
+
+  const updateQuestion = (idx: number, patch: Partial<Question>) => {
+    setAuditQuestions(prev => prev.map((q, i) => i === idx ? { ...q, ...patch } : q));
+  };
+
+  const changeQuestionType = (idx: number, newType: QuestionType) => {
+    setAuditQuestions(prev => prev.map((q, i) => {
+      if (i !== idx) return q;
+      const updated: Question = { ...q, type: newType };
+      if ((newType === 'single_choice' || newType === 'multiple_choice') && !updated.options?.length) {
+        updated.options = ['', ''];
+      }
+      if (newType === 'likert') {
+        if (!updated.likertScale) updated.likertScale = 5;
+        if (!updated.likertLabels) updated.likertLabels = ['매우 불만족', '매우 만족'];
+      }
+      if (newType === 'textarea' || newType === 'short_text') {
+        delete updated.options;
+        delete updated.likertScale;
+        delete updated.likertLabels;
+      }
+      return updated;
+    }));
+  };
+
   const renderStepQuestions = () => {
     const isLastStep = !isAdmin;
     return (
@@ -989,27 +1029,147 @@ export default function ProjectUploadPage() {
           <h2 className="text-2xl md:text-4xl font-black text-chef-text leading-tight tracking-tight">
             평가자에게 물어볼<br />질문을 작성해주세요
           </h2>
-          <p className="text-sm text-chef-text/50">텍스트 답변으로 수집되어 핵심 인사이트가 됩니다.</p>
+          <p className="text-sm text-chef-text/50">다양한 질문 유형을 조합하여 깊이 있는 인사이트를 수집하세요.</p>
 
-          <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-1">
+          <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
             {auditQuestions.map((q, idx) => (
-              <div key={idx} className="bg-chef-panel border border-chef-border p-4 rounded-sm relative group">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[11px] font-black text-orange-500 uppercase tracking-widest">질문 {idx+1}</span>
+              <div key={q.id} className="bg-chef-panel border border-chef-border p-4 rounded-sm relative group">
+                {/* 헤더: 질문 번호 + 유형 선택 + 필수 토글 + 삭제 */}
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
+                  <span className="text-[11px] font-black text-orange-500 uppercase tracking-widest shrink-0">Q{idx+1}</span>
+                  <div className="relative">
+                    <select
+                      value={q.type}
+                      onChange={e => changeQuestionType(idx, e.target.value as QuestionType)}
+                      className="appearance-none bg-chef-bg border border-chef-border text-chef-text text-xs font-bold px-3 py-1.5 pr-7 rounded-sm outline-none focus:border-orange-500 transition-colors cursor-pointer"
+                    >
+                      {QUESTION_TYPE_OPTIONS.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-chef-text/40 pointer-events-none" />
+                  </div>
+                  <label className="flex items-center gap-1.5 ml-auto cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={q.required}
+                      onChange={e => updateQuestion(idx, { required: e.target.checked })}
+                      className="w-3.5 h-3.5 accent-orange-500"
+                    />
+                    <span className="text-[11px] text-chef-text/50 font-bold">필수</span>
+                  </label>
                   {auditQuestions.length > 1 && (
                     <button onClick={() => setAuditQuestions(auditQuestions.filter((_, i) => i !== idx))} className="text-chef-text opacity-20 hover:text-red-400 hover:opacity-100 transition-all p-1">
                       <FontAwesomeIcon icon={faTrash} size="xs" />
                     </button>
                   )}
                 </div>
-                <textarea value={q} onChange={e => { const next = [...auditQuestions]; next[idx] = e.target.value; setAuditQuestions(next); }}
-                  className="w-full min-h-[60px] bg-white/5 border border-chef-border focus:border-orange-500 text-chef-text font-bold text-sm p-3 placeholder:text-chef-text/10 outline-none transition-all resize-none leading-relaxed rounded-sm"
-                  placeholder="평가받고 싶은 질문을 입력하세요." rows={2}
+
+                {/* 질문 텍스트 입력 */}
+                <textarea
+                  value={q.text}
+                  onChange={e => updateQuestion(idx, { text: e.target.value })}
+                  className="w-full min-h-[48px] bg-white/5 border border-chef-border focus:border-orange-500 text-chef-text font-bold text-sm p-3 placeholder:text-chef-text/10 outline-none transition-all resize-none leading-relaxed rounded-sm"
+                  placeholder="평가받고 싶은 질문을 입력하세요."
+                  rows={2}
                 />
+
+                {/* 단일선택 / 복수선택 - 선택지 편집 */}
+                {(q.type === 'single_choice' || q.type === 'multiple_choice') && (
+                  <div className="mt-3 space-y-2">
+                    {(q.options || []).map((opt, oi) => (
+                      <div key={oi} className="flex items-center gap-2">
+                        <div className={cn(
+                          "w-4 h-4 border-2 border-chef-border shrink-0",
+                          q.type === 'single_choice' ? "rounded-full" : "rounded-sm"
+                        )} />
+                        <input
+                          type="text"
+                          value={opt}
+                          onChange={e => {
+                            const newOpts = [...(q.options || [])];
+                            newOpts[oi] = e.target.value;
+                            updateQuestion(idx, { options: newOpts });
+                          }}
+                          className="flex-1 bg-white/5 border border-chef-border focus:border-orange-500 text-chef-text text-sm px-3 py-1.5 outline-none transition-all rounded-sm"
+                          placeholder={`선택지 ${oi + 1}`}
+                        />
+                        {(q.options || []).length > 2 && (
+                          <button
+                            onClick={() => updateQuestion(idx, { options: (q.options || []).filter((_, i) => i !== oi) })}
+                            className="text-chef-text/20 hover:text-red-400 transition-colors p-1"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    {(q.options || []).length < 8 && (
+                      <button
+                        onClick={() => updateQuestion(idx, { options: [...(q.options || []), ''] })}
+                        className="text-xs font-bold text-chef-text/30 hover:text-orange-500 transition-colors flex items-center gap-1 mt-1"
+                      >
+                        <FontAwesomeIcon icon={faPlus} className="text-[10px]" /> 선택지 추가
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* 리커트 척도 설정 */}
+                {q.type === 'likert' && (
+                  <div className="mt-3 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-bold text-chef-text/50 shrink-0">척도</span>
+                      <div className="flex gap-2">
+                        {([5, 7] as const).map(scale => (
+                          <button
+                            key={scale}
+                            onClick={() => updateQuestion(idx, { likertScale: scale })}
+                            className={cn(
+                              "px-3 py-1 text-xs font-black rounded-sm border transition-all",
+                              q.likertScale === scale
+                                ? "border-orange-500 bg-orange-500/10 text-orange-500"
+                                : "border-chef-border text-chef-text/40 hover:border-chef-text/30"
+                            )}
+                          >
+                            {scale}점
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={q.likertLabels?.[0] || ''}
+                        onChange={e => updateQuestion(idx, { likertLabels: [e.target.value, q.likertLabels?.[1] || '매우 만족'] })}
+                        className="flex-1 bg-white/5 border border-chef-border focus:border-orange-500 text-chef-text text-xs px-3 py-1.5 outline-none transition-all rounded-sm text-center"
+                        placeholder="왼쪽 라벨 (예: 매우 불만족)"
+                      />
+                      <span className="text-chef-text/20 text-xs">~</span>
+                      <input
+                        type="text"
+                        value={q.likertLabels?.[1] || ''}
+                        onChange={e => updateQuestion(idx, { likertLabels: [q.likertLabels?.[0] || '매우 불만족', e.target.value] })}
+                        className="flex-1 bg-white/5 border border-chef-border focus:border-orange-500 text-chef-text text-xs px-3 py-1.5 outline-none transition-all rounded-sm text-center"
+                        placeholder="오른쪽 라벨 (예: 매우 만족)"
+                      />
+                    </div>
+                    {/* 미리보기 */}
+                    <div className="flex items-center justify-center gap-1 py-2">
+                      <span className="text-[11px] text-chef-text/30 mr-2">{q.likertLabels?.[0] || '매우 불만족'}</span>
+                      {Array.from({ length: q.likertScale || 5 }, (_, i) => (
+                        <div key={i} className="w-8 h-8 rounded-full border-2 border-chef-border flex items-center justify-center text-xs font-black text-chef-text/30">
+                          {i + 1}
+                        </div>
+                      ))}
+                      <span className="text-[11px] text-chef-text/30 ml-2">{q.likertLabels?.[1] || '매우 만족'}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
-            <Button variant="ghost" onClick={() => setAuditQuestions([...auditQuestions, ""])} disabled={auditQuestions.length >= 6} className="w-full h-12 border border-dashed border-chef-border text-chef-text opacity-20 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5 font-black uppercase tracking-widest transition-all text-xs rounded-sm">
-              <FontAwesomeIcon icon={faPlus} className="mr-2" /> 질문 추가 (최대 6개)
+            <Button variant="ghost" onClick={() => setAuditQuestions([...auditQuestions, createEmptyQuestion('textarea')])} disabled={auditQuestions.length >= 10} className="w-full h-12 border border-dashed border-chef-border text-chef-text opacity-20 hover:opacity-100 hover:bg-black/5 dark:hover:bg-white/5 font-black uppercase tracking-widest transition-all text-xs rounded-sm">
+              <FontAwesomeIcon icon={faPlus} className="mr-2" /> 질문 추가 (최대 10개)
             </Button>
           </div>
         </div>
