@@ -36,7 +36,7 @@ export function MyRatingIsHeader() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] chef-header-dark shadow-2xl backdrop-blur-md bg-white/80 dark:bg-black/20 border-b border-gray-200 dark:border-white/5">
+    <header className="fixed top-0 left-0 right-0 z-[100] shadow-2xl backdrop-blur-md bg-white/90 dark:bg-black/90 border-b border-chef-border">
       <div className="w-full px-2 md:px-10 h-14 md:h-16 flex items-center justify-between">
         {/* Left: Logo */}
         <div className="flex-shrink-0 flex justify-start">
