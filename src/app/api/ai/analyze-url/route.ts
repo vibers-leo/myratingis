@@ -144,9 +144,12 @@ JSON만 출력하세요:`;
     });
   } catch (error: any) {
     console.error('[analyze-url] Error:', error);
+    const isQuota = error.message?.includes('429') || error.message?.includes('quota') || error.message?.includes('Quota');
     return NextResponse.json({
       success: false,
-      error: error.message || 'URL 분석 중 오류가 발생했습니다.',
-    }, { status: 500 });
+      error: isQuota
+        ? 'AI 서비스 사용량이 초과되었습니다. 잠시 후 다시 시도해주세요.'
+        : 'AI 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+    }, { status: 200 });
   }
 }
