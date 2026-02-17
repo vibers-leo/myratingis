@@ -311,7 +311,7 @@ export default function ProjectUploadPage() {
           <div className="relative">
             <input
               autoFocus
-              placeholder="https://my-project.com"
+              placeholder="my-project.com"
               value={analyzeUrl}
               onChange={e => setAnalyzeUrl(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && analyzeUrl.trim() && !isAnalyzing && handleAiAnalyze()}
