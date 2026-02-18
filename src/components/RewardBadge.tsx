@@ -25,14 +25,14 @@ export function RewardBadge({ rewardConfig, ratingCount = 0 }: RewardBadgeProps)
     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-orange-500/10 border border-orange-500/20 rounded-md">
       <Gift className="w-3 h-3 text-orange-500" />
       <span className="text-[10px] font-black text-orange-500 tracking-wide">
-        {rewardConfig.amount.toLocaleString()}P
+        {(rewardConfig.amount || 0).toLocaleString()}P
       </span>
       <span className="text-[11px] font-bold text-chef-text/30 uppercase">
         {methodLabel[rewardConfig.method] || '선착순'}
       </span>
       <span className="text-[11px] font-bold text-chef-text/20 flex items-center gap-0.5">
         <Users className="w-2.5 h-2.5" />
-        {rewardConfig.count}명
+        {rewardConfig.count || 0}명
       </span>
     </div>
   );
