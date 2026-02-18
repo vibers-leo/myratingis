@@ -49,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const safetyTimer = setTimeout(() => {
       setLoading(false);
-    }, 3000);
+    }, 1500);
 
     const initializeAuth = async () => {
       try {
@@ -154,7 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
 
       console.log("[AuthContext] Sign-in successful:", data.user?.email);
-      router.push("/");
+      router.replace("/");
     } catch (error: any) {
        console.error("Email Login Failed", error);
        setAuthError(error.message);
@@ -167,7 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = useCallback(async () => {
     try {
       await supabase.auth.signOut();
-      router.push("/login");
+      router.replace("/login");
     } catch (error: any) {
       console.error("Logout Failed", error);
     }

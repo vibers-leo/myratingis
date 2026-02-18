@@ -30,11 +30,10 @@ function LoginContent() {
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
       let returnTo = searchParams.get("returnTo") || "/";
-      // Ensure same-origin absolute URLs are converted to relative paths for router
       if (typeof window !== 'undefined' && returnTo.startsWith(window.location.origin)) {
           returnTo = returnTo.replace(window.location.origin, '');
       }
-      router.push(returnTo);
+      router.replace(returnTo);
     }
   }, [isAuthenticated, authLoading, router, searchParams]);
 

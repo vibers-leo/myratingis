@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { Suspense, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -66,6 +66,14 @@ const STEP_LABELS = [
 ];
 
 export default function ProjectUploadPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center text-chef-text font-black animate-pulse">로딩 중...</div>}>
+      <ProjectUploadContent />
+    </Suspense>
+  );
+}
+
+function ProjectUploadContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading: authLoading, isAdmin } = useAuth();
