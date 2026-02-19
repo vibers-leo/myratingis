@@ -10,6 +10,15 @@ import { Colors, Spacing, FontSize, FontWeight, Radius, Shadow } from '@/constan
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
+/** Supabase Storage URL을 최적화된 이미지 URL로 변환 */
+function optimizeImageUrl(url: string | undefined | null, width = 800): string | null {
+  if (!url) return null;
+  if (url.includes('supabase.co/storage/v1/object/public')) {
+    return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}&q=80&output=webp`;
+  }
+  return url;
+}
+
 interface Props {
   id: string;
   onNavigate: (path: string) => void;
@@ -78,7 +87,7 @@ export default function ProjectDetailScreen({ id, onNavigate }: Props) {
         {/* Hero Image */}
         {project.thumbnail_url ? (
           <View style={styles.heroContainer}>
-            <Image source={{ uri: project.thumbnail_url }} style={styles.heroImage} resizeMode="cover" />
+            <Image source={{ uri: optimizeImageUrl(project.thumbnail_url) || project.thumbnail_url }} style={styles.heroImage} resizeMode="cover" />
             <View style={styles.heroOverlay} />
             {project.category_name ? (
               <View style={styles.heroBadge}>

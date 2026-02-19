@@ -8,6 +8,14 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
 import { Colors, Spacing, FontSize, FontWeight, Radius, Shadow } from '@/constants/theme';
 
+function optimizeImageUrl(url: string | undefined | null, width = 200): string | null {
+  if (!url) return null;
+  if (url.includes('supabase.co/storage/v1/object/public')) {
+    return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=${width}&q=80&output=webp`;
+  }
+  return url;
+}
+
 interface Props {
   onNavigate: (path: string) => void;
 }
@@ -186,7 +194,7 @@ export default function MyPageScreen({ onNavigate }: Props) {
             <TouchableOpacity key={rating.id} style={styles.ratingItem}
               onPress={() => onNavigate(`/report/${rating.project_id}`)} activeOpacity={0.8}>
               {rating.projects?.thumbnail_url ? (
-                <Image source={{ uri: rating.projects.thumbnail_url }} style={styles.ratingThumb} />
+                <Image source={{ uri: optimizeImageUrl(rating.projects.thumbnail_url) || rating.projects.thumbnail_url }} style={styles.ratingThumb} />
               ) : (
                 <View style={styles.ratingThumbPlaceholder}>
                   <Ionicons name="image-outline" size={18} color={Colors.textMuted} />
