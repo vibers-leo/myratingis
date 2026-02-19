@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
-import { Colors, Spacing, FontSize, FontWeight, Radius } from '@/constants/theme';
+import { Colors, CATEGORY_COLORS, Spacing, FontSize, FontWeight, Radius, Shadow } from '@/constants/theme';
 
 const SCORE_LABELS = ['창의성', '실용성', '완성도', '시장성', '디자인'];
 const SCORE_KEYS = ['creativity', 'practicality', 'completeness', 'marketability', 'design'];
+const SCORE_ICONS: Array<keyof typeof Ionicons.glyphMap> = [
+  'bulb-outline', 'construct-outline', 'checkmark-circle-outline',
+  'trending-up-outline', 'color-palette-outline',
+];
 
 interface Props { id: string; }
 
@@ -31,8 +36,11 @@ export default function ReportScreen({ id }: Props) {
   if (!project || ratings.length === 0) {
     return (
       <View style={styles.center}>
-        <Text style={{ fontSize: 40, marginBottom: 12 }}>📊</Text>
-        <Text style={{ fontWeight: FontWeight.bold, color: Colors.textSecondary }}>아직 평가 데이터가 없습니다</Text>
+        <View style={styles.emptyIcon}>
+          <Ionicons name="analytics-outline" size={40} color={Colors.textMuted} />
+        </View>
+        <Text style={styles.emptyTitle}>아직 평가 데이터가 없습니다</Text>
+        <Text style={styles.emptyDesc}>첫 번째 평가를 기다리고 있어요</Text>
       </View>
     );
   }
@@ -42,45 +50,86 @@ export default function ReportScreen({ id }: Props) {
     return vals.length > 0 ? Math.round((vals.reduce((a: number, b: number) => a + b, 0) / vals.length) * 10) / 10 : 0;
   });
   const overallAvg = Math.round((averages.reduce((a, b) => a + b, 0) / averages.length) * 10) / 10;
+  const maxIdx = averages.indexOf(Math.max(...averages));
+  const minIdx = averages.indexOf(Math.min(...averages));
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.pageTitle}>평가 리포트</Text>
-      <Text style={styles.projectName}>{project.title}</Text>
-
-      <View style={styles.overallCard}>
-        <Text style={styles.overallLabel}>종합 점수</Text>
-        <Text style={styles.overallScore}>{overallAvg}</Text>
-        <Text style={styles.overallParticipants}>{ratings.length}명 참여</Text>
+      {/* Header */}
+      <View style={styles.headerSection}>
+        <Text style={styles.headerBadge}>EVALUATION REPORT</Text>
+        <Text style={styles.projectName}>{project.title}</Text>
       </View>
 
-      <Text style={styles.sectionTitle}>항목별 점수</Text>
-      {SCORE_LABELS.map((label, idx) => (
-        <View key={label} style={styles.barItem}>
-          <View style={styles.barHeader}>
-            <Text style={styles.barLabel}>{label}</Text>
-            <Text style={styles.barValue}>{averages[idx]}</Text>
-          </View>
-          <View style={styles.barBg}>
-            <View style={[styles.barFill, { width: `${(averages[idx] / 10) * 100}%` }]} />
+      {/* Overall Score Card */}
+      <View style={styles.overallCard}>
+        <View style={styles.overallTop}>
+          <Text style={styles.overallLabel}>종합 점수</Text>
+          <View style={styles.participantsBadge}>
+            <Ionicons name="people" size={12} color={Colors.white} />
+            <Text style={styles.participantsText}>{ratings.length}명 참여</Text>
           </View>
         </View>
-      ))}
+        <Text style={styles.overallScore}>{overallAvg}</Text>
+        <Text style={styles.overallMax}>/ 10</Text>
+      </View>
 
-      <View style={styles.statsSection}>
-        <Text style={styles.sectionTitle}>평가 통계</Text>
-        <View style={styles.statsGrid}>
-          {[
-            { value: ratings.length, label: '총 평가 수' },
-            { value: overallAvg, label: '평균 점수' },
-            { value: Math.max(...averages).toFixed(1), label: '최고 항목' },
-            { value: Math.min(...averages).toFixed(1), label: '최저 항목' },
-          ].map((stat) => (
-            <View key={stat.label} style={styles.statCard}>
-              <Text style={styles.statNumber}>{stat.value}</Text>
-              <Text style={styles.statLabel}>{stat.label}</Text>
+      {/* Category Scores */}
+      <Text style={styles.sectionTitle}>항목별 점수</Text>
+      <View style={styles.scoresContainer}>
+        {SCORE_LABELS.map((label, idx) => (
+          <View key={label} style={styles.scoreRow}>
+            <View style={styles.scoreLeft}>
+              <View style={[styles.scoreIcon, { backgroundColor: `${CATEGORY_COLORS[idx]}18` }]}>
+                <Ionicons name={SCORE_ICONS[idx]} size={16} color={CATEGORY_COLORS[idx]} />
+              </View>
+              <Text style={styles.scoreLabel}>{label}</Text>
             </View>
-          ))}
+            <View style={styles.scoreRight}>
+              <View style={styles.barBg}>
+                <View style={[styles.barFill, {
+                  width: `${(averages[idx] / 10) * 100}%`,
+                  backgroundColor: CATEGORY_COLORS[idx],
+                }]} />
+              </View>
+              <Text style={[styles.scoreValue, { color: CATEGORY_COLORS[idx] }]}>{averages[idx]}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+
+      {/* Stats Grid */}
+      <Text style={styles.sectionTitle}>평가 통계</Text>
+      <View style={styles.statsGrid}>
+        <View style={styles.statCard}>
+          <View style={[styles.statIconBg, { backgroundColor: '#EFF6FF' }]}>
+            <Ionicons name="document-text" size={20} color={Colors.completeness} />
+          </View>
+          <Text style={styles.statValue}>{ratings.length}</Text>
+          <Text style={styles.statLabel}>총 평가 수</Text>
+        </View>
+        <View style={styles.statCard}>
+          <View style={[styles.statIconBg, { backgroundColor: Colors.primaryLight }]}>
+            <Ionicons name="star" size={20} color={Colors.primary} />
+          </View>
+          <Text style={styles.statValue}>{overallAvg}</Text>
+          <Text style={styles.statLabel}>평균 점수</Text>
+        </View>
+        <View style={styles.statCard}>
+          <View style={[styles.statIconBg, { backgroundColor: '#ECFDF5' }]}>
+            <Ionicons name="arrow-up-circle" size={20} color={Colors.success} />
+          </View>
+          <Text style={styles.statValue}>{averages[maxIdx]}</Text>
+          <Text style={styles.statLabel}>{SCORE_LABELS[maxIdx]}</Text>
+          <Text style={styles.statSubLabel}>최고 항목</Text>
+        </View>
+        <View style={styles.statCard}>
+          <View style={[styles.statIconBg, { backgroundColor: '#FEF2F2' }]}>
+            <Ionicons name="arrow-down-circle" size={20} color={Colors.error} />
+          </View>
+          <Text style={styles.statValue}>{averages[minIdx]}</Text>
+          <Text style={styles.statLabel}>{SCORE_LABELS[minIdx]}</Text>
+          <Text style={styles.statSubLabel}>최저 항목</Text>
         </View>
       </View>
     </ScrollView>
@@ -91,22 +140,118 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
   content: { padding: Spacing.lg, paddingBottom: 40 },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  pageTitle: { fontSize: 22, fontWeight: FontWeight.black, letterSpacing: -0.5, marginBottom: 4 },
-  projectName: { fontSize: FontSize.base, color: Colors.textSecondary, fontWeight: FontWeight.semibold, marginBottom: Spacing.xl },
-  overallCard: { borderRadius: Radius.lg, padding: Spacing.xl, alignItems: 'center', marginBottom: Spacing.xl, backgroundColor: Colors.primary },
-  overallLabel: { fontSize: FontSize.md, fontWeight: FontWeight.semibold, color: 'rgba(255,255,255,0.8)', marginBottom: 4 },
-  overallScore: { fontSize: 48, fontWeight: FontWeight.black, color: Colors.white, lineHeight: 56 },
-  overallParticipants: { fontSize: FontSize.md, fontWeight: FontWeight.semibold, color: 'rgba(255,255,255,0.8)', marginTop: 4 },
-  sectionTitle: { fontSize: FontSize.lg, fontWeight: FontWeight.extrabold, marginBottom: Spacing.base },
-  barItem: { marginBottom: Spacing.base },
-  barHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-  barLabel: { fontSize: FontSize.base, fontWeight: FontWeight.semibold },
-  barValue: { fontSize: FontSize.base, fontWeight: FontWeight.extrabold, color: Colors.primary },
-  barBg: { height: 8, backgroundColor: Colors.bgSecondary, borderRadius: 4, overflow: 'hidden' },
-  barFill: { height: '100%', backgroundColor: Colors.primary, borderRadius: 4 },
-  statsSection: { marginTop: Spacing.xl, backgroundColor: Colors.bgSecondary, borderRadius: Radius.lg, padding: Spacing.lg },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.md },
-  statCard: { width: '47%', backgroundColor: Colors.white, borderRadius: Radius.sm, padding: Spacing.base, alignItems: 'center' },
-  statNumber: { fontSize: 24, fontWeight: FontWeight.black },
-  statLabel: { fontSize: FontSize.sm, color: Colors.textSecondary, fontWeight: FontWeight.semibold },
+
+  // Empty
+  emptyIcon: {
+    width: 80, height: 80, borderRadius: 40,
+    backgroundColor: Colors.bgTertiary,
+    justifyContent: 'center', alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  emptyTitle: { fontSize: FontSize.lg, fontWeight: FontWeight.black, color: Colors.text, marginBottom: Spacing.xs },
+  emptyDesc: { fontSize: FontSize.base, color: Colors.textSecondary },
+
+  // Header
+  headerSection: { marginBottom: Spacing.xl },
+  headerBadge: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.black,
+    color: Colors.primary,
+    letterSpacing: 3,
+    marginBottom: Spacing.sm,
+  },
+  projectName: {
+    fontSize: FontSize.xxl,
+    fontWeight: FontWeight.black,
+    color: Colors.text,
+    letterSpacing: -0.5,
+  },
+
+  // Overall Score
+  overallCard: {
+    borderRadius: Radius.xl,
+    padding: Spacing.xl,
+    alignItems: 'center',
+    marginBottom: Spacing.xxl,
+    backgroundColor: Colors.primary,
+    ...Shadow.orange,
+  },
+  overallTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  overallLabel: {
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.semibold,
+    color: 'rgba(255,255,255,0.8)',
+  },
+  participantsBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: Radius.full,
+  },
+  participantsText: { fontSize: FontSize.xs, fontWeight: FontWeight.bold, color: Colors.white },
+  overallScore: { fontSize: 56, fontWeight: FontWeight.black, color: Colors.white, lineHeight: 64 },
+  overallMax: { fontSize: FontSize.lg, fontWeight: FontWeight.semibold, color: 'rgba(255,255,255,0.6)', marginTop: -4 },
+
+  // Section
+  sectionTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.black,
+    color: Colors.text,
+    letterSpacing: -0.3,
+    marginBottom: Spacing.base,
+  },
+
+  // Score Bars
+  scoresContainer: {
+    backgroundColor: Colors.bgSecondary,
+    borderRadius: Radius.lg,
+    padding: Spacing.base,
+    marginBottom: Spacing.xxl,
+  },
+  scoreRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: Spacing.sm,
+  },
+  scoreLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, width: 100 },
+  scoreIcon: {
+    width: 28, height: 28, borderRadius: 14,
+    justifyContent: 'center', alignItems: 'center',
+  },
+  scoreLabel: { fontSize: FontSize.md, fontWeight: FontWeight.bold, color: Colors.text },
+  scoreRight: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginLeft: Spacing.sm },
+  barBg: { flex: 1, height: 8, backgroundColor: Colors.bgTertiary, borderRadius: 4, overflow: 'hidden' },
+  barFill: { height: '100%', borderRadius: 4 },
+  scoreValue: { fontSize: FontSize.base, fontWeight: FontWeight.black, width: 32, textAlign: 'right' },
+
+  // Stats Grid
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+  },
+  statCard: {
+    width: '48.5%',
+    backgroundColor: Colors.bgSecondary,
+    borderRadius: Radius.md,
+    padding: Spacing.base,
+    alignItems: 'center',
+  },
+  statIconBg: {
+    width: 40, height: 40, borderRadius: 20,
+    justifyContent: 'center', alignItems: 'center',
+    marginBottom: Spacing.sm,
+  },
+  statValue: { fontSize: 22, fontWeight: FontWeight.black, color: Colors.text },
+  statLabel: { fontSize: FontSize.sm, color: Colors.textSecondary, fontWeight: FontWeight.semibold, marginTop: 2 },
+  statSubLabel: { fontSize: FontSize.xs, color: Colors.textTertiary, fontWeight: FontWeight.medium },
 });

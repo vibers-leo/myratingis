@@ -1,10 +1,15 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, Image,
-  RefreshControl, ActivityIndicator, StyleSheet,
+  RefreshControl, ActivityIndicator, StyleSheet, Dimensions,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
-import { Colors, Spacing, FontSize, FontWeight, Radius } from '@/constants/theme';
+import { Colors, Spacing, FontSize, FontWeight, Radius, Shadow } from '@/constants/theme';
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CARD_GAP = 12;
+const CARD_WIDTH = (SCREEN_WIDTH - Spacing.base * 2 - CARD_GAP) / 2;
 
 interface Project {
   id: string;
@@ -70,6 +75,62 @@ export default function HomeScreen({ onNavigate }: Props) {
     fetchProjects();
   }, [fetchProjects]);
 
+  const isNew = (dateStr: string) => {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    return diff < 7 * 24 * 60 * 60 * 1000; // 7일 이내
+  };
+
+  const renderCard = (project: Project, index: number) => (
+    <TouchableOpacity
+      key={project.id}
+      style={[styles.card, index % 2 === 0 ? { marginRight: CARD_GAP / 2 } : { marginLeft: CARD_GAP / 2 }]}
+      onPress={() => onNavigate(`/project/${project.id}`)}
+      activeOpacity={0.85}
+    >
+      <View style={styles.imageContainer}>
+        {project.thumbnail_url ? (
+          <Image source={{ uri: project.thumbnail_url }} style={styles.thumbnail} resizeMode="cover" />
+        ) : (
+          <View style={styles.thumbnailPlaceholder}>
+            <Ionicons name="image-outline" size={32} color={Colors.textMuted} />
+          </View>
+        )}
+
+        {/* Badges */}
+        <View style={styles.badgeContainer}>
+          {isNew(project.created_at) && (
+            <View style={styles.newBadge}>
+              <Text style={styles.newBadgeText}>NEW</Text>
+            </View>
+          )}
+          {(project.views_count || 0) > 50 && (
+            <View style={styles.hotBadge}>
+              <Ionicons name="flame" size={10} color="#92400E" />
+              <Text style={styles.hotBadgeText}>HOT</Text>
+            </View>
+          )}
+        </View>
+      </View>
+
+      <View style={styles.cardBody}>
+        {project.category_name ? (
+          <Text style={styles.categoryText} numberOfLines={1}>{project.category_name}</Text>
+        ) : null}
+        <Text style={styles.cardTitle} numberOfLines={2}>{project.title}</Text>
+        <View style={styles.cardMeta}>
+          <View style={styles.metaItem}>
+            <Ionicons name="eye-outline" size={11} color={Colors.textTertiary} />
+            <Text style={styles.metaText}>{project.views_count || 0}</Text>
+          </View>
+          <View style={styles.metaItem}>
+            <Ionicons name="heart" size={11} color={Colors.textTertiary} />
+            <Text style={styles.metaText}>{project.likes_count || 0}</Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+
   return (
     <ScrollView
       style={styles.container}
@@ -78,8 +139,20 @@ export default function HomeScreen({ onNavigate }: Props) {
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={Colors.primary} />
       }
     >
-      <Text style={styles.subtitle}>프로젝트를 평가하고 리워드를 받으세요</Text>
+      {/* Header */}
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.headerBadge}>MYRATINGIS</Text>
+          <Text style={styles.headerTitle}>
+            프로젝트를 평가하고{'\n'}리워드를 받으세요
+          </Text>
+        </View>
+        <View style={styles.headerIcon}>
+          <Ionicons name="restaurant" size={28} color={Colors.primary} />
+        </View>
+      </View>
 
+      {/* Filter */}
       <View style={styles.filterRow}>
         {(['latest', 'popular'] as Filter[]).map((f) => (
           <TouchableOpacity
@@ -87,6 +160,11 @@ export default function HomeScreen({ onNavigate }: Props) {
             onPress={() => setFilter(f)}
             style={[styles.filterBtn, filter === f && styles.filterBtnActive]}
           >
+            <Ionicons
+              name={f === 'latest' ? 'time-outline' : 'trending-up'}
+              size={14}
+              color={filter === f ? Colors.white : Colors.textSecondary}
+            />
             <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>
               {f === 'latest' ? '최신순' : '인기순'}
             </Text>
@@ -94,46 +172,23 @@ export default function HomeScreen({ onNavigate }: Props) {
         ))}
       </View>
 
+      {/* Content */}
       {loading ? (
         <View style={styles.center}>
           <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       ) : projects.length === 0 ? (
         <View style={styles.empty}>
-          <Text style={styles.emptyEmoji}>🍳</Text>
-          <Text style={styles.emptyText}>등록된 프로젝트가 없습니다</Text>
+          <View style={styles.emptyIcon}>
+            <Ionicons name="search-outline" size={40} color={Colors.textMuted} />
+          </View>
+          <Text style={styles.emptyTitle}>등록된 프로젝트가 없습니다</Text>
+          <Text style={styles.emptyDesc}>새로운 프로젝트가 등록되면 알려드릴게요</Text>
         </View>
       ) : (
-        projects.map((project) => (
-          <TouchableOpacity
-            key={project.id}
-            style={styles.card}
-            onPress={() => onNavigate(`/project/${project.id}`)}
-            activeOpacity={0.7}
-          >
-            {project.thumbnail_url ? (
-              <Image source={{ uri: project.thumbnail_url }} style={styles.thumbnail} resizeMode="cover" />
-            ) : null}
-            <View style={styles.cardContent}>
-              {project.category_name ? (
-                <View style={styles.categoryBadge}>
-                  <Text style={styles.categoryText}>{project.category_name}</Text>
-                </View>
-              ) : null}
-              <Text style={styles.cardTitle} numberOfLines={2}>{project.title}</Text>
-              <Text style={styles.cardDesc} numberOfLines={2}>
-                {project.summary || project.description || ''}
-              </Text>
-              <View style={styles.cardMeta}>
-                <Text style={styles.metaText}>👀 {project.views_count || 0}</Text>
-                <Text style={styles.metaText}>❤️ {project.likes_count || 0}</Text>
-                <Text style={styles.metaDate}>
-                  {new Date(project.created_at).toLocaleDateString('ko-KR')}
-                </Text>
-              </View>
-            </View>
-          </TouchableOpacity>
-        ))
+        <View style={styles.grid}>
+          {projects.map((project, index) => renderCard(project, index))}
+        </View>
       )}
     </ScrollView>
   );
@@ -141,25 +196,189 @@ export default function HomeScreen({ onNavigate }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.bg },
-  content: { padding: Spacing.base, paddingBottom: Spacing.xxl },
-  subtitle: { fontSize: FontSize.base, color: Colors.textSecondary, fontWeight: FontWeight.medium, marginBottom: Spacing.lg },
-  filterRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.lg },
-  filterBtn: { paddingHorizontal: 18, paddingVertical: Spacing.sm, borderRadius: 20, backgroundColor: Colors.bgSecondary },
-  filterBtnActive: { backgroundColor: Colors.text },
-  filterText: { fontSize: FontSize.md, fontWeight: FontWeight.bold, color: Colors.textSecondary },
+  content: { paddingBottom: Spacing.xxxl },
+
+  // Header
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    paddingHorizontal: Spacing.base,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.xl,
+  },
+  headerBadge: {
+    fontSize: FontSize.xs,
+    fontWeight: FontWeight.black,
+    color: Colors.primary,
+    letterSpacing: 3,
+    marginBottom: Spacing.sm,
+  },
+  headerTitle: {
+    fontSize: FontSize.xxl,
+    fontWeight: FontWeight.black,
+    color: Colors.text,
+    lineHeight: 28,
+    letterSpacing: -0.5,
+  },
+  headerIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: Colors.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  // Filter
+  filterRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.base,
+    marginBottom: Spacing.lg,
+  },
+  filterBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: Radius.full,
+    backgroundColor: Colors.bgTertiary,
+  },
+  filterBtnActive: {
+    backgroundColor: Colors.text,
+  },
+  filterText: {
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.bold,
+    color: Colors.textSecondary,
+  },
   filterTextActive: { color: Colors.white },
-  center: { paddingVertical: 60, alignItems: 'center' },
+
+  // Grid
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    paddingHorizontal: Spacing.base,
+  },
+
+  // Card
+  card: {
+    width: CARD_WIDTH,
+    marginBottom: Spacing.base,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.white,
+    overflow: 'hidden',
+    ...Shadow.sm,
+  },
+  imageContainer: {
+    position: 'relative',
+  },
+  thumbnail: {
+    width: '100%',
+    aspectRatio: 4 / 3,
+    backgroundColor: Colors.bgTertiary,
+  },
+  thumbnailPlaceholder: {
+    width: '100%',
+    aspectRatio: 4 / 3,
+    backgroundColor: Colors.bgTertiary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  badgeContainer: {
+    position: 'absolute',
+    top: 8,
+    left: 8,
+    flexDirection: 'row',
+    gap: 4,
+  },
+  newBadge: {
+    backgroundColor: Colors.indigo,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: Radius.full,
+  },
+  newBadgeText: {
+    color: Colors.white,
+    fontSize: 9,
+    fontWeight: FontWeight.black,
+    letterSpacing: 0.5,
+  },
+  hotBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    backgroundColor: '#FDE68A',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: Radius.full,
+  },
+  hotBadgeText: {
+    color: '#92400E',
+    fontSize: 9,
+    fontWeight: FontWeight.black,
+  },
+
+  // Card Body
+  cardBody: {
+    padding: Spacing.sm,
+    paddingTop: 10,
+    paddingBottom: Spacing.md,
+  },
+  categoryText: {
+    fontSize: 10,
+    fontWeight: FontWeight.black,
+    color: Colors.primary,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
+  cardTitle: {
+    fontSize: FontSize.base,
+    fontWeight: FontWeight.black,
+    color: Colors.text,
+    lineHeight: 19,
+    letterSpacing: -0.3,
+    marginBottom: 6,
+  },
+  cardMeta: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    alignItems: 'center',
+  },
+  metaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+  },
+  metaText: {
+    fontSize: 10,
+    fontWeight: FontWeight.bold,
+    color: Colors.textTertiary,
+  },
+
+  // States
+  center: { paddingVertical: 80, alignItems: 'center' },
   empty: { alignItems: 'center', paddingVertical: 60 },
-  emptyEmoji: { fontSize: 40, marginBottom: Spacing.md },
-  emptyText: { fontWeight: FontWeight.bold, color: Colors.textSecondary },
-  card: { backgroundColor: Colors.white, borderRadius: Radius.lg, borderWidth: 1, borderColor: Colors.border, overflow: 'hidden', marginBottom: Spacing.base },
-  thumbnail: { width: '100%', aspectRatio: 16 / 9, backgroundColor: Colors.bgSecondary },
-  cardContent: { padding: Spacing.base },
-  categoryBadge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 3, backgroundColor: Colors.primaryLight, borderRadius: 6, marginBottom: Spacing.sm },
-  categoryText: { fontSize: FontSize.xs, fontWeight: FontWeight.extrabold, color: Colors.primary },
-  cardTitle: { fontSize: 17, fontWeight: FontWeight.extrabold, lineHeight: 22, marginBottom: 6, color: Colors.text },
-  cardDesc: { fontSize: FontSize.md, color: Colors.textSecondary, lineHeight: 20, marginBottom: Spacing.md },
-  cardMeta: { flexDirection: 'row', gap: Spacing.md, alignItems: 'center' },
-  metaText: { fontSize: FontSize.sm, color: Colors.textSecondary },
-  metaDate: { fontSize: FontSize.sm, color: Colors.textSecondary, marginLeft: 'auto' },
+  emptyIcon: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: Colors.bgTertiary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
+  },
+  emptyTitle: {
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.black,
+    color: Colors.text,
+    marginBottom: Spacing.xs,
+  },
+  emptyDesc: {
+    fontSize: FontSize.base,
+    color: Colors.textSecondary,
+  },
 });

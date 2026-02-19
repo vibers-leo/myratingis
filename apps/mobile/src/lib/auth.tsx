@@ -35,16 +35,12 @@ const AuthContext = createContext<AuthContextType>({
 
 /**
  * 앱인토스 환경인지 감지
- * 앱인토스 내에서 실행될 때는 @apps-in-toss/framework가 사용 가능
+ * 추후 @apps-in-toss/framework SDK 연동 시 활성화
  */
 function isAppsInTossEnvironment(): boolean {
-  try {
-    // 앱인토스 SDK가 설치되어 있으면 true
-    require('@apps-in-toss/framework');
-    return true;
-  } catch {
-    return false;
-  }
+  // TODO: 앱인토스 SDK 연동 후 활성화
+  // 현재는 독립 앱 모드로 동작
+  return false;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -104,31 +100,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginWithToss = async () => {
     try {
       if (isAppsInTossEnvironment()) {
-        // 앱인토스 실제 로그인
-        const { appLogin } = require('@apps-in-toss/framework');
-        const { authorizationCode, referrer } = await appLogin();
-
-        const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
-        const res = await fetch(`${supabaseUrl}/functions/v1/toss-auth`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            code: authorizationCode,
-            referrer,
-          }),
-        });
-
-        if (!res.ok) {
-          throw new Error(`Auth failed: ${res.status}`);
-        }
-
-        const { access_token, refresh_token } = await res.json();
-        await supabase.auth.setSession({ access_token, refresh_token });
+        // TODO: 앱인토스 SDK 연동 후 실제 토스 로그인 구현
+        // const { appLogin } = require('@apps-in-toss/framework');
+        // const { authorizationCode, referrer } = await appLogin();
+        Alert.alert('토스 로그인', '앱인토스 SDK 연동 후 사용 가능합니다.');
       } else {
-        // 개발 환경: 이메일/비밀번호 로그인 안내
         Alert.alert(
           '토스 로그인',
-          '앱인토스 환경에서만 사용 가능합니다.\n\n개발 중에는 아래 테스트 계정으로 로그인하세요:\n\n이메일: test@myratingis.kr\n비밀번호: test1234',
+          '앱인토스 환경에서만 사용 가능합니다.\n\n개발 중에는 이메일 로그인을 이용해주세요.',
         );
       }
     } catch (e: any) {
