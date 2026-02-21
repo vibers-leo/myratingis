@@ -73,34 +73,49 @@ export default function ReportPage() {
   }, [ratings, user]);
 
   const handleDownloadCSV = () => {
-    if (!ratings || ratings.length === 0) return toast.error("다운로드할 데이터가 없습니다.");
+    try {
+      if (!ratings || ratings.length === 0) return toast.error("다운로드할 데이터가 없습니다.");
 
-    // CSV Header
-    const headers = ["User", "Job", "Score", "Date", "Review Details"];
-    
-    // CSV Rows
-    const rows = ratings.map(r => {
-       const name = r.user_nickname || r.username || "Anonymous";
-       const job = r.user_job || r.expertise?.[0] || "";
-       const score = r.score || 0;
-       const date = new Date(r.created_at).toLocaleDateString();
-       const proposal = (r.proposal || "").replace(/"/g, '""'); // Escape quotes
-       const answers = Object.entries(r.custom_answers || {})
-           .map(([q, a]) => `${q}: ${a}`)
-           .join(" | ")
-           .replace(/"/g, '""');
+      const esc = (v: any) => {
+        const s = String(v ?? '').replace(/\r?\n/g, ' ');
+        return `"${s.replace(/"/g, '""')}"`;
+      };
 
-       return `"${name}","${job}","${score}","${date}","Proposal: ${proposal} / Answers: ${answers}"`;
-    });
+      const headers = ["평가자", "직업", "종합점수", "항목별점수", "투표", "날짜", "제안", "질문응답"];
 
-    const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + [headers.join(","), ...rows].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${project?.title || 'project'}_evaluation_report.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const rows = ratings.map(r => {
+        const name = r.user_nickname || r.username || "Anonymous";
+        const job = r.user_job || r.expertise?.[0] || "";
+        const score = typeof r.score === 'number' ? r.score.toFixed(1) : "0";
+        const categoryScores = r.scores
+          ? Object.entries(r.scores).map(([k, v]) => `${k}:${v}`).join(' / ')
+          : "";
+        const vote = r.vote_type || "";
+        const date = r.created_at ? new Date(r.created_at).toLocaleDateString('ko-KR') : "";
+        const proposal = r.proposal || "";
+        const answers = Object.entries(r.custom_answers || {})
+          .map(([q, a]) => `${q}: ${Array.isArray(a) ? a.join(', ') : a}`)
+          .join(" | ");
+
+        return [name, job, score, categoryScores, vote, date, proposal, answers].map(esc).join(",");
+      });
+
+      const csvString = "\uFEFF" + [headers.map(esc).join(","), ...rows].join("\n");
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const filename = (project?.title || 'project').replace(/[\\/:*?"<>|]/g, '_');
+      link.href = url;
+      link.download = `${filename}_평가리포트.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      toast.success("CSV 파일이 다운로드되었습니다.");
+    } catch (e) {
+      console.error("CSV download error:", e);
+      toast.error("CSV 다운로드에 실패했습니다.");
+    }
   };
 
   const handlePrint = () => {
