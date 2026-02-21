@@ -225,6 +225,22 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
   };
 
   const handleProjectRoute = (p: any) => {
+    // 조회수 증가 (projects 테이블 UUID 직접 업데이트, fire-and-forget)
+    (supabase as any)
+      .from('projects')
+      .select('views_count')
+      .eq('id', p.project_id)
+      .single()
+      .then(({ data }: any) => {
+        if (data) {
+          (supabase as any)
+            .from('projects')
+            .update({ views_count: (data.views_count || 0) + 1 })
+            .eq('id', p.project_id)
+            .then(() => {});
+        }
+      });
+
     if (p.has_rated) {
       router.push(`/report/${p.project_id}`);
     } else {
@@ -359,11 +375,21 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                          <ArrowRight className="text-white opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100" size={32} />
                       </div>
                       
-                      {p.has_rated && (
-                        <div className="absolute top-3 left-3 px-3 py-1 bg-green-600/90 backdrop-blur-md rounded-full text-[11px] font-black text-white uppercase tracking-widest z-10">
-                          마감
-                        </div>
-                      )}
+                      {(() => {
+                        const dl = p.audit_deadline || p.custom_data?.audit_config?.deadline;
+                        const isExpired = dl && new Date(dl) < new Date();
+                        if (isExpired) return (
+                          <div className="absolute top-3 left-3 px-3 py-1 bg-red-600/90 backdrop-blur-md rounded-full text-[11px] font-black text-white uppercase tracking-widest z-10">
+                            마감
+                          </div>
+                        );
+                        if (p.has_rated) return (
+                          <div className="absolute top-3 left-3 px-3 py-1 bg-green-600/90 backdrop-blur-md rounded-full text-[11px] font-black text-white uppercase tracking-widest z-10">
+                            평가완료
+                          </div>
+                        );
+                        return null;
+                      })()}
                    </div>
 
                    {/* Middle: Content Section */}
@@ -402,7 +428,9 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                         {(() => {
                           const deadline = p.audit_deadline || p.custom_data?.audit_config?.deadline;
                           if (!deadline) return null;
-                          const daysLeft = Math.ceil((new Date(deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                          const now = new Date();
+                          const deadlineDate = new Date(deadline);
+                          const daysLeft = Math.ceil((deadlineDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
                           if (daysLeft < 0) return (
                             <span className="text-[10px] font-black text-red-500 uppercase tracking-widest">마감됨</span>
                           );
@@ -415,9 +443,15 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                         <div className="flex items-center gap-1.5 ml-auto md:ml-0">
                            <Clock className="w-3.5 h-3.5 text-chef-text opacity-50" />
                            <span className="text-[10px] font-black text-chef-text opacity-60 uppercase tracking-widest leading-none">
-                            {p.created_at
+                            {(() => {
+                              const deadline = p.audit_deadline || p.custom_data?.audit_config?.deadline;
+                              if (deadline) {
+                                return `마감 ${new Date(deadline).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })}`;
+                              }
+                              return p.created_at
                                 ? new Date(p.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })
-                                : "N/A"}
+                                : "N/A";
+                            })()}
                            </span>
                         </div>
                       </div>
