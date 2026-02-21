@@ -47,13 +47,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const safetyTimer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
+    // getSession()은 로컬 쿠키에서 읽기만 하므로 빠름 (네트워크 요청 없음)
+    // onAuthStateChange가 INITIAL_SESSION 이벤트로 초기 상태를 전달하므로
+    // getSession()은 초기 빠른 세팅용, onAuthStateChange는 이후 변경 감지용
+    let isMounted = true;
 
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        if (!isMounted) return;
         if (session) {
           setUser(session.user);
           fetchUserProfile(session.user.id);
@@ -61,18 +63,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error("[AuthContext] Initialization error:", error);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
 
     initializeAuth();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log(`[AuthContext] Auth State Event: ${event}`);
+      if (!isMounted) return;
 
       if (session) {
         setUser(session.user);
-        fetchUserProfile(session.user.id);
+        // INITIAL_SESSION은 이미 getSession에서 처리했으므로 프로필 재요청 스킵
+        if (event !== 'INITIAL_SESSION') {
+          fetchUserProfile(session.user.id);
+        }
       } else {
         setUser(null);
         setUserProfile(null);
@@ -81,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => {
-      clearTimeout(safetyTimer);
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, [fetchUserProfile]);

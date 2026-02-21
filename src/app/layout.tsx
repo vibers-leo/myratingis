@@ -8,9 +8,11 @@ import { Toaster } from "@/components/ui/sonner";
 import { AutoLogoutProvider } from "@/components/AutoLogoutProvider";
 import NextTopLoader from "nextjs-toploader";
 import { RootLayoutContent } from "@/components/layout/RootLayoutContent";
-import RealtimeListener from "@/components/RealtimeListener";
+import dynamic from "next/dynamic";
 import { VisitTracker } from "@/components/VisitTracker";
 import { OnboardingModal } from "@/components/auth/OnboardingModal";
+
+const RealtimeListener = dynamic(() => import("@/components/RealtimeListener"), { ssr: false });
 
 // Optimized font loading with next/font (auto-subset, self-hosted)
 const inter = Inter({

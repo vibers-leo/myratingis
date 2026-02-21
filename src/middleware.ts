@@ -38,6 +38,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Only run middleware on routes that need auth session refresh
+    // /api/* 제외 — API 라우트는 자체적으로 인증 처리하므로 미들웨어 불필요
     '/mypage/:path*',
     '/project/upload/:path*',
     '/project/edit/:path*',
@@ -46,6 +47,5 @@ export const config = {
     '/onboarding/:path*',
     '/settings/:path*',
     '/auth/:path*',
-    '/api/:path*',
   ],
 }
