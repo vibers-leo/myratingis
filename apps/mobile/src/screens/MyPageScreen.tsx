@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, Image,
-  ActivityIndicator, Alert, StyleSheet, TextInput,
+  ActivityIndicator, Alert, StyleSheet, TextInput, Linking,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
-import { Colors, Spacing, FontSize, FontWeight, Radius, Shadow } from '@/constants/theme';
+import { Colors, Spacing, FontSize, FontWeight, Radius, Shadow, Typography } from '@/constants/theme';
 
 function optimizeImageUrl(url: string | undefined | null, width = 200): string | null {
   if (!url) return null;
@@ -52,6 +52,24 @@ export default function MyPageScreen({ onNavigate }: Props) {
     setLoginLoading(true);
     await loginWithEmail(email.trim(), password);
     setLoginLoading(false);
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: 'myratingis://auth/callback',
+        },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        await Linking.openURL(data.url);
+      }
+    } catch (e) {
+      console.error('Google login failed:', e);
+      Alert.alert('로그인 실패', 'Google 로그인에 실패했습니다.');
+    }
   };
 
   if (authLoading) return <View style={styles.center}><ActivityIndicator size="large" color={Colors.primary} /></View>;
@@ -121,9 +139,17 @@ export default function MyPageScreen({ onNavigate }: Props) {
           <View style={styles.dividerLine} />
         </View>
 
-        <TouchableOpacity style={styles.tossLoginBtn} onPress={loginWithToss} activeOpacity={0.85}>
-          <Text style={styles.tossLoginBtnText}>토스로 로그인</Text>
-        </TouchableOpacity>
+        {/* Social Login Buttons */}
+        <View style={styles.socialLoginSection}>
+          <TouchableOpacity style={styles.googleLoginBtn} onPress={handleGoogleLogin} activeOpacity={0.85}>
+            <Ionicons name="logo-google" size={18} color={Colors.white} />
+            <Text style={styles.googleLoginBtnText}>Google로 로그인</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.tossLoginBtn} onPress={loginWithToss} activeOpacity={0.85}>
+            <Text style={styles.tossLoginBtnText}>토스로 로그인</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
@@ -147,7 +173,7 @@ export default function MyPageScreen({ onNavigate }: Props) {
             <Text style={styles.profileEmail}>{user?.email || ''}</Text>
           </View>
           <TouchableOpacity style={styles.settingsBtn}>
-            <Ionicons name="settings-outline" size={20} color={Colors.textSecondary} />
+            <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
@@ -241,10 +267,9 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.base,
   },
   loginBrand: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.black,
+    ...Typography.metaLabel,
+    letterSpacing: 4,
     color: Colors.primary,
-    letterSpacing: 3,
     marginBottom: Spacing.sm,
   },
   loginTitle: { fontSize: FontSize.title, fontWeight: FontWeight.black, color: Colors.text, marginBottom: Spacing.sm },
@@ -253,13 +278,13 @@ const styles = StyleSheet.create({
   // Form
   formSection: { marginBottom: Spacing.xl },
   inputGroup: { marginBottom: Spacing.base },
-  inputLabel: { fontSize: FontSize.sm, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: 6 },
+  inputLabel: { fontSize: FontSize.sm, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: 6, textTransform: 'uppercase', letterSpacing: 1 },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: Radius.md,
+    borderRadius: Radius.xl,
     backgroundColor: Colors.bgSecondary,
     overflow: 'hidden',
   },
@@ -273,14 +298,22 @@ const styles = StyleSheet.create({
   },
   emailLoginBtn: {
     height: 52,
-    borderRadius: Radius.md,
+    borderRadius: Radius.xl,
     backgroundColor: Colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: Spacing.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
     ...Shadow.orange,
   },
-  emailLoginBtnText: { color: Colors.white, fontSize: FontSize.lg, fontWeight: FontWeight.extrabold },
+  emailLoginBtnText: {
+    color: Colors.white,
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.black,
+    fontStyle: 'italic',
+    textTransform: 'uppercase',
+  },
 
   // Divider
   divider: {
@@ -291,15 +324,36 @@ const styles = StyleSheet.create({
   dividerLine: { flex: 1, height: 1, backgroundColor: Colors.border },
   dividerText: { marginHorizontal: Spacing.base, fontSize: FontSize.sm, color: Colors.textTertiary },
 
-  // Toss Login
+  // Social Login
+  socialLoginSection: {
+    gap: Spacing.sm,
+  },
+  googleLoginBtn: {
+    height: 52,
+    borderRadius: Radius.xl,
+    backgroundColor: Colors.google,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  googleLoginBtnText: {
+    color: Colors.white,
+    fontSize: FontSize.lg,
+    fontWeight: FontWeight.black,
+  },
   tossLoginBtn: {
     height: 52,
-    borderRadius: Radius.md,
+    borderRadius: Radius.xl,
     backgroundColor: Colors.tossBlue,
     justifyContent: 'center',
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
-  tossLoginBtnText: { color: Colors.white, fontSize: FontSize.lg, fontWeight: FontWeight.extrabold },
+  tossLoginBtnText: { color: Colors.white, fontSize: FontSize.lg, fontWeight: FontWeight.black },
 
   // Profile Section
   profileSection: {
@@ -319,11 +373,18 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     justifyContent: 'center', alignItems: 'center',
     marginRight: Spacing.md,
+    borderWidth: 3,
+    borderColor: Colors.primaryLight,
   },
   avatarImage: { width: 56, height: 56, borderRadius: 28 },
   avatarText: { color: Colors.white, fontSize: 22, fontWeight: FontWeight.black },
   profileInfo: { flex: 1 },
-  profileName: { fontSize: FontSize.xl, fontWeight: FontWeight.black, color: Colors.text },
+  profileName: {
+    fontSize: FontSize.xl,
+    fontWeight: FontWeight.black,
+    color: Colors.text,
+    fontStyle: 'italic',
+  },
   profileEmail: { fontSize: FontSize.md, color: Colors.textSecondary, marginTop: 2 },
   settingsBtn: {
     width: 40, height: 40, borderRadius: 20,
@@ -337,10 +398,19 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bgSecondary,
     borderRadius: Radius.md,
     padding: Spacing.base,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
   },
   statItem: { flex: 1, alignItems: 'center' },
-  statNumber: { fontSize: FontSize.xxl, fontWeight: FontWeight.black, color: Colors.text },
-  statLabel: { fontSize: FontSize.xs, color: Colors.textSecondary, fontWeight: FontWeight.semibold, marginTop: 2 },
+  statNumber: { fontSize: FontSize.xxl, fontWeight: FontWeight.black, color: Colors.text, fontStyle: 'italic' },
+  statLabel: {
+    fontSize: FontSize.xs,
+    color: Colors.textSecondary,
+    fontWeight: FontWeight.semibold,
+    marginTop: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
   statDivider: { width: 1, backgroundColor: Colors.border, marginVertical: 4 },
 
   // Rating Section
@@ -375,10 +445,11 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingHorizontal: 20,
     paddingVertical: 10,
-    borderRadius: Radius.md,
+    borderRadius: Radius.xl,
     backgroundColor: Colors.primary,
+    ...Shadow.orange,
   },
-  emptyBtnText: { color: Colors.white, fontWeight: FontWeight.bold, fontSize: FontSize.base },
+  emptyBtnText: { color: Colors.white, fontWeight: FontWeight.black, fontSize: FontSize.base },
 
   // Rating Item
   ratingItem: {
@@ -402,7 +473,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryLight,
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: Radius.sm,
+    borderRadius: Radius.full,
   },
   scoreText: { fontSize: FontSize.md, fontWeight: FontWeight.black, color: Colors.primary },
 

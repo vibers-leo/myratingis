@@ -1,16 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, Image,
-  ActivityIndicator, StyleSheet, Dimensions,
+  ActivityIndicator, StyleSheet, Dimensions, Animated, Pressable, Share,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/lib/auth';
-import { Colors, Spacing, FontSize, FontWeight, Radius, Shadow } from '@/constants/theme';
+import { Colors, Spacing, FontSize, FontWeight, Radius, Shadow, Typography } from '@/constants/theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-/** Supabase Storage URL을 최적화된 이미지 URL로 변환 */
 function optimizeImageUrl(url: string | undefined | null, width = 800): string | null {
   if (!url) return null;
   if (url.includes('supabase.co/storage/v1/object/public')) {
@@ -30,6 +29,13 @@ export default function ProjectDetailScreen({ id, onNavigate }: Props) {
   const [loading, setLoading] = useState(true);
   const [hasRated, setHasRated] = useState(false);
   const [ratingCount, setRatingCount] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
+
+  // Animation refs for social buttons
+  const likeScale = useRef(new Animated.Value(1)).current;
+  const bookmarkScale = useRef(new Animated.Value(1)).current;
+  const shareScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     if (id) fetchProject(id);
@@ -42,6 +48,7 @@ export default function ProjectDetailScreen({ id, onNavigate }: Props) {
         .from('projects').select('*').eq('id', projectId).single();
       if (error) throw error;
       setProject(data);
+      setLikeCount(data?.likes_count || 0);
 
       const { count } = await (supabase as any)
         .from('ProjectRating')
@@ -50,17 +57,60 @@ export default function ProjectDetailScreen({ id, onNavigate }: Props) {
       setRatingCount(count || 0);
 
       if (user) {
-        const { data: myRating } = await (supabase as any)
-          .from('ProjectRating').select('id')
-          .eq('project_id', projectId).eq('user_id', user.id)
-          .limit(1).single();
-        setHasRated(!!myRating);
+        const [ratingRes, likeRes] = await Promise.all([
+          (supabase as any).from('ProjectRating').select('id')
+            .eq('project_id', projectId).eq('user_id', user.id).limit(1).single(),
+          (supabase as any).from('project_likes').select('id')
+            .eq('project_id', projectId).eq('user_id', user.id).single(),
+        ]);
+        setHasRated(!!ratingRes.data);
+        setIsLiked(!likeRes.error && !!likeRes.data);
       }
     } catch (e) {
       console.error('Failed to fetch project:', e);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLike = async () => {
+    if (!user) return;
+    // Animate
+    Animated.sequence([
+      Animated.spring(likeScale, { toValue: 0.8, useNativeDriver: true, speed: 50 }),
+      Animated.spring(likeScale, { toValue: 1, useNativeDriver: true, speed: 50, bounciness: 12 }),
+    ]).start();
+
+    // Optimistic update
+    const wasLiked = isLiked;
+    setIsLiked(!wasLiked);
+    setLikeCount(prev => wasLiked ? prev - 1 : prev + 1);
+
+    try {
+      if (wasLiked) {
+        await (supabase as any).from('project_likes')
+          .delete().eq('project_id', id).eq('user_id', user.id);
+      } else {
+        await (supabase as any).from('project_likes')
+          .insert({ project_id: id, user_id: user.id });
+      }
+    } catch (e) {
+      // Rollback
+      setIsLiked(wasLiked);
+      setLikeCount(prev => wasLiked ? prev + 1 : prev - 1);
+    }
+  };
+
+  const handleShare = async () => {
+    Animated.sequence([
+      Animated.spring(shareScale, { toValue: 0.8, useNativeDriver: true, speed: 50 }),
+      Animated.spring(shareScale, { toValue: 1, useNativeDriver: true, speed: 50 }),
+    ]).start();
+    try {
+      await Share.share({
+        message: `${project?.title} - 제 평가는요?\nhttps://myratingis.kr/project/${id}`,
+      });
+    } catch (e) {}
   };
 
   if (loading) {
@@ -88,7 +138,6 @@ export default function ProjectDetailScreen({ id, onNavigate }: Props) {
         {project.thumbnail_url ? (
           <View style={styles.heroContainer}>
             <Image source={{ uri: optimizeImageUrl(project.thumbnail_url) || project.thumbnail_url }} style={styles.heroImage} resizeMode="cover" />
-            <View style={styles.heroOverlay} />
             {project.category_name ? (
               <View style={styles.heroBadge}>
                 <Text style={styles.heroBadgeText}>{project.category_name}</Text>
@@ -96,6 +145,31 @@ export default function ProjectDetailScreen({ id, onNavigate }: Props) {
             ) : null}
           </View>
         ) : null}
+
+        {/* Social Action Bar */}
+        <View style={styles.socialBar}>
+          <Animated.View style={{ transform: [{ scale: likeScale }] }}>
+            <Pressable style={[styles.socialBtn, isLiked && styles.socialBtnLiked]} onPress={handleLike}>
+              <Ionicons name={isLiked ? 'heart' : 'heart-outline'} size={18} color={isLiked ? '#EF4444' : Colors.textSecondary} />
+              <Text style={[styles.socialCount, isLiked && { color: '#EF4444' }]}>{likeCount}</Text>
+            </Pressable>
+          </Animated.View>
+          <Animated.View style={{ transform: [{ scale: bookmarkScale }] }}>
+            <Pressable style={styles.socialBtn} onPress={() => {
+              Animated.sequence([
+                Animated.spring(bookmarkScale, { toValue: 0.8, useNativeDriver: true, speed: 50 }),
+                Animated.spring(bookmarkScale, { toValue: 1, useNativeDriver: true, speed: 50 }),
+              ]).start();
+            }}>
+              <Ionicons name="bookmark-outline" size={18} color={Colors.textSecondary} />
+            </Pressable>
+          </Animated.View>
+          <Animated.View style={{ transform: [{ scale: shareScale }] }}>
+            <Pressable style={styles.socialBtn} onPress={handleShare}>
+              <Ionicons name="share-outline" size={18} color={Colors.textSecondary} />
+            </Pressable>
+          </Animated.View>
+        </View>
 
         <View style={styles.body}>
           {/* Title Section */}
@@ -124,7 +198,7 @@ export default function ProjectDetailScreen({ id, onNavigate }: Props) {
               <View style={[styles.statIconBg, { backgroundColor: '#FEF2F2' }]}>
                 <Ionicons name="heart" size={18} color={Colors.marketability} />
               </View>
-              <Text style={styles.statNumber}>{project.likes_count || 0}</Text>
+              <Text style={styles.statNumber}>{likeCount}</Text>
               <Text style={styles.statLabel}>좋아요</Text>
             </View>
           </View>
@@ -184,16 +258,11 @@ const styles = StyleSheet.create({
   // Hero
   heroContainer: { position: 'relative' },
   heroImage: { width: SCREEN_WIDTH, aspectRatio: 16 / 9, backgroundColor: Colors.bgTertiary },
-  heroOverlay: {
-    position: 'absolute', bottom: 0, left: 0, right: 0, height: 60,
-    // gradient effect via semi-transparent bg
-    backgroundColor: 'transparent',
-  },
   heroBadge: {
     position: 'absolute',
     top: Spacing.md,
     left: Spacing.md,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: Radius.full,
@@ -202,15 +271,47 @@ const styles = StyleSheet.create({
     color: Colors.white,
     fontSize: FontSize.xs,
     fontWeight: FontWeight.black,
-    letterSpacing: 0.5,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+
+  // Social Action Bar
+  socialBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+  },
+  socialBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    backgroundColor: Colors.white,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 4,
+  },
+  socialBtnLiked: {
+    borderColor: '#FCA5A5',
+    backgroundColor: '#FEF2F2',
+  },
+  socialCount: {
+    fontSize: 11,
+    fontWeight: FontWeight.bold,
+    color: Colors.textSecondary,
   },
 
   // Body
-  body: { padding: Spacing.lg, paddingTop: Spacing.xl },
+  body: { padding: Spacing.lg, paddingTop: Spacing.lg },
   title: {
-    fontSize: 22,
-    fontWeight: FontWeight.black,
-    letterSpacing: -0.5,
+    ...Typography.sectionTitle,
+    fontStyle: 'italic',
     lineHeight: 30,
     marginBottom: Spacing.md,
     color: Colors.text,
@@ -234,6 +335,8 @@ const styles = StyleSheet.create({
     padding: Spacing.base,
     backgroundColor: Colors.bgSecondary,
     borderRadius: Radius.md,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
   },
   statIconBg: {
     width: 36,
@@ -253,6 +356,8 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     fontWeight: FontWeight.semibold,
     marginTop: 2,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
 
   // Deadline
@@ -289,11 +394,13 @@ const styles = StyleSheet.create({
   },
   ctaBtn: {
     height: 56,
-    borderRadius: Radius.lg,
+    borderRadius: Radius.xl,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
     gap: Spacing.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   ctaBtnPrimary: {
     backgroundColor: Colors.primary,
@@ -301,16 +408,22 @@ const styles = StyleSheet.create({
   },
   ctaBtnSuccess: {
     backgroundColor: Colors.success,
+    ...Shadow.md,
   },
   ctaBtnDisabled: {
     backgroundColor: Colors.bgTertiary,
+    borderColor: Colors.border,
   },
   ctaBtnText: {
     color: Colors.white,
     fontSize: FontSize.lg,
-    fontWeight: FontWeight.extrabold,
+    fontWeight: FontWeight.black,
+    fontStyle: 'italic',
+    textTransform: 'uppercase',
   },
   ctaBtnTextDisabled: {
     color: Colors.textTertiary,
+    fontStyle: 'normal',
+    textTransform: 'none',
   },
 });

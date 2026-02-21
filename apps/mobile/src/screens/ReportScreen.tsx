@@ -2,14 +2,10 @@ import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@/lib/supabase';
-import { Colors, CATEGORY_COLORS, Spacing, FontSize, FontWeight, Radius, Shadow } from '@/constants/theme';
-
-const SCORE_LABELS = ['창의성', '실용성', '완성도', '시장성', '디자인'];
-const SCORE_KEYS = ['creativity', 'practicality', 'completeness', 'marketability', 'design'];
-const SCORE_ICONS: Array<keyof typeof Ionicons.glyphMap> = [
-  'bulb-outline', 'construct-outline', 'checkmark-circle-outline',
-  'trending-up-outline', 'color-palette-outline',
-];
+import {
+  Colors, CATEGORY_COLORS, SCORE_LABELS, SCORE_KEYS, SCORE_ICONS,
+  Spacing, FontSize, FontWeight, Radius, Shadow, Typography,
+} from '@/constants/theme';
 
 interface Props { id: string; }
 
@@ -53,6 +49,14 @@ export default function ReportScreen({ id }: Props) {
   const maxIdx = averages.indexOf(Math.max(...averages));
   const minIdx = averages.indexOf(Math.min(...averages));
 
+  // Feedback vote counts
+  const voteCounts = { launch: 0, more: 0, research: 0 };
+  ratings.forEach((r) => {
+    const vote = r.feedback_vote;
+    if (vote && vote in voteCounts) voteCounts[vote as keyof typeof voteCounts]++;
+  });
+  const totalVotes = voteCounts.launch + voteCounts.more + voteCounts.research;
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header */}
@@ -71,7 +75,7 @@ export default function ReportScreen({ id }: Props) {
           </View>
         </View>
         <Text style={styles.overallScore}>{overallAvg}</Text>
-        <Text style={styles.overallMax}>/ 10</Text>
+        <Text style={styles.overallMax}>/ 5</Text>
       </View>
 
       {/* Category Scores */}
@@ -88,7 +92,7 @@ export default function ReportScreen({ id }: Props) {
             <View style={styles.scoreRight}>
               <View style={styles.barBg}>
                 <View style={[styles.barFill, {
-                  width: `${(averages[idx] / 10) * 100}%`,
+                  width: `${(averages[idx] / 5) * 100}%`,
                   backgroundColor: CATEGORY_COLORS[idx],
                 }]} />
               </View>
@@ -97,6 +101,35 @@ export default function ReportScreen({ id }: Props) {
           </View>
         ))}
       </View>
+
+      {/* Feedback Poll Results */}
+      {totalVotes > 0 && (
+        <>
+          <Text style={styles.sectionTitle}>판정 투표 결과</Text>
+          <View style={styles.voteContainer}>
+            {[
+              { id: 'launch', label: '출시 강추', color: Colors.success, icon: 'checkmark-circle-outline' as const },
+              { id: 'more', label: '보류', color: Colors.warning, icon: 'time-outline' as const },
+              { id: 'research', label: '다시 기획', color: Colors.error, icon: 'close-circle-outline' as const },
+            ].map((v) => {
+              const count = voteCounts[v.id as keyof typeof voteCounts];
+              const pct = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
+              return (
+                <View key={v.id} style={styles.voteRow}>
+                  <View style={styles.voteLeft}>
+                    <Ionicons name={v.icon} size={18} color={v.color} />
+                    <Text style={styles.voteLabel}>{v.label}</Text>
+                  </View>
+                  <View style={styles.voteBarBg}>
+                    <View style={[styles.voteBarFill, { width: `${pct}%`, backgroundColor: v.color }]} />
+                  </View>
+                  <Text style={[styles.votePct, { color: v.color }]}>{pct}%</Text>
+                </View>
+              );
+            })}
+          </View>
+        </>
+      )}
 
       {/* Stats Grid */}
       <Text style={styles.sectionTitle}>평가 통계</Text>
@@ -154,17 +187,15 @@ const styles = StyleSheet.create({
   // Header
   headerSection: { marginBottom: Spacing.xl },
   headerBadge: {
-    fontSize: FontSize.xs,
-    fontWeight: FontWeight.black,
+    ...Typography.metaLabel,
+    letterSpacing: 4,
     color: Colors.primary,
-    letterSpacing: 3,
     marginBottom: Spacing.sm,
   },
   projectName: {
-    fontSize: FontSize.xxl,
-    fontWeight: FontWeight.black,
+    ...Typography.sectionTitle,
+    fontStyle: 'italic',
     color: Colors.text,
-    letterSpacing: -0.5,
   },
 
   // Overall Score
@@ -197,15 +228,13 @@ const styles = StyleSheet.create({
     borderRadius: Radius.full,
   },
   participantsText: { fontSize: FontSize.xs, fontWeight: FontWeight.bold, color: Colors.white },
-  overallScore: { fontSize: 56, fontWeight: FontWeight.black, color: Colors.white, lineHeight: 64 },
+  overallScore: { fontSize: 64, fontWeight: FontWeight.black, color: Colors.white, lineHeight: 72 },
   overallMax: { fontSize: FontSize.lg, fontWeight: FontWeight.semibold, color: 'rgba(255,255,255,0.6)', marginTop: -4 },
 
   // Section
   sectionTitle: {
+    ...Typography.sectionTitle,
     fontSize: FontSize.lg,
-    fontWeight: FontWeight.black,
-    color: Colors.text,
-    letterSpacing: -0.3,
     marginBottom: Spacing.base,
   },
 
@@ -215,6 +244,8 @@ const styles = StyleSheet.create({
     borderRadius: Radius.lg,
     padding: Spacing.base,
     marginBottom: Spacing.xxl,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
   },
   scoreRow: {
     flexDirection: 'row',
@@ -227,11 +258,61 @@ const styles = StyleSheet.create({
     width: 28, height: 28, borderRadius: 14,
     justifyContent: 'center', alignItems: 'center',
   },
-  scoreLabel: { fontSize: FontSize.md, fontWeight: FontWeight.bold, color: Colors.text },
+  scoreLabel: {
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
   scoreRight: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginLeft: Spacing.sm },
-  barBg: { flex: 1, height: 8, backgroundColor: Colors.bgTertiary, borderRadius: 4, overflow: 'hidden' },
-  barFill: { height: '100%', borderRadius: 4 },
+  barBg: { flex: 1, height: 10, backgroundColor: Colors.bgTertiary, borderRadius: 5, overflow: 'hidden' },
+  barFill: { height: '100%', borderRadius: 5 },
   scoreValue: { fontSize: FontSize.base, fontWeight: FontWeight.black, width: 32, textAlign: 'right' },
+
+  // Vote Results
+  voteContainer: {
+    backgroundColor: Colors.bgSecondary,
+    borderRadius: Radius.lg,
+    padding: Spacing.base,
+    marginBottom: Spacing.xxl,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    gap: Spacing.md,
+  },
+  voteRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  voteLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    width: 90,
+  },
+  voteLabel: {
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.bold,
+    color: Colors.text,
+  },
+  voteBarBg: {
+    flex: 1,
+    height: 10,
+    backgroundColor: Colors.bgTertiary,
+    borderRadius: 5,
+    overflow: 'hidden',
+  },
+  voteBarFill: {
+    height: '100%',
+    borderRadius: 5,
+  },
+  votePct: {
+    fontSize: FontSize.md,
+    fontWeight: FontWeight.black,
+    width: 40,
+    textAlign: 'right',
+  },
 
   // Stats Grid
   statsGrid: {
@@ -245,13 +326,15 @@ const styles = StyleSheet.create({
     borderRadius: Radius.md,
     padding: Spacing.base,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
   },
   statIconBg: {
     width: 40, height: 40, borderRadius: 20,
     justifyContent: 'center', alignItems: 'center',
     marginBottom: Spacing.sm,
   },
-  statValue: { fontSize: 22, fontWeight: FontWeight.black, color: Colors.text },
-  statLabel: { fontSize: FontSize.sm, color: Colors.textSecondary, fontWeight: FontWeight.semibold, marginTop: 2 },
+  statValue: { fontSize: 22, fontWeight: FontWeight.black, color: Colors.text, fontStyle: 'italic' },
+  statLabel: { fontSize: FontSize.sm, color: Colors.textSecondary, fontWeight: FontWeight.semibold, marginTop: 2, textTransform: 'uppercase', letterSpacing: 1 },
   statSubLabel: { fontSize: FontSize.xs, color: Colors.textTertiary, fontWeight: FontWeight.medium },
 });

@@ -1,3 +1,5 @@
+import { Ionicons } from '@expo/vector-icons';
+
 export const Colors = {
   // Primary
   primary: '#EA580C',
@@ -10,13 +12,13 @@ export const Colors = {
   error: '#EF4444',
   warning: '#F59E0B',
 
-  // Category Colors (웹 미슐랭 평가 카테고리)
-  creativity: '#F59E0B',    // 기획력/창의성 (Amber)
+  // Category Colors (웹 MichelinRating 6개 카테고리와 동일)
+  creativity: '#F59E0B',    // 기획력 (Amber)
   originality: '#10B981',   // 독창성 (Emerald)
-  aesthetics: '#8B5CF6',    // 심미성/디자인 (Purple)
+  aesthetics: '#8B5CF6',    // 심미성 (Purple)
   completeness: '#3B82F6',  // 완성도 (Blue)
-  marketability: '#EF4444', // 상업성/시장성 (Red)
-  usability: '#EC4899',     // 편의성/실용성 (Pink)
+  marketability: '#EF4444', // 상업성 (Red)
+  usability: '#EC4899',     // 편의성 (Pink)
 
   // Text
   text: '#0F172A',
@@ -42,15 +44,35 @@ export const Colors = {
   tossBlue: '#3182F6',
   gold: '#D97706',
   indigo: '#6366F1',
+  google: '#4285F4',
 } as const;
 
-// 점수 카테고리별 색상 매핑
+// 6개 평가 카테고리 (웹과 동일)
+export const SCORE_LABELS = ['기획력', '독창성', '심미성', '완성도', '상업성', '편의성'] as const;
+export const SCORE_DESCS = [
+  '논리적 구조와 의도',
+  '차별화된 컨셉',
+  '시각적 아름다움',
+  '구현 품질과 마감',
+  '시장 경쟁력',
+  '사용자 경험',
+] as const;
+export const SCORE_KEYS = ['score_1', 'score_2', 'score_3', 'score_4', 'score_5', 'score_6'] as const;
+export const SCORE_ICONS: Array<keyof typeof Ionicons.glyphMap> = [
+  'bulb-outline',
+  'navigate-outline',
+  'sparkles-outline',
+  'flash-outline',
+  'trending-up-outline',
+  'information-circle-outline',
+];
 export const CATEGORY_COLORS = [
-  Colors.creativity,    // 창의성
-  Colors.usability,     // 실용성
+  Colors.creativity,    // 기획력
+  Colors.originality,   // 독창성
+  Colors.aesthetics,    // 심미성
   Colors.completeness,  // 완성도
-  Colors.marketability, // 시장성
-  Colors.aesthetics,    // 디자인
+  Colors.marketability, // 상업성
+  Colors.usability,     // 편의성
 ] as const;
 
 export const Spacing = {
@@ -84,6 +106,39 @@ export const FontWeight = {
   extrabold: '800' as const,
   black: '900' as const,
 };
+
+// Typography 프리셋 (웹의 반복 패턴 대응)
+export const Typography = {
+  heroTitle: {
+    fontSize: 28,
+    fontWeight: '900' as const,
+    letterSpacing: -1.5,
+    fontStyle: 'italic' as const,
+    textTransform: 'uppercase' as const,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: '900' as const,
+    letterSpacing: -0.8,
+  },
+  badgeText: {
+    fontSize: 11,
+    fontWeight: '900' as const,
+    letterSpacing: 2.5,
+    textTransform: 'uppercase' as const,
+  },
+  metaLabel: {
+    fontSize: 10,
+    fontWeight: '900' as const,
+    letterSpacing: 3,
+    textTransform: 'uppercase' as const,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '900' as const,
+    letterSpacing: -0.3,
+  },
+} as const;
 
 export const Radius = {
   sm: 8,
@@ -119,6 +174,13 @@ export const Shadow = {
     shadowColor: '#EA580C',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  bevelCta: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
     shadowRadius: 12,
     elevation: 6,
   },

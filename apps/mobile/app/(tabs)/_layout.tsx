@@ -19,9 +19,10 @@ export default function TabLayout() {
           elevation: 0,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '800',
-          letterSpacing: 0.3,
+          fontSize: 10,
+          fontWeight: '900',
+          letterSpacing: 1.5,
+          textTransform: 'uppercase',
         },
         headerStyle: {
           backgroundColor: Colors.bg,

@@ -39,6 +39,12 @@
         "projectId": "0ab7b6f1-989d-441b-9d4f-4e52443391c2"
       }
     },
-    "owner": "juuuno1116"
+    "owner": "juuuno1116",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/0ab7b6f1-989d-441b-9d4f-4e52443391c2"
+    }
   }
 }
