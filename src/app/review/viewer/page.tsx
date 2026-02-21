@@ -192,39 +192,17 @@ function ViewerContent() {
             try { parsedCustom = JSON.parse(parsedCustom); } catch (e) { parsedCustom = {}; }
         }
 
-        // --- View Count Increment Logic ---
+        // --- View Count Increment (서버 API 사용, RLS 우회) ---
         const viewKey = `viewed_${projectId}`;
         const hasViewed = sessionStorage.getItem(viewKey);
 
         if (!hasViewed) {
-            try {
-                // Increment view count in Supabase
-                const currentViews = data.views || 0;
-                await (supabase as any)
-                  .from('projects')
-                  .update({ views: currentViews + 1 })
-                  .eq('id', projectId);
-
-                sessionStorage.setItem(viewKey, 'true');
-                // Optimistic update
-                data.views = currentViews + 1;
-            } catch (err) {
-                console.warn("Failed to increment view count", err);
-            }
+            fetch(`/api/projects/${projectId}/view`, { method: 'POST' })
+              .then(() => sessionStorage.setItem(viewKey, 'true'))
+              .catch(() => {});
+            data.views_count = (data.views_count || 0) + 1;
         }
-        // ----------------------------------
-
-        // --- View Count Correction (Only for '와요' project, Min 135) ---
-        if (data.title?.includes("와요") && (data.views || 0) < 135) {
-             try {
-                await (supabase as any)
-                  .from('projects')
-                  .update({ views: 135 })
-                  .eq('id', projectId);
-                data.views = 135;
-             } catch(e) {}
-        }
-        // ----------------------------------------------------------------
+        // -------------------------------------------------------
 
         setProject({ ...data, custom_data: parsedCustom || {} });
       } catch (e) {

@@ -225,21 +225,8 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
   };
 
   const handleProjectRoute = (p: any) => {
-    // 조회수 증가 (projects 테이블 UUID 직접 업데이트, fire-and-forget)
-    (supabase as any)
-      .from('projects')
-      .select('views_count')
-      .eq('id', p.project_id)
-      .single()
-      .then(({ data }: any) => {
-        if (data) {
-          (supabase as any)
-            .from('projects')
-            .update({ views_count: (data.views_count || 0) + 1 })
-            .eq('id', p.project_id)
-            .then(() => {});
-        }
-      });
+    // 조회수 증가 — supabaseAdmin 사용하는 서버 API 호출 (RLS 우회)
+    fetch(`/api/projects/${p.project_id}/view`, { method: 'POST' }).catch(() => {});
 
     if (p.has_rated) {
       router.push(`/report/${p.project_id}`);
