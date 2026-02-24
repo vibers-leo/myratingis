@@ -134,8 +134,11 @@ export default function ReportPage() {
           headers['Authorization'] = `Bearer ${session.access_token}`;
         }
 
-        // 1. Fetch detailed report via API (includes project + feedbacks)
-        const reportRes = await fetch(`/api/projects/${projectId}/report`, { headers });
+        // 1. Fetch report + fallback API in parallel (두 번째는 첫 번째 실패 시 사용)
+        const [reportRes, fallbackRes] = await Promise.all([
+          fetch(`/api/projects/${projectId}/report`, { headers }),
+          fetch(`/api/projects/${projectId}/rating`, { headers })
+        ]);
         const reportData = await reportRes.json();
 
         if (!reportRes.ok || !reportData.success) {
@@ -151,9 +154,8 @@ export default function ReportPage() {
             return;
           }
 
-          // Try fallback: fetch basic data from rating API
-          const ratingRes = await fetch(`/api/projects/${projectId}/rating`, { headers });
-          const ratingData = await ratingRes.json();
+          // Use pre-fetched fallback data
+          const ratingData = await fallbackRes.json();
           if (ratingData.success && ratingData.project) {
             const pd = { ...ratingData.project };
             if (typeof pd.custom_data === 'string') {

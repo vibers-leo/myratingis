@@ -57,77 +57,61 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
         return;
       }
 
-      // 2. Filter & Parallel Process Enrichment
-      const enrichedProjects = await Promise.all(rawProjects.map(async (data: any) => {
-          // Initial Check
-          const isAudit = data.custom_data?.audit_config || data.audit_deadline || data.type === 'audit';
-          if (!isAudit) return null;
+      // 2. Filter audit projects first (no DB calls needed)
+      const auditProjects = rawProjects.filter((data: any) =>
+        data.custom_data?.audit_config || data.audit_deadline || data.type === 'audit'
+      );
 
-          // User Interaction + Rating Count (Parallel)
-          let isLiked = false;
-          let hasRated = false;
-          let realRatingCount = 0;
+      if (auditProjects.length === 0) {
+        setProjects([]);
+        return;
+      }
 
-          // ProjectRating에서 실제 평가 수 조회
-          const ratingCountPromise = (supabase as any)
-            .from('ProjectRating')
-            .select('id', { count: 'exact', head: true })
-            .eq('project_id', data.id);
+      const projectIds = auditProjects.map((p: any) => p.id);
 
-          if (user) {
-              try {
-                  const [likeResult, evalResult, countResult] = await Promise.all([
-                      // 좋아요 여부 확인
-                      (supabase as any)
-                        .from('project_likes')
-                        .select('id')
-                        .eq('project_id', data.id)
-                        .eq('user_id', user.id)
-                        .single(),
-                      // 평가 여부 확인 (ProjectRating 테이블에서)
-                      (supabase as any)
-                        .from('ProjectRating')
-                        .select('id')
-                        .eq('project_id', data.id)
-                        .eq('user_id', user.id)
-                        .limit(1)
-                        .single(),
-                      ratingCountPromise
-                  ]);
+      // 3. Batch queries (3 queries total instead of 150)
+      const [likesResult, userRatingsResult, allRatingsResult] = await Promise.all([
+        // 좋아요 여부 — 로그인 시만
+        user
+          ? (supabase as any).from('project_likes').select('project_id').eq('user_id', user.id).in('project_id', projectIds)
+          : Promise.resolve({ data: [] }),
+        // 평가 여부 — 로그인 시만
+        user
+          ? (supabase as any).from('ProjectRating').select('project_id').eq('user_id', user.id).in('project_id', projectIds)
+          : Promise.resolve({ data: [] }),
+        // 전체 평가 수 (project_id만 가져와서 클라이언트에서 집계)
+        (supabase as any).from('ProjectRating').select('project_id').in('project_id', projectIds)
+      ]);
 
-                  isLiked = !likeResult.error && !!likeResult.data;
-                  hasRated = !evalResult.error && !!evalResult.data;
-                  realRatingCount = countResult?.count || 0;
-              } catch(e) {
-                  // 에러 무시 (데이터 없을 수 있음)
-              }
-          } else {
-              try {
-                  const countResult = await ratingCountPromise;
-                  realRatingCount = countResult?.count || 0;
-              } catch(e) {}
-          }
+      // Build lookup maps
+      const likedSet = new Set((likesResult.data || []).map((r: any) => r.project_id));
+      const ratedSet = new Set((userRatingsResult.data || []).map((r: any) => r.project_id));
+      const ratingCountMap: Record<string, number> = {};
+      (allRatingsResult.data || []).forEach((r: any) => {
+        ratingCountMap[r.project_id] = (ratingCountMap[r.project_id] || 0) + 1;
+      });
 
+      // 4. Enrich projects (no DB calls, pure mapping)
+      const enrichedProjects = auditProjects.map((data: any) => {
           // View Count Correction (Wayo) - 최소 135 보정
-          if (data.title?.includes("와요") && ((data.views_count || 0) < 135)) {
-              data.views_count = 135;
-          }
+          const viewsCount = (data.title?.includes("와요") && ((data.views_count || 0) < 135))
+            ? 135 : (data.views_count || 0);
 
           return {
               project_id: data.id,
               ...data,
-              is_liked: isLiked,
-              has_rated: hasRated,
+              is_liked: likedSet.has(data.id),
+              has_rated: ratedSet.has(data.id),
               likes_count: data.likes_count || 0,
-              views_count: data.views_count || 0,
-              rating_count: realRatingCount,
+              views_count: viewsCount,
+              rating_count: ratingCountMap[data.id] || 0,
               User: { username: data.author_email?.split('@')[0] || "Unknown" },
               createdAt: data.created_at ? new Date(data.created_at) : new Date()
           };
-      }));
+      });
 
-      // 3. Filter Nulls & Sort
-      const validProjects = enrichedProjects.filter(p => p !== null);
+      // 5. Sort
+      const validProjects = enrichedProjects;
 
       if (activeFilter === 'popular') {
           validProjects.sort((a, b) => (b.views_count + b.likes_count * 5) - (a.views_count + a.likes_count * 5));
@@ -189,8 +173,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
             // 트리거가 자동으로 likes_count를 증가시킴
         }
 
-        // 성공 시 최신 데이터로 갱신 (선택적)
-        fetchProjects(true);
+        // Optimistic update가 이미 반영됨 — 전체 재로드 불필요
     } catch (err) {
         console.error("Like error", err);
         // Revert
