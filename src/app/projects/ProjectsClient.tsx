@@ -108,15 +108,8 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
               } catch(e) {}
           }
 
-          // View Count Correction (Wayo) - Supabase 버전
+          // View Count Correction (Wayo) - 최소 135 보정
           if (data.title?.includes("와요") && ((data.views_count || 0) < 135)) {
-              // Fire and forget update
-              (supabase as any)
-                .from('projects')
-                .update({ views_count: 135 })
-                .eq('id', data.id)
-                .then(() => {})
-                .catch(() => {});
               data.views_count = 135;
           }
 
@@ -225,8 +218,15 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
   };
 
   const handleProjectRoute = (p: any) => {
-    // 조회수 증가 — supabaseAdmin 사용하는 서버 API 호출 (RLS 우회)
-    fetch(`/api/projects/${p.project_id}/view`, { method: 'POST' }).catch(() => {});
+    // 조회수 증가 — 세션당 1회, keepalive로 페이지 이동 중에도 요청 보장
+    const viewKey = `viewed_${p.project_id}`;
+    if (!sessionStorage.getItem(viewKey)) {
+      fetch(`/api/projects/${p.project_id}/view`, {
+        method: 'POST',
+        keepalive: true,
+      }).catch(() => {});
+      sessionStorage.setItem(viewKey, 'true');
+    }
 
     if (p.has_rated) {
       router.push(`/report/${p.project_id}`);
