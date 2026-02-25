@@ -22,8 +22,6 @@ import Image from "next/image";
 import { MichelinRating } from "@/components/MichelinRating";
 import { FeedbackPoll } from "@/components/FeedbackPoll";
 import { toast } from "sonner";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRocket, faLock } from "@fortawesome/free-solid-svg-icons";
 
 function InteractivePreview() {
    const [activeTab, setActiveTab] = useState<'rating'|'poll'|'proposal'>('rating');
