@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { chatCompletion } from '@/lib/ai/client';
+import { chatCompletion, hasAIKey } from '@/lib/ai/client';
 import { checkRateLimit } from '@/lib/ai/rate-limit';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
-  if (!process.env.GROQ_API_KEY) {
+  if (!hasAIKey()) {
     return NextResponse.json({
       success: false,
       error: 'AI 서비스가 현재 사용 불가합니다.',

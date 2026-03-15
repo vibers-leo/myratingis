@@ -1,4 +1,4 @@
-import { chatCompletion } from "./client";
+import { chatCompletion, hasAIKey } from "./client";
 
 export interface SearchResultItem {
   title: string;
@@ -48,10 +48,10 @@ export async function processUserQuery(userQuery: string, category: string): Pro
 
   let answer = "";
   try {
-     if (!process.env.GROQ_API_KEY) throw new Error("No API Key");
+     if (!hasAIKey()) throw new Error("No API Key");
      answer = await generateGroqResponse(userQuery, rawResults, category);
   } catch (e) {
-     console.warn("Groq Error/Missing Key, falling back to mock:", e);
+     console.warn("AI Error/Missing Key, falling back to mock:", e);
      answer = generateMockLLMResponse(userQuery, rawResults, category);
   }
 

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { chatCompletion } from "@/lib/ai/client";
+import { chatCompletion, hasAIKey } from "@/lib/ai/client";
 import { checkRateLimit } from "@/lib/ai/rate-limit";
 
 export async function POST(req: NextRequest) {
-  if (!process.env.GROQ_API_KEY) {
+  if (!hasAIKey()) {
     return NextResponse.json({
       error: "AI 서비스 점검 중",
       message: "현재 AI 서비스 점검 중입니다."
