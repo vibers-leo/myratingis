@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { chatCompletion } from "@/lib/ai/client";
 import { checkRateLimit } from "@/lib/ai/rate-limit";
 
-// Initialize Gemini API
-const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || "";
-const genAI = new GoogleGenerativeAI(apiKey);
-
 export async function POST(req: NextRequest) {
-  // API 키가 없으면 즉시 종료
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY && !process.env.GEMINI_API_KEY) {
+  if (!process.env.GROQ_API_KEY) {
     return NextResponse.json({
       error: "AI 서비스 점검 중",
       message: "현재 AI 서비스 점검 중입니다."
@@ -29,22 +24,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Topic is required" }, { status: 400 });
     }
 
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      generationConfig: { maxOutputTokens: 1024 },
-    });
-
+    let system = "";
     let prompt = "";
-    
+
     if (type === 'lean-canvas') {
-        prompt = `
-You are a professional Startup Consultant.
-Please generate a Lean Canvas for a service/product idea: "${topic}"
+        system = "You are a professional Startup Consultant. Always respond with valid JSON only.";
+        prompt = `Please generate a Lean Canvas for a service/product idea: "${topic}"
 
 Current Language: Korean (한국어) - **MUST OUTPUT IN KOREAN**
 
-Output Format: JSON only. DO NOT include any markdown code blocks (like \`\`\`json). Just the raw JSON string.
-Structure:
+Output the following JSON structure:
 {
   "problem": "3 key problems (bullet points using numbers)",
   "customerSegments": "Target customers (bullet points)",
@@ -55,18 +44,14 @@ Structure:
   "costStructure": "Customer acquisition costs, distribution costs, hosting, people, etc. (bullet points)",
   "keyMetrics": "Key activities you measure (bullet points)",
   "unfairAdvantage": "Something that cannot be easily copied or bought (bullet points)"
-}
-Start JSON:
-`;
+}`;
     } else if (type === 'persona') {
-        prompt = `
-You are a UX Researcher.
-Please define a detailed target persona for a service/product idea: "${topic}"
+        system = "You are a UX Researcher. Always respond with valid JSON only.";
+        prompt = `Please define a detailed target persona for a service/product idea: "${topic}"
 
 Current Language: Korean (한국어) - **MUST OUTPUT IN KOREAN**
 
-Output Format: JSON only. DO NOT include any markdown code blocks.
-Structure:
+Output the following JSON structure:
 {
   "name": "Korean Name",
   "age": "e.g., 28세",
@@ -79,48 +64,32 @@ Structure:
   "brands": ["Brand 1", "Brand 2", "Brand 3", "Brand 4"],
   "mbti": "MBTI Type",
   "imageKeyword": "A single English keyword to search for a stock photo of this person (e.g., 'young asian businessman', 'female student', etc.)"
-}
-Start JSON:
-`;
+}`;
     } else if (type === 'assistant') {
-        prompt = `
-You are a professional Content Writing Assistant.
-Based on the following request: "${topic}", please write a high-quality draft.
+        system = "You are a professional Content Writing Assistant. Always respond with valid JSON only.";
+        prompt = `Based on the following request: "${topic}", please write a high-quality draft.
 
 Current Language: Korean (한국어) - **MUST OUTPUT IN KOREAN**
 
-Output Format: JSON only.
-Structure:
+Output the following JSON structure:
 {
   "title": "Title of the content",
   "content": "Full markdown-formatted content. Use headers, bullet points, and appropriate tone."
-}
-Start JSON:
-`;
+}`;
     } else {
         return NextResponse.json({ error: "Invalid type" }, { status: 400 });
     }
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    let text = response.text();
+    let text = await chatCompletion(prompt, { system, maxTokens: 1024, temperature: 0.7, jsonMode: true });
 
-    // Clean up markdown if present (Gemini sometimes adds ```json ... ```)
+    // Clean up markdown if present
     text = text.replace(/```json/g, "").replace(/```/g, "").trim();
 
     try {
         const json = JSON.parse(text);
-        
-        // For Persona, we need a real image URL. In a real app, we'd use Unsplash API or similar.
-        // For now, we'll use a high-quality placeholder based on gender/keyword guess or just generic.
+
         if (type === 'persona' && json.imageKeyword) {
-            // Using Source.unsplash for a random image matching keyword
-            json.image = `https://source.unsplash.com/400x400/?portrait,${encodeURIComponent(json.imageKeyword)}`;
-            // NOTE: source.unsplash is deprecated/unreliable. We can use a predetermined set or just a generic one.
-            // Better approach: Use a reliable placeholder service with keywords, or hardcode a few avatars.
-            // Let's use a reliable placeholder for now to avoid broken images.
-            json.image = `https://api.dicebear.com/7.x/avataaars/svg?seed=${json.name}&backgroundColor=b6e3f4`; // Cartoon avatar is safe
-            // Or try a real photo URL service if available, but DiceBear is safest.
+            json.image = `https://api.dicebear.com/7.x/avataaars/svg?seed=${json.name}&backgroundColor=b6e3f4`;
         }
 
         return NextResponse.json(json);

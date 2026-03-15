@@ -1,42 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { chatCompletion } from '@/lib/ai/client';
 import { checkRateLimit } from '@/lib/ai/rate-limit';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
-async function callGemini(prompt: string, apiKey: string): Promise<string> {
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1024,
-          responseMimeType: 'application/json',
-        },
-      }),
-      signal: AbortSignal.timeout(15000),
-    }
-  );
-
-  if (!res.ok) {
-    const errBody = await res.text();
-    console.error('[Gemini REST] Error:', res.status, errBody);
-    throw new Error(`Gemini API ${res.status}: ${errBody.slice(0, 200)}`);
-  }
-
-  const data = await res.json();
-  const parts = data.candidates?.[0]?.content?.parts || [];
-  const textPart = parts.filter((p: any) => p.text && !p.thought).pop();
-  return textPart?.text || parts[parts.length - 1]?.text || '';
-}
-
 export async function POST(req: NextRequest) {
-  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-  if (!apiKey) {
+  if (!process.env.GROQ_API_KEY) {
     return NextResponse.json({
       success: false,
       error: 'AI 서비스가 현재 사용 불가합니다.',
@@ -45,7 +15,7 @@ export async function POST(req: NextRequest) {
 
   // Rate limit (IP 기반)
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
-  const { allowed, remaining } = checkRateLimit(ip, false);
+  const { allowed } = checkRateLimit(ip, false);
   if (!allowed) {
     return NextResponse.json({
       success: false,
@@ -108,9 +78,7 @@ export async function POST(req: NextRequest) {
       console.warn('[analyze-url] HTML fetch failed:', e);
     }
 
-    // Build prompt for Gemini
-    const prompt = `당신은 프로젝트 평가 플랫폼의 AI 어시스턴트입니다.
-아래 정보는 사용자가 평가받고 싶은 MVP(Minimum Viable Product) 웹사이트의 정보입니다.
+    const prompt = `아래 정보는 사용자가 평가받고 싶은 MVP(Minimum Viable Product) 웹사이트의 정보입니다.
 이 정보를 분석하여, 평가 등록 폼에 들어갈 초안을 JSON 형식으로 작성해주세요.
 
 [웹사이트 정보]
@@ -120,10 +88,10 @@ export async function POST(req: NextRequest) {
 - 페이지 텍스트 내용 (일부): ${pageText || '(추출 실패)'}
 
 [요청 사항]
-다음 JSON 형식으로만 응답해주세요. 다른 텍스트는 포함하지 마세요:
+다음 JSON 형식으로만 응답해주세요:
 {
   "title": "프로젝트 제목 (30자 이내, 한국어)",
-  "summary": "프로젝트 소개 (2~3문장, 평가자가 프로젝트를 이해할 수 있도록 핵심 기능과 대상 사용자를 설명. 한국어)",
+  "summary": "프로젝트 소개 (2~3문장, 핵심 기능과 대상 사용자 설명. 한국어)",
   "categories": [
     { "label": "평가항목명", "desc": "항목 설명 (15자 이내)" }
   ],
@@ -136,27 +104,22 @@ export async function POST(req: NextRequest) {
 - 이 프로젝트에 맞는 맞춤형 평가 기준 5개를 제안하세요
 - 프로젝트의 거시적·전략적 가치를 평가하는 기준에 중점을 두세요
 - 좋은 기준 예시: "기획력", "심미성", "독창성", "상업성", "완성도", "사용자 경험", "브랜드 일관성", "시장 경쟁력", "콘텐츠 품질", "성장 가능성" 등
-- 개별 기능(버튼 배치, 특정 화면 등)보다는 프로젝트 전체를 조감하는 관점의 기준을 만드세요
-- 프로젝트 유형에 따라 적절한 거시적 기준을 선택하되, 해당 분야에 특화된 표현을 사용하세요
 
 [questions 작성 규칙]
 - 이 프로젝트에 대해 평가자에게 물어볼 질문 3개를 제안하세요
-- 실질적인 피드백을 이끌어낼 수 있는 구체적 질문을 작성하세요
+- 실질적인 피드백을 이끌어낼 수 있는 구체적 질문을 작성하세요`;
 
-JSON만 출력하세요:`;
+    const system = `당신은 프로젝트 평가 플랫폼의 AI 어시스턴트입니다. 반드시 유효한 JSON만 출력하세요.`;
 
-    const text = await callGemini(prompt, apiKey);
+    const text = await chatCompletion(prompt, { system, maxTokens: 1024, temperature: 0.7, jsonMode: true });
 
     // Parse JSON from response
     let parsed;
     try {
-      // Strip markdown code blocks if present
       let cleaned = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-      // Try direct parse first (responseMimeType should give clean JSON)
       try {
         parsed = JSON.parse(cleaned);
       } catch {
-        // Fallback: extract JSON object from text
         const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           parsed = JSON.parse(jsonMatch[0]);
@@ -193,7 +156,7 @@ JSON만 출력하세요:`;
   } catch (error: any) {
     console.error('[analyze-url] Error:', error);
     const msg = error.message || '';
-    const isQuota = msg.includes('429') || msg.includes('quota') || msg.includes('Quota');
+    const isQuota = msg.includes('429') || msg.includes('quota') || msg.includes('rate_limit');
     return NextResponse.json({
       success: false,
       error: isQuota

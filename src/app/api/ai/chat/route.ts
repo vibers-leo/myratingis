@@ -4,7 +4,7 @@ import { processUserQuery } from "@/lib/ai/search-service";
 import { checkRateLimit } from "@/lib/ai/rate-limit";
 
 export async function POST(req: NextRequest) {
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  if (!process.env.GROQ_API_KEY) {
     return NextResponse.json({
       error: "AI 서비스 점검 중",
       answer: "현재 AI 서비스 점검 중입니다.",
@@ -27,10 +27,6 @@ export async function POST(req: NextRequest) {
     const supabase = createClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    // 1. Auth Check
-    // For demo purposes, we might allow guests, but let's be safe.
-    // If no user, we just return the AI response without saving to DB.
-    
     const body = await req.json();
     const { message, category, sessionId } = body;
 
@@ -43,7 +39,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Database Persistence (Only if logged in)
     let currentSessionId = sessionId;
-    
+
     if (user) {
       // 3.1 Create Session if needed
       if (!currentSessionId) {
@@ -52,11 +48,11 @@ export async function POST(req: NextRequest) {
           .insert({
             user_id: user.id,
             tool_type: category,
-            title: message.slice(0, 30) // Simple truncation for title
+            title: message.slice(0, 30)
           })
           .select('id')
           .single();
-        
+
         if (sessionError) {
             console.error('Session Create Error:', sessionError);
         } else {
