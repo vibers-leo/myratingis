@@ -1,15 +1,24 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { model } from '@/lib/ai/client';
+import { checkRateLimit } from '@/lib/ai/rate-limit';
 
 export async function POST(req: NextRequest) {
-  // API 키가 없으면 즉시 종료하여 리소스 낭비 방지
   if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    return NextResponse.json({ 
-      success: false, 
-      analysis: "AI 서비스가 현재 점검 중입니다. 이용에 불편을 드려 죄송합니다.",
-      error: "API Key missing" 
-    }, { status: 200 }); // status 200으로 반환하여 클라이언트 측에서의 불필요한 재시도나 에러 로그 범람 방지
+    return NextResponse.json({
+      success: false,
+      analysis: "AI 서비스가 현재 점검 중입니다.",
+      error: "API Key missing"
+    }, { status: 200 });
+  }
+
+  // Rate limit
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+  const { allowed } = checkRateLimit(ip, false);
+  if (!allowed) {
+    return NextResponse.json({
+      success: false,
+      analysis: "일일 AI 사용 한도를 초과했습니다.",
+    }, { status: 429 });
   }
 
   try {

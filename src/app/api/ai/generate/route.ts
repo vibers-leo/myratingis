@@ -1,19 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { checkRateLimit } from "@/lib/ai/rate-limit";
 
 // Initialize Gemini API
 const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(apiKey);
 
-export const runtime = 'edge'; // Optional: Use Edge Runtime if supported, helps with timeouts
-
 export async function POST(req: NextRequest) {
-  // API 키가 없으면 즉시 종료하여 리소스 낭비 방지
+  // API 키가 없으면 즉시 종료
   if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY && !process.env.GEMINI_API_KEY) {
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: "AI 서비스 점검 중",
       message: "현재 AI 서비스 점검 중입니다."
     }, { status: 200 });
+  }
+
+  // Rate limit
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+  const { allowed } = checkRateLimit(ip, false);
+  if (!allowed) {
+    return NextResponse.json({ error: "일일 AI 사용 한도를 초과했습니다." }, { status: 429 });
   }
 
   try {
@@ -23,13 +29,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Topic is required" }, { status: 400 });
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-        console.error("GEMINI_API_KEY is missing");
-        // Fallback for development if key is missing (optional)
-        return NextResponse.json({ error: "Server configuration error: Missing API Key" }, { status: 500 });
-    }
-
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // Use efficient model
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.0-flash",
+      generationConfig: { maxOutputTokens: 1024 },
+    });
 
     let prompt = "";
     

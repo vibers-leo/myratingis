@@ -1,15 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { processUserQuery } from "@/lib/ai/search-service";
+import { checkRateLimit } from "@/lib/ai/rate-limit";
 
 export async function POST(req: NextRequest) {
-  // API 키가 없으면 즉시 종료하여 리소스 낭비 방지
   if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: "AI 서비스 점검 중",
-      answer: "현재 AI 서비스 안정화를 위해 점검 중입니다. 이용에 불편을 드려 죄송합니다.",
+      answer: "현재 AI 서비스 점검 중입니다.",
       results: []
     }, { status: 200 });
+  }
+
+  // Rate limit
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+  const { allowed } = checkRateLimit(ip, false);
+  if (!allowed) {
+    return NextResponse.json({
+      error: "일일 AI 사용 한도 초과",
+      answer: "일일 AI 사용 한도를 초과했습니다. 내일 다시 이용해주세요.",
+      results: []
+    }, { status: 429 });
   }
 
   try {

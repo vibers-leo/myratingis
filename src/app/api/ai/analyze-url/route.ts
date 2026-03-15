@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/ai/rate-limit';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 30;
 
 async function callGemini(prompt: string, apiKey: string): Promise<string> {
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -13,11 +14,11 @@ async function callGemini(prompt: string, apiKey: string): Promise<string> {
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           temperature: 0.7,
-          maxOutputTokens: 2048,
+          maxOutputTokens: 1024,
           responseMimeType: 'application/json',
         },
       }),
-      signal: AbortSignal.timeout(20000),
+      signal: AbortSignal.timeout(15000),
     }
   );
 
@@ -28,7 +29,6 @@ async function callGemini(prompt: string, apiKey: string): Promise<string> {
   }
 
   const data = await res.json();
-  // Thinking model may return multiple parts - get the last non-thought text part
   const parts = data.candidates?.[0]?.content?.parts || [];
   const textPart = parts.filter((p: any) => p.text && !p.thought).pop();
   return textPart?.text || parts[parts.length - 1]?.text || '';
@@ -41,6 +41,16 @@ export async function POST(req: NextRequest) {
       success: false,
       error: 'AI 서비스가 현재 사용 불가합니다.',
     }, { status: 200 });
+  }
+
+  // Rate limit (IP 기반)
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+  const { allowed, remaining } = checkRateLimit(ip, false);
+  if (!allowed) {
+    return NextResponse.json({
+      success: false,
+      error: '일일 AI 사용 한도를 초과했습니다. 내일 다시 시도해주세요.',
+    }, { status: 429 });
   }
 
   try {
