@@ -1,3 +1,16 @@
+## 전략 문서 (개발 전 반드시 숙지)
+- **전략 진단 리포트**: `data/STRATEGY_ANALYSIS.md`
+- **PM 공통 지침**: 맥미니 루트 `pm.md`
+
+### 전략 핵심 요약
+- 양면 플랫폼의 성패는 전문가 50명 확보에 달려있음 (우선순위 1순위)
+- 선/후행 문제: 전문가 부족 → 창작자 유입 없음 → 악순환 (초기 수동 모집 필수)
+- Supabase 마이그레이션 85% 완료, Phase 1에서 전체 테스트 + 안정성 100% 달성 필수
+- 협업 성사율 30% = 양면 플랫폼의 가장 강력한 성장 지표 (평가 → 협업 실행)
+- 초기 성공 공식: 전문가 50명 + 창작자 50명 → 협업 발생 → 케이스 스터디 → 입소문
+
+---
+
 # 프로젝트 작업 지침 (CLAUDE.md)
 
 ## 📋 프로젝트 개요
@@ -364,5 +377,62 @@ const url = await uploadImage(file, 'projects') // 버킷명
 
 ---
 
-**마지막 업데이트**: 2026-02-12
-**버전**: 1.1.0 (OKR 기반 작업 관리 추가)
+## 참조 문서
+
+- `DESIGN_GUIDE.md` — 색상, 타이포그래피, 컴포넌트 패턴 등 디자인 규칙
+- `STATUS.md` — 프로젝트 현황 및 기능 완료 상태
+- `OKR.md` — 분기별 목표 및 핵심 결과
+- `DESIGN_SYSTEM.md` — 기존 디자인 시스템 상세
+
+## 상위 브랜드
+
+- 회사: 계발자들 (Vibers)
+- 도메인: vibers.co.kr
+
+---
+
+## AI Recipe 이미지 API
+
+이 프로젝트는 **AI Recipe 중앙 이미지 서비스**를 사용합니다.
+
+### 사용 가능한 함수
+
+```typescript
+import { searchStockImage, generateAIImage } from '@/lib/ai-recipe-client';
+```
+
+### Stock Image 검색
+```typescript
+const image = await searchStockImage('creative project showcase', {
+  orientation: 'landscape',
+  size: 'medium',
+});
+// → { url, provider, alt, photographer, ... }
+```
+
+### AI 이미지 생성
+```typescript
+const image = await generateAIImage('professional project thumbnail, modern design', {
+  size: 'large',
+  provider: 'auto',
+});
+// → { url, prompt, provider }
+```
+
+### 주의사항
+- Server Action이나 API Route에서만 사용 (API 키 보호)
+- Rate Limit: 1000회/일 (myratingis 프로젝트 전체)
+- AI Recipe 서버 실행 필요: http://localhost:3300
+
+### 실전 예제
+```typescript
+// 프로젝트 썸네일 자동 생성
+const thumbnail = await generateAIImage(
+  'clean project thumbnail, gradient background, professional'
+);
+```
+
+---
+
+**마지막 업데이트**: 2026-03-25
+**버전**: 1.2.0 (디자인 가이드 연결, 상위 브랜드 추가)

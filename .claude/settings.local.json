@@ -1,0 +1,34 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(timeout:*)",
+      "Bash(npx kill-port:*)",
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(lsof:*)",
+      "Bash(git commit:*)",
+      "Bash(curl:*)",
+      "Bash(python -m json.tool:*)",
+      "Bash(git rm:*)",
+      "Bash(npx next build:*)",
+      "Bash(bigint = text\" errors. Solution: use PostgreSQL functions \\(RPC\\) that\nbypass PostgREST''s type inference entirely.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(vercel ls:*)",
+      "Bash(gh api:*)",
+      "Bash(find:*)",
+      "Bash(npx vercel:*)",
+      "WebFetch(domain:ai.google.dev)",
+      "Bash(git remote set-url:*)",
+      "Bash(npx expo export:*)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:www.granite.run)",
+      "Bash(python -c \"import socket; s = socket.socket\\(socket.AF_INET, socket.SOCK_DGRAM\\); s.connect\\(\\(''8.8.8.8'', 80\\)\\); print\\(s.getsockname\\(\\)[0]\\); s.close\\(\\)\")",
+      "Bash(powershell -Command:*)",
+      "Bash(CI=1 eas update:*)",
+      "WebFetch(domain:myratingis.kr)",
+      "Bash(npx next dev -p 3300)",
+      "Bash(file:*)",
+      "Bash(npx eas-cli build:*)"
+    ]
+  }
+}
