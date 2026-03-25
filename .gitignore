@@ -40,6 +40,14 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# turbo
+.turbo
+
 # logs
 dev_server.log
 testsprite_tests/test_credentials.txt
+
+# AI agent artifacts
+.gemini/
+.agent/
+session-logs/
