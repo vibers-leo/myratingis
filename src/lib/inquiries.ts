@@ -1,10 +1,8 @@
-// src/lib/inquiries.ts
-import { supabase } from "./supabase/client";
-import { PostgrestError } from "@supabase/supabase-js";
+// src/lib/inquiries.ts — 문의 유틸 (API 호출 기반, Supabase 제거)
 
 export interface Inquiry {
-  id: number;
-  project_id: number;
+  id: string;
+  project_id: string;
   user_id: string;
   title: string;
   content: string;
@@ -13,56 +11,30 @@ export interface Inquiry {
   contact_email: string;
   contact_phone?: string;
   created_at: string;
-  status: "pending" | "answered";
-  Project: {
-    title: string;
-    users: {
-      username: string;
-      email?: string;
-    };
-  };
+  status: 'pending' | 'answered';
 }
 
-/**
- * Get all inquiries for a specific user.
- */
-export async function getUserInquiries(userId: string): Promise<Inquiry[]> {
-  const { data, error } = await supabase
-    .from("ProjectInquiry")
-    .select(`
-      id,
-      project_id,
-      user_id,
-      title,
-      content,
-      inquiry_type,
-      contact_name,
-      contact_email,
-      contact_phone,
-      created_at,
-      status,
-      Project (
-        title,
-        users (
-          username
-        )
-      )
-    `)
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false });
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('mr_auth_token');
+}
 
-  if (error) {
-    console.error("Error fetching inquiries:", error);
+export async function getUserInquiries(userId: string): Promise<Inquiry[]> {
+  const token = getToken();
+  if (!token) return [];
+
+  try {
+    const res = await fetch('/api/inquiries', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.inquiries || [];
+  } catch {
     return [];
   }
-  
-  // Return data as Inquiry[]
-  return (data as unknown as Inquiry[]) || [];
 }
 
-/**
- * Add an inquiry for a project.
- */
 export async function addInquiry(
   projectId: string | number,
   userId: string,
@@ -73,97 +45,45 @@ export async function addInquiry(
   contactEmail: string,
   contactPhone?: string
 ): Promise<Inquiry | null> {
-  const { data, error } = await supabase
-    .from("ProjectInquiry")
-    .insert({
-      project_id: Number(projectId),
-      user_id: userId,
-      title,
-      content,
-      inquiry_type: inquiryType,
-      contact_name: contactName,
-      contact_email: contactEmail,
-      contact_phone: contactPhone,
-      status: "pending",
-    })
-    .select()
-    .single();
+  const token = getToken();
+  if (!token) return null;
 
-  if (error) {
-    console.error("Error adding inquiry:", error);
-    return null;
-  }
-  return data as unknown as Inquiry;
-}
-
-/**
- * Delete an inquiry.
- */
-export async function deleteInquiry(inquiryId: number, userId: string): Promise<{ data: null; error: PostgrestError | null }> {
-  let query = supabase.from("ProjectInquiry").delete().eq("id", inquiryId);
-  // If userId is provided, it's a user deleting their own. Otherwise, it's an admin.
-  if (userId) {
-    query = query.eq("user_id", userId);
-  }
-  const { error } = await query;
-
-  return { data: null, error };
-}
-
-/**
- * (Admin) Get all inquiries.
- */
-export async function getAllInquiries(): Promise<Inquiry[]> {
-  const { data, error } = await supabase
-    .from("ProjectInquiry")
-    .select(`
-      id,
-      project_id,
-      user_id,
-      title,
-      content,
-      inquiry_type,
-      contact_name,
-      contact_email,
-      contact_phone,
-      created_at,
-      status,
-      Project (
+  try {
+    const res = await fetch('/api/inquiries', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        project_id: String(projectId),
         title,
-        users (
-          username,
-          email
-        )
-      )
-    `)
-    .order("created_at", { ascending: false });
+        content,
+        inquiry_type: inquiryType,
+        contact_name: contactName,
+        contact_email: contactEmail,
+        contact_phone: contactPhone,
+      }),
+    });
 
-  if (error) {
-    console.error("Error fetching all inquiries:", error);
-    return [];
-  }
-  
-  return (data as unknown as Inquiry[]) || [];
-}
-
-/**
- * (Admin) Update inquiry status.
- */
-export async function updateInquiryStatus(
-  inquiryId: number,
-  status: "pending" | "answered"
-): Promise<Inquiry | null> {
-  const { data, error } = await supabase
-    .from("ProjectInquiry")
-    .update({ status })
-    .eq("id", inquiryId)
-    .select()
-    .single();
-
-  if (error) {
-    console.error("Error updating inquiry status:", error);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.inquiry;
+  } catch {
     return null;
   }
-  return data as unknown as Inquiry;
 }
 
+export async function deleteInquiry(inquiryId: number, userId: string) {
+  // TODO: 삭제 API 연동
+  return { data: null, error: null };
+}
+
+export async function getAllInquiries(): Promise<Inquiry[]> {
+  return getUserInquiries('');
+}
+
+export async function updateInquiryStatus(inquiryId: number, status: 'pending' | 'answered'): Promise<Inquiry | null> {
+  // TODO: 상태 업데이트 API 연동
+  return null;
+}

@@ -1,8 +1,8 @@
-// src/app/api/auth/login/route.ts
-// 로그인 API
-
+// src/app/api/auth/login/route.ts — 로그인 API (자체 JWT)
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase/client';
+import prisma from '@/lib/db';
+import { verifyPassword } from '@/lib/auth/password';
+import { createToken } from '@/lib/auth/jwt';
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,26 +16,52 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    // 프로필 조회
+    const profile = await prisma.profiles.findUnique({
+      where: { email: email.toLowerCase() },
     });
 
-    if (error) {
-      console.error('로그인 실패:', error);
+    if (!profile || !profile.password_hash) {
       return NextResponse.json(
-        { error: error.message || '로그인에 실패했습니다.' },
+        { error: '이메일 또는 비밀번호가 올바르지 않습니다.' },
         { status: 401 }
       );
     }
 
+    // 비밀번호 검증
+    const valid = await verifyPassword(password, profile.password_hash);
+    if (!valid) {
+      return NextResponse.json(
+        { error: '이메일 또는 비밀번호가 올바르지 않습니다.' },
+        { status: 401 }
+      );
+    }
+
+    // JWT 생성
+    const token = createToken({
+      sub: profile.id,
+      email: profile.email!,
+      role: profile.role || 'user',
+    });
+
+    // 프로필 정보 반환 (비밀번호 제외)
+    const { password_hash, ...safeProfile } = profile;
+
     return NextResponse.json({
       message: '로그인 성공',
-      user: data.user,
-      session: data.session,
+      token,
+      user: {
+        id: safeProfile.id,
+        email: safeProfile.email,
+        username: safeProfile.username,
+        nickname: safeProfile.nickname,
+        avatar_url: safeProfile.avatar_url || safeProfile.profile_image,
+        role: safeProfile.role,
+        profile: safeProfile,
+      },
     });
   } catch (error) {
-    console.error('서버 오류:', error);
+    console.error('[Auth/Login] 서버 오류:', error);
     return NextResponse.json(
       { error: '서버 오류가 발생했습니다.' },
       { status: 500 }

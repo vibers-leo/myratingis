@@ -1,0 +1,503 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model daily_stats {
+  date       DateTime @id @db.Date
+  count      Int      @default(0)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model evaluations {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  project_id     String?   @db.Uuid
+  user_id        String?   @db.Uuid
+  user_email     String?
+  user_nickname  String?
+  username       String?
+  user_job       String?
+  score          Decimal?  @default(0) @db.Decimal(3, 2)
+  proposal       String?
+  expertise      String[]
+  custom_answers Json?     @default("{}")
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime? @default(now()) @db.Timestamptz(6)
+  projects       projects? @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  profiles       profiles? @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([project_id, user_id])
+  @@index([project_id], map: "idx_evaluations_project")
+}
+
+model exhibitions {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  title          String
+  artist         String?
+  description    String?
+  start_date     DateTime? @db.Date
+  end_date       DateTime? @db.Date
+  is_active      Boolean?  @default(true)
+  poster_url     String?
+  is_main_slider Boolean?  @default(false)
+  youtube_url    String?
+}
+
+model inquiries {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type       String
+  name       String
+  phone      String
+  email      String?
+  content    String
+  status     String?  @default("new")
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model main_banner {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  youtube_url String
+  is_active   Boolean? @default(true)
+}
+
+model media_releases {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  title          String
+  press_name     String?
+  link_url       String?
+  content        String?
+  image_url      String?
+  published_date DateTime? @db.Date
+}
+
+model mr_inquiries {
+  id                                          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  project_id                                  String?   @db.Uuid
+  project_title                               String?
+  receiver_id                                 String?   @db.Uuid
+  receiver_email                              String?
+  sender_id                                   String?   @db.Uuid
+  sender_email                                String?
+  sender_name                                 String?
+  sender_phone                                String?
+  title                                       String?
+  content                                     String?
+  inquiry_type                                String?
+  is_private                                  Boolean?  @default(false)
+  status                                      String?   @default("pending")
+  created_at                                  DateTime? @default(now()) @db.Timestamptz(6)
+  read_at                                     DateTime? @db.Timestamptz(6)
+  replied_at                                  DateTime? @db.Timestamptz(6)
+  projects                                    projects? @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles_mr_inquiries_receiver_idToprofiles profiles? @relation("mr_inquiries_receiver_idToprofiles", fields: [receiver_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles_mr_inquiries_sender_idToprofiles   profiles? @relation("mr_inquiries_sender_idToprofiles", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model profiles {
+  id                                              String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at                                      DateTime?               @default(now()) @db.Timestamptz(6)
+  updated_at                                      DateTime?               @default(now()) @db.Timestamptz(6)
+  email                                           String?                 @unique
+  username                                        String?                 @unique
+  nickname                                        String?
+  profile_image                                   String?
+  bio                                             String?
+  role                                            String?                 @default("user")
+  is_public                                       Boolean?                @default(true)
+  cover_image_url                                 String?
+  social_links                                    Json?                   @default("{}")
+  interests                                       Json?                   @default("[]")
+  expertise                                       Json?                   @default("[]")
+  gender                                          String?
+  age_group                                       String?
+  occupation                                      String?
+  onboarding_completed                            Boolean?                @default(false)
+  password_hash                                   String?
+  provider                                        String?                 @default("email")
+  provider_id                                     String?
+  avatar_url                                      String?
+  points                                          Int?                    @default(0)
+  api_keys                                        api_keys[]
+  bookmarks                                       bookmarks[]
+  collections                                     collections[]
+  comments                                        comments[]
+  evaluations                                     evaluations[]
+  follows_follows_follower_idToprofiles           follows[]               @relation("follows_follower_idToprofiles")
+  follows_follows_following_idToprofiles          follows[]               @relation("follows_following_idToprofiles")
+  mr_inquiries_mr_inquiries_receiver_idToprofiles mr_inquiries[]          @relation("mr_inquiries_receiver_idToprofiles")
+  mr_inquiries_mr_inquiries_sender_idToprofiles   mr_inquiries[]          @relation("mr_inquiries_sender_idToprofiles")
+  notifications_notifications_sender_idToprofiles notifications[]         @relation("notifications_sender_idToprofiles")
+  notifications_notifications_user_idToprofiles   notifications[]         @relation("notifications_user_idToprofiles")
+  point_logs                                      point_logs[]
+  project_collaborators                           project_collaborators[]
+  project_likes                                   project_likes[]
+  project_ratings                                 project_ratings[]
+  projects                                        projects[]
+  proposals_proposals_receiver_idToprofiles       proposals[]             @relation("proposals_receiver_idToprofiles")
+  proposals_proposals_sender_idToprofiles         proposals[]             @relation("proposals_sender_idToprofiles")
+  reward_claims                                   reward_claims[]
+  views                                           views[]
+  wishlists                                       wishlists[]
+
+  @@index([email], map: "idx_profiles_email")
+}
+
+model project_likes {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  project_id String?   @db.Uuid
+  user_id    String?   @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  projects   projects? @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  profiles   profiles? @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([project_id, user_id])
+  @@index([project_id], map: "idx_project_likes_project")
+}
+
+model projects {
+  id                    String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title                 String
+  summary               String?
+  content_text          String?
+  description           String?
+  category_id           Int?
+  thumbnail_url         String?
+  visibility            String?                 @default("public")
+  audit_deadline        DateTime?               @db.Timestamptz(6)
+  is_growth_requested   Boolean?                @default(false)
+  author_id             String?                 @db.Uuid
+  author_email          String?
+  created_at            DateTime?               @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime?               @default(now()) @db.Timestamptz(6)
+  scheduled_at          DateTime?               @db.Timestamptz(6)
+  views_count           Int?                    @default(0)
+  likes_count           Int?                    @default(0)
+  evaluations_count     Int?                    @default(0)
+  site_url              String?
+  rendering_type        String?                 @default("rich_text")
+  alt_description       String?
+  custom_data           Json?                   @default("{}")
+  bookmarks             bookmarks[]
+  collection_items      collection_items[]
+  comments              comments[]
+  evaluations           evaluations[]
+  mr_inquiries          mr_inquiries[]
+  project_categories    project_categories[]
+  project_collaborators project_collaborators[]
+  project_fields        project_fields[]
+  project_likes         project_likes[]
+  project_ratings       project_ratings[]
+  project_versions      project_versions[]
+  profiles              profiles?               @relation(fields: [author_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  proposals             proposals[]
+  views                 views[]
+  wishlists             wishlists[]
+
+  @@index([author_id], map: "idx_projects_author")
+  @@index([created_at(sort: Desc)], map: "idx_projects_created")
+  @@index([visibility], map: "idx_projects_visibility")
+}
+
+model proposals {
+  id                                       String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  project_id                               String?   @db.Uuid
+  project_title                            String?
+  sender_id                                String?   @db.Uuid
+  sender_email                             String?
+  sender_name                              String?
+  sender_photo                             String?
+  receiver_id                              String?   @db.Uuid
+  receiver_email                           String?
+  title                                    String?
+  content                                  String?
+  contact                                  String?
+  status                                   String?   @default("pending")
+  created_at                               DateTime? @default(now()) @db.Timestamptz(6)
+  read_at                                  DateTime? @db.Timestamptz(6)
+  replied_at                               DateTime? @db.Timestamptz(6)
+  projects                                 projects? @relation(fields: [project_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles_proposals_receiver_idToprofiles profiles? @relation("proposals_receiver_idToprofiles", fields: [receiver_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles_proposals_sender_idToprofiles   profiles? @relation("proposals_sender_idToprofiles", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model site_settings {
+  id             Int      @id @default(1)
+  og_description String?  @default("부산 동구 문화 예술 공간")
+  og_image_url   String?
+  updated_at     DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model api_keys {
+  id                    String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id               String    @db.Uuid
+  api_key               String    @unique @db.VarChar(255)
+  name                  String?   @db.VarChar(255)
+  scopes                String[]  @default([])
+  is_active             Boolean?  @default(true)
+  rate_limit_per_minute Int?      @default(60)
+  last_used_at          DateTime? @db.Timestamptz(6)
+  expires_at            DateTime? @db.Timestamptz(6)
+  created_at            DateTime? @default(now()) @db.Timestamptz(6)
+  profiles              profiles  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model banners {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title         String?   @db.VarChar(255)
+  subtitle      String?   @db.VarChar(255)
+  image_url     String?
+  link_url      String?
+  is_active     Boolean?  @default(true)
+  display_order Int?      @default(0)
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model bookmarks {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String    @db.Uuid
+  project_id String    @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  projects   projects  @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  profiles   profiles  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, project_id])
+  @@index([user_id], map: "idx_bookmarks_user")
+}
+
+model collection_items {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  collection_id String      @db.Uuid
+  project_id    String?     @db.Uuid
+  created_at    DateTime?   @default(now()) @db.Timestamptz(6)
+  collections   collections @relation(fields: [collection_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  projects      projects?   @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([collection_id, project_id])
+}
+
+model collections {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id          String             @db.Uuid
+  name             String             @db.VarChar(255)
+  description      String?            @default("")
+  type             String?            @default("bookmark") @db.VarChar(50)
+  is_public        Boolean?           @default(false)
+  created_at       DateTime?          @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime?          @default(now()) @db.Timestamptz(6)
+  collection_items collection_items[]
+  profiles         profiles           @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id], map: "idx_collections_user")
+}
+
+model comments {
+  id                String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  project_id        String?    @db.Uuid
+  user_id           String?    @db.Uuid
+  content           String
+  parent_comment_id String?    @db.Uuid
+  mentioned_user_id String?    @db.Uuid
+  is_secret         Boolean?   @default(false)
+  is_deleted        Boolean?   @default(false)
+  location_x        Float?     @db.Real
+  location_y        Float?     @db.Real
+  created_at        DateTime?  @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime?  @default(now()) @db.Timestamptz(6)
+  comments          comments?  @relation("commentsTocomments", fields: [parent_comment_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  other_comments    comments[] @relation("commentsTocomments")
+  projects          projects?  @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  profiles          profiles?  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([project_id], map: "idx_comments_project")
+  @@index([user_id], map: "idx_comments_user")
+}
+
+model fields {
+  id             Int              @id @default(autoincrement())
+  slug           String           @unique @db.VarChar(100)
+  name           String?          @db.VarChar(255)
+  project_fields project_fields[]
+}
+
+model follows {
+  id                                      String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  follower_id                             String    @db.Uuid
+  following_id                            String    @db.Uuid
+  created_at                              DateTime? @default(now()) @db.Timestamptz(6)
+  profiles_follows_follower_idToprofiles  profiles  @relation("follows_follower_idToprofiles", fields: [follower_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  profiles_follows_following_idToprofiles profiles  @relation("follows_following_idToprofiles", fields: [following_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([follower_id, following_id])
+  @@index([follower_id], map: "idx_follows_follower")
+  @@index([following_id], map: "idx_follows_following")
+}
+
+model notifications {
+  id                                         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id                                    String    @db.Uuid
+  type                                       String?   @default("system") @db.VarChar(50)
+  title                                      String?
+  message                                    String?
+  link                                       String?
+  action_label                               String?
+  action_url                                 String?
+  sender_id                                  String?   @db.Uuid
+  read                                       Boolean?  @default(false)
+  created_at                                 DateTime? @default(now()) @db.Timestamptz(6)
+  profiles_notifications_sender_idToprofiles profiles? @relation("notifications_sender_idToprofiles", fields: [sender_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles_notifications_user_idToprofiles   profiles  @relation("notifications_user_idToprofiles", fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id], map: "idx_notifications_user")
+}
+
+model point_logs {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String    @db.Uuid
+  amount     Int
+  reason     String?
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  profiles   profiles  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id], map: "idx_point_logs_user")
+}
+
+model project_categories {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  project_id    String   @db.Uuid
+  category_id   Int
+  category_type String?  @default("genre") @db.VarChar(50)
+  projects      projects @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model project_collaborators {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  project_id String    @db.Uuid
+  user_id    String    @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  projects   projects  @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  profiles   profiles  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([project_id, user_id])
+}
+
+model project_fields {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  project_id String   @db.Uuid
+  field_id   Int
+  fields     fields   @relation(fields: [field_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  projects   projects @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model project_ratings {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  project_id String    @db.Uuid
+  user_id    String?   @db.Uuid
+  score      Decimal?  @default(0) @db.Decimal(3, 2)
+  guest_id   String?
+  comment    String?
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  projects   projects  @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  profiles   profiles? @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([project_id, user_id])
+  @@index([project_id], map: "idx_project_ratings_project")
+}
+
+model project_versions {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  project_id   String    @db.Uuid
+  version_name String?   @db.VarChar(100)
+  changelog    String?
+  content_html String?
+  content_text String?
+  images       String[]
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+  projects     projects  @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model recruit_items {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title           String?   @db.VarChar(500)
+  company         String?   @db.VarChar(255)
+  location        String?   @db.VarChar(255)
+  salary          String?   @db.VarChar(255)
+  employment_type String?   @db.VarChar(100)
+  description     String?
+  requirements    String?
+  link_url        String?
+  source          String?   @db.VarChar(100)
+  category        String?   @db.VarChar(100)
+  status          String?   @default("pending") @db.VarChar(50)
+  is_approved     Boolean?  @default(false)
+  created_at      DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model reward_catalog {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String          @db.VarChar(255)
+  description   String?
+  cost          Int
+  image_url     String?
+  stock         Int?            @default(-1)
+  is_active     Boolean?        @default(true)
+  created_at    DateTime?       @default(now()) @db.Timestamptz(6)
+  reward_claims reward_claims[]
+}
+
+model reward_claims {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id        String          @db.Uuid
+  reward_id      String?         @db.Uuid
+  status         String?         @default("pending") @db.VarChar(50)
+  created_at     DateTime?       @default(now()) @db.Timestamptz(6)
+  reward_catalog reward_catalog? @relation(fields: [reward_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  profiles       profiles        @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model search_logs {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  query         String
+  user_id       String?   @db.Uuid
+  results_count Int?      @default(0)
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model views {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String?   @db.Uuid
+  project_id String    @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  projects   projects  @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  profiles   profiles? @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, project_id])
+}
+
+model visits {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  page       String?
+  user_agent String?
+  ip         String?
+  user_id    String?   @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model wishlists {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  user_id    String    @db.Uuid
+  project_id String    @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  projects   projects  @relation(fields: [project_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  profiles   profiles  @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, project_id])
+}

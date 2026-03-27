@@ -1,110 +1,53 @@
-// src/app/api/collections/route.ts
-// 컬렉션 폴더 관리 API
-
+// src/app/api/collections/route.ts — 컬렉션 관리 (Prisma)
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabase/admin';
+import prisma from '@/lib/db';
+import { getAuthUser } from '@/lib/auth/helpers';
 
-// 컬렉션 목록 조회
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다.' },
-        { status: 401 }
-      );
+    const authUser = await getAuthUser(request);
+    if (!authUser) {
+      return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
     }
 
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: '인증에 실패했습니다.' },
-        { status: 401 }
-      );
-    }
+    const collections = await prisma.collections.findMany({
+      where: { user_id: authUser.id },
+      orderBy: { created_at: 'desc' },
+    });
 
-    const { data, error } = await supabaseAdmin
-      .from('Collection')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('컬렉션 조회 실패:', error);
-      return NextResponse.json(
-        { error: '컬렉션 조회에 실패했습니다.' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ collections: data });
+    return NextResponse.json({ collections });
   } catch (error) {
-    console.error('서버 오류:', error);
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다.' },
-      { status: 500 }
-    );
+    console.error('[API/Collections] GET error:', error);
+    return NextResponse.json({ error: '서버 오류' }, { status: 500 });
   }
 }
 
-// 컬렉션 생성
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return NextResponse.json(
-        { error: '로그인이 필요합니다.' },
-        { status: 401 }
-      );
-    }
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: '인증에 실패했습니다.' },
-        { status: 401 }
-      );
+    const authUser = await getAuthUser(request);
+    if (!authUser) {
+      return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
     }
 
     const body = await request.json();
     const { name, description, is_public } = body;
 
     if (!name) {
-      return NextResponse.json(
-        { error: '컬렉션 이름이 필요합니다.' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '컬렉션 이름이 필요합니다.' }, { status: 400 });
     }
 
-    const { data, error } = await (supabaseAdmin as any)
-      .from('Collection')
-      .insert([{
-        user_id: user.id,
+    const collection = await prisma.collections.create({
+      data: {
+        user_id: authUser.id,
         name,
         description: description || '',
-        is_public: is_public || false
-      }] as any)
-      .select()
-      .single();
+        is_public: is_public || false,
+      },
+    });
 
-    if (error) {
-      console.error('컬렉션 생성 실패:', error);
-      return NextResponse.json(
-        { error: '컬렉션 생성에 실패했습니다.' },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json({ collection: data });
+    return NextResponse.json({ collection });
   } catch (error) {
-    console.error('서버 오류:', error);
-    return NextResponse.json(
-      { error: '서버 오류가 발생했습니다.' },
-      { status: 500 }
-    );
+    console.error('[API/Collections] POST error:', error);
+    return NextResponse.json({ error: '서버 오류' }, { status: 500 });
   }
 }

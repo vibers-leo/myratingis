@@ -1,9 +1,8 @@
-import { supabase } from "./supabase/client";
-import dayjs from "dayjs";
+// src/lib/versions.ts — 프로젝트 버전 (API 호출 기반)
 
 export interface ProjectVersion {
-  id: number;
-  project_id: number;
+  id: string;
+  project_id: string;
   version_name: string;
   changelog: string | null;
   content_html?: string | null;
@@ -13,16 +12,12 @@ export interface ProjectVersion {
 }
 
 export async function getProjectVersions(projectId: string | number): Promise<ProjectVersion[]> {
-  const { data, error } = await supabase
-    .from("ProjectVersion" as any)
-    .select("*")
-    .eq("project_id", Number(projectId))
-    .order("created_at", { ascending: false }); // 최신순 정렬
-
-  if (error) {
-    console.error("Error fetching project versions:", error);
+  try {
+    const res = await fetch(`/api/v1/projects/${projectId}/versions`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.versions || [];
+  } catch {
     return [];
   }
-
-  return (data || []) as unknown as ProjectVersion[];
 }

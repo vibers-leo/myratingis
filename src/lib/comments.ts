@@ -1,53 +1,45 @@
-// src/lib/comments.ts
-import { supabase } from "./supabase/client";
-import { Database } from "./supabase/types";
-
-type CommentRow = Database["public"]["Tables"]["comment"]["Row"];
-type CommentInsert = Database["public"]["Tables"]["comment"]["Insert"];
+// src/lib/comments.ts — API 호출 기반 댓글 유틸 (Supabase 제거)
 
 export interface Comment {
   id: string;
-  project_id: number;
+  project_id: string;
   user_id: string;
   content: string;
-  createdAt: string; // Fix: Rename to createdAt
+  createdAt: string;
   username: string;
   userAvatar: string;
   isSecret?: boolean;
 }
 
-/**
- * Get all comments for a project.
- */
-export async function getProjectComments(projectId: string | number): Promise<Comment[]> {
-  const { data, error } = await supabase
-    .from("comment")
-    .select("id, project_id, user_id, content, created_at, username, user_avatar_url, is_secret")
-    .eq("project_id", Number(projectId))
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Error fetching comments:", error);
-    return [];
-  }
-
-  /* Safe Casting: Supabase returns partial or full Row objects */
-  const comments = data as any;
-  return (comments || []).map((c: any) => ({
-    id: c.id,
-    project_id: c.project_id,
-    user_id: c.user_id,
-    content: c.content,
-    createdAt: c.created_at,
-    username: c.username,
-    userAvatar: c.user_avatar_url,
-    isSecret: c.is_secret,
-  }));
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('mr_auth_token');
 }
 
-/**
- * Add a comment to a project.
- */
+export async function getProjectComments(projectId: string | number): Promise<Comment[]> {
+  try {
+    const token = getToken();
+    const headers: any = {};
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    const res = await fetch(`/api/comments?projectId=${String(projectId)}`, { headers });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.comments || []).map((c: any) => ({
+      id: c.comment_id || c.id,
+      project_id: c.project_id,
+      user_id: c.user_id,
+      content: c.content,
+      createdAt: c.created_at,
+      username: c.user?.username || 'Unknown',
+      userAvatar: c.user?.profile_image_url || '/globe.svg',
+      isSecret: c.is_secret,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function addComment(
   projectId: string | number,
   userId: string,
@@ -56,69 +48,54 @@ export async function addComment(
   avatarUrl: string,
   isSecret: boolean = false
 ): Promise<Comment | null> {
-  const { data, error } = await supabase
-    .from("comment")
-    .insert({
-      project_id: Number(projectId),
-      user_id: userId,
-      content,
-      username,
-      user_avatar_url: avatarUrl,
-      is_secret: isSecret,
-    } as unknown as CommentInsert)
-    .select("id, project_id, user_id, content, created_at, username, user_avatar_url, is_secret")
-    .single();
+  const token = getToken();
+  if (!token) return null;
 
-  if (error) {
-    console.error("Error adding comment:", error);
+  try {
+    const res = await fetch('/api/comments', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ projectId: String(projectId), content, isSecret }),
+    });
+
+    if (!res.ok) return null;
+    const data = await res.json();
+    const c = data.comment;
+    return {
+      id: c.comment_id || c.id,
+      project_id: c.project_id,
+      user_id: c.user_id,
+      content: c.content,
+      createdAt: c.created_at,
+      username: c.user?.username || username,
+      userAvatar: c.user?.profile_image_url || avatarUrl,
+      isSecret: c.is_secret,
+    };
+  } catch {
     return null;
   }
-
-  if (!data) return null;
-
-  const d = data as any;
-
-  return {
-    id: d.id,
-    project_id: d.project_id,
-    user_id: d.user_id,
-    content: d.content,
-    createdAt: d.created_at,
-    username: d.username,
-    userAvatar: d.user_avatar_url,
-    isSecret: d.is_secret,
-  };
 }
 
-/**
- * Delete a comment.
- */
 export async function deleteComment(commentId: string, userId: string): Promise<void> {
-  const { error } = await supabase
-    .from("comment")
-    .delete()
-    .eq("id", commentId)
-    .eq("user_id", userId);
+  const token = getToken();
+  if (!token) return;
 
-  if (error) {
-    console.error("Error deleting comment:", error);
-    throw error;
-  }
+  await fetch(`/api/comments?commentId=${commentId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }
 
-/**
- * Get the comment count for a project.
- */
 export async function getCommentCount(projectId: string | number): Promise<number> {
-  const { count, error } = await supabase
-    .from("comment")
-    .select("*", { count: "exact", head: true })
-    .eq("project_id", Number(projectId));
-
-  if (error) {
-    console.error("Error getting comment count:", error);
+  try {
+    const res = await fetch(`/api/comments?projectId=${String(projectId)}`);
+    if (!res.ok) return 0;
+    const data = await res.json();
+    return (data.comments || []).length;
+  } catch {
     return 0;
   }
-
-  return count || 0;
 }

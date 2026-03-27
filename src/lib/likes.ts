@@ -1,116 +1,78 @@
-// src/lib/likes.ts
-import { supabase } from "./supabase/client";
-import { Database } from "./supabase/types";
-
-type LikeRow = Database["public"]["Tables"]["like"]["Row"];
-type LikeInsert = Database["public"]["Tables"]["like"]["Insert"];
+// src/lib/likes.ts — API 호출 기반 좋아요 유틸 (Supabase 제거)
 
 /**
- * Get the current user.
- */
-async function getUser() {
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
-}
-
-/**
- * Get the list of projects a user has liked.
- */
-export async function getUserLikes(userId: string) {
-  const { data, error } = await supabase
-    .from("like")
-    .select("project_id")
-    .eq("user_id", userId);
-  if (error) {
-    console.error("Error fetching user likes:", error);
-    return [];
-  }
-  const likes = data as unknown as LikeRow[];
-  return (likes || []).map((like) => like.project_id);
-}
-
-/**
- * Check if a user has liked a specific project.
- */
-export async function isProjectLiked(projectId: string | number): Promise<boolean> {
-  const user = await getUser();
-  if (!user) return false;
-
-  const { data, error } = await supabase
-    .from("like")
-    .select("project_id")
-    .eq("user_id", user.id)
-    .eq("project_id", Number(projectId))
-    .single();
-
-  if (error && error.code !== "PGRST116") { // PGRST116 = no rows found
-    console.error("Error checking if project is liked:", error);
-  }
-
-  return !!(data as unknown as LikeRow);
-}
-
-/**
- * Add a like to a project.
- */
-export async function addLike(projectId: string | number): Promise<void> {
-  const user = await getUser();
-  if (!user) return;
-
-  const { error } = await supabase
-    .from("like")
-    .insert({ user_id: user.id, project_id: Number(projectId) } as LikeInsert);
-
-  if (error) {
-    console.error("Error adding like:", error);
-  }
-}
-
-/**
- * Remove a like from a project.
- */
-export async function removeLike(projectId: string | number): Promise<void> {
-  const user = await getUser();
-  if (!user) return;
-
-  const { error } = await supabase
-    .from("like")
-    .delete()
-    .eq("user_id", user.id)
-    .eq("project_id", Number(projectId));
-
-  if (error) {
-    console.error("Error removing like:", error);
-  }
-}
-
-/**
- * Toggle a like on a project.
+ * 좋아요 토글 — API 호출
  */
 export async function toggleLike(projectId: string | number): Promise<boolean> {
-  const liked = await isProjectLiked(projectId);
-  if (liked) {
-    await removeLike(projectId);
-    return false;
-  } else {
-    await addLike(projectId);
-    return true;
-  }
+  const token = typeof window !== 'undefined' ? localStorage.getItem('mr_auth_token') : null;
+  if (!token) return false;
+
+  const res = await fetch('/api/likes', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ project_id: String(projectId) }),
+  });
+
+  if (!res.ok) return false;
+  const data = await res.json();
+  return data.liked;
 }
 
 /**
- * Get the like count for a project.
+ * 좋아요 여부 확인
  */
-export async function getProjectLikeCount(projectId: string | number): Promise<number> {
-  const { count, error } = await supabase
-    .from("like")
-    .select("*", { count: "exact", head: true })
-    .eq("project_id", Number(projectId));
+export async function isProjectLiked(projectId: string | number): Promise<boolean> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('mr_auth_token') : null;
+  if (!token) return false;
 
-  if (error) {
-    console.error("Error getting project like count:", error);
+  // userId는 /api/auth/me에서 가져와야 하지만, 간단히 API로 확인
+  try {
+    const meRes = await fetch('/api/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!meRes.ok) return false;
+    const meData = await meRes.json();
+    const userId = meData.user?.id;
+    if (!userId) return false;
+
+    const res = await fetch(`/api/likes?userId=${userId}&projectId=${String(projectId)}`);
+    if (!res.ok) return false;
+    const data = await res.json();
+    return data.liked;
+  } catch {
+    return false;
+  }
+}
+
+export async function getUserLikes(userId: string): Promise<number[]> {
+  try {
+    const res = await fetch(`/api/likes?userId=${userId}`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.likes || []).map((l: any) => l.project_id);
+  } catch {
+    return [];
+  }
+}
+
+export async function addLike(projectId: string | number): Promise<void> {
+  await toggleLike(projectId);
+}
+
+export async function removeLike(projectId: string | number): Promise<void> {
+  await toggleLike(projectId);
+}
+
+export async function getProjectLikeCount(projectId: string | number): Promise<number> {
+  try {
+    const res = await fetch(`/api/likes?projectId=${String(projectId)}`);
+    if (!res.ok) return 0;
+    const data = await res.json();
+    return data.count || 0;
+  } catch {
     return 0;
   }
-
-  return count || 0;
 }

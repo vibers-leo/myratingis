@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { supabase } from "@/lib/supabase/client";
 import { FcGoogle } from "react-icons/fc";
 import { RiKakaoTalkFill } from "react-icons/ri";
 import { toast } from "sonner";
@@ -40,24 +39,23 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      // Supabase Signup
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        }
+      // 자체 회원가입 API 호출
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
-      
-      if (error) throw error;
 
-      if (data.user && data.session) {
-        toast.success("회원가입이 완료되었습니다! 환영합니다.");
-        router.push("/onboarding");
-      } else {
-        toast.success("인증 메일이 발송되었습니다. 메일함을 확인해주세요!");
-        router.push("/login?message=check-email");
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || '회원가입에 실패했습니다.');
+
+      // 토큰 저장
+      if (data.token) {
+        localStorage.setItem('mr_auth_token', data.token);
       }
+
+      toast.success("회원가입이 완료되었습니다! 환영합니다.");
+      router.push("/");
       
     } catch (error: any) {
       console.error("[Signup] Error:", error);

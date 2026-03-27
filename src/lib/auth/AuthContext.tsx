@@ -1,13 +1,25 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from "react";
-import { supabase } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { User } from "@supabase/supabase-js";
+
+// 자체 JWT 인증 시스템용 User 타입
+export interface AuthUser {
+  id: string;
+  email: string;
+  username?: string | null;
+  nickname?: string | null;
+  avatar_url?: string | null;
+  role?: string | null;
+  profile?: any;
+  // Supabase 호환 필드 (기존 코드 호환성)
+  user_metadata?: Record<string, any>;
+  app_metadata?: Record<string, any>;
+}
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   loading: boolean;
   isAuthenticated: boolean;
   signInWithGoogle: () => Promise<void>;
@@ -17,164 +29,165 @@ interface AuthContextType {
   authError: string | null;
   userProfile: any;
   isAdmin: boolean;
+  token: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// localStorage에서 토큰 관리
+const TOKEN_KEY = 'mr_auth_token';
+
+function getStoredToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+function setStoredToken(token: string): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+function removeStoredToken(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(TOKEN_KEY);
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const router = useRouter();
 
-  const fetchUserProfile = useCallback(async (userId: string) => {
+  // 토큰으로 현재 사용자 조회
+  const fetchCurrentUser = useCallback(async (authToken: string) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+      const res = await fetch('/api/auth/me', {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
 
-      if (error) {
-        console.error("Error fetching user profile:", error);
-      } else {
-        setUserProfile(data);
-      }
-    } catch (e) {
-      console.error("Profile fetch error:", e);
-    }
-  }, []);
-
-  useEffect(() => {
-    // getSession()은 로컬 쿠키에서 읽기만 하므로 빠름 (네트워크 요청 없음)
-    // onAuthStateChange가 INITIAL_SESSION 이벤트로 초기 상태를 전달하므로
-    // getSession()은 초기 빠른 세팅용, onAuthStateChange는 이후 변경 감지용
-    let isMounted = true;
-
-    const initializeAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!isMounted) return;
-        if (session) {
-          setUser(session.user);
-          fetchUserProfile(session.user.id);
-        }
-      } catch (error) {
-        console.error("[AuthContext] Initialization error:", error);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    };
-
-    initializeAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!isMounted) return;
-
-      if (session) {
-        setUser(session.user);
-        // INITIAL_SESSION은 이미 getSession에서 처리했으므로 프로필 재요청 스킵
-        if (event !== 'INITIAL_SESSION') {
-          fetchUserProfile(session.user.id);
-        }
-      } else {
+      if (!res.ok) {
+        // 토큰 만료 또는 무효
+        removeStoredToken();
         setUser(null);
         setUserProfile(null);
+        setToken(null);
+        return;
       }
-      setLoading(false);
-    });
 
-    return () => {
-      isMounted = false;
-      subscription.unsubscribe();
-    };
-  }, [fetchUserProfile]);
+      const data = await res.json();
+      const u = data.user;
 
-  const signInWithGoogle = useCallback(async () => {
-    try {
-      setLoading(true);
-      setAuthError(null);
-
-      console.log("[AuthContext] 🔑 Starting Google OAuth login...");
-
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
+      const authUser: AuthUser = {
+        id: u.id,
+        email: u.email,
+        username: u.username,
+        nickname: u.nickname,
+        avatar_url: u.avatar_url,
+        role: u.role,
+        profile: u.profile,
+        // 기존 코드 호환
+        user_metadata: {
+          nickname: u.nickname || u.username,
+          avatar_url: u.avatar_url,
+          profile_image_url: u.avatar_url,
         },
-      });
+        app_metadata: { role: u.role },
+      };
 
-      if (error) {
-        console.error("[AuthContext] ❌ Google OAuth error:", error);
-        throw error;
-      }
-
-      console.log("[AuthContext] ✅ Google OAuth redirect initiated:", data);
-    } catch (error: any) {
-      console.error("[AuthContext] ❌ Google Login Failed:", {
-        message: error.message,
-        status: error.status,
-        code: error.code
-      });
-      setAuthError(error.message);
-      toast.error("Google 로그인에 실패했습니다.");
-      setLoading(false);
+      setUser(authUser);
+      setUserProfile(u.profile);
+      setToken(authToken);
+    } catch (e) {
+      console.error('[AuthContext] fetchCurrentUser 실패:', e);
+      removeStoredToken();
+      setUser(null);
+      setUserProfile(null);
+      setToken(null);
     }
   }, []);
 
-  const signInWithKakao = useCallback(async () => {
-    try {
-      setLoading(true);
-      setAuthError(null);
-
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'kakao',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
-      if (error) throw error;
-    } catch (error: any) {
-      console.error("[AuthContext] Kakao Login Failed:", error.message);
-      setAuthError(error.message);
-      toast.error("카카오 로그인에 실패했습니다.");
+  // 초기화: 저장된 토큰으로 세션 복원
+  useEffect(() => {
+    const savedToken = getStoredToken();
+    if (savedToken) {
+      fetchCurrentUser(savedToken).finally(() => setLoading(false));
+    } else {
       setLoading(false);
     }
-  }, []);
+  }, [fetchCurrentUser]);
 
+  // 이메일 로그인
   const signInWithEmail = useCallback(async (email: string, password: string) => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      setAuthError(null);
+
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (error) throw error;
+      const data = await res.json();
 
-      console.log("[AuthContext] Sign-in successful:", data.user?.email);
-      router.replace("/");
+      if (!res.ok) {
+        throw new Error(data.error || '로그인에 실패했습니다.');
+      }
+
+      setStoredToken(data.token);
+      setToken(data.token);
+
+      const u = data.user;
+      const authUser: AuthUser = {
+        id: u.id,
+        email: u.email,
+        username: u.username,
+        nickname: u.nickname,
+        avatar_url: u.avatar_url,
+        role: u.role,
+        profile: u.profile,
+        user_metadata: {
+          nickname: u.nickname || u.username,
+          avatar_url: u.avatar_url,
+          profile_image_url: u.avatar_url,
+        },
+        app_metadata: { role: u.role },
+      };
+
+      setUser(authUser);
+      setUserProfile(u.profile);
+      router.replace('/');
     } catch (error: any) {
-       console.error("Email Login Failed", error);
-       setAuthError(error.message);
-       throw error;
+      console.error('[AuthContext] Email Login Failed:', error);
+      setAuthError(error.message);
+      throw error;
     } finally {
-       setLoading(false);
+      setLoading(false);
     }
   }, [router]);
 
+  // Google 로그인 — 현재는 placeholder (향후 Google OAuth 직접 구현)
+  const signInWithGoogle = useCallback(async () => {
+    toast.info('Google 로그인은 준비 중입니다. 이메일로 로그인해주세요.');
+  }, []);
+
+  // Kakao 로그인 — placeholder
+  const signInWithKakao = useCallback(async () => {
+    toast.info('카카오 로그인은 준비 중입니다. 이메일로 로그인해주세요.');
+  }, []);
+
+  // 로그아웃
   const signOut = useCallback(async () => {
     try {
-      await supabase.auth.signOut();
-      router.replace("/login");
+      removeStoredToken();
+      setUser(null);
+      setUserProfile(null);
+      setToken(null);
+      router.replace('/login');
     } catch (error: any) {
-      console.error("Logout Failed", error);
+      console.error('[AuthContext] Logout Failed:', error);
     }
   }, [router]);
 
@@ -196,8 +209,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut,
     authError,
     userProfile,
-    isAdmin
-  }), [user, loading, signInWithGoogle, signInWithKakao, signInWithEmail, signOut, authError, userProfile, isAdmin]);
+    isAdmin,
+    token,
+  }), [user, loading, signInWithGoogle, signInWithKakao, signInWithEmail, signOut, authError, userProfile, isAdmin, token]);
 
   return (
     <AuthContext.Provider value={value}>
