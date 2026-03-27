@@ -192,10 +192,10 @@ export default function FeaturesPage() {
                    initial={{ opacity: 0, y: 20 }}
                    animate={{ opacity: 1, y: 0 }}
                    transition={{ delay: 0.2 }}
-                   className="text-lg text-gray-500 dark:text-gray-400 font-medium max-w-lg leading-relaxed"
+                   className="text-lg text-gray-500 dark:text-gray-400 font-medium max-w-lg leading-relaxed break-keep"
                 >
-                  제 평가는요?는 크리에이터의 성장을 위한 마침표를 찍습니다. 
-                  단순한 피드백을 넘어, 데이터 기반의 정밀 분석과 
+                  제 평가는요?는 크리에이터의 성장을 위한 마침표를 찍습니다.
+                  단순한 피드백을 넘어, 데이터 기반의 정밀 분석과
                   매끄러운 사용자 경험을 결합한 혁신적인 평가 솔루션입니다.
                 </motion.p>
 
@@ -205,8 +205,8 @@ export default function FeaturesPage() {
                    transition={{ delay: 0.3 }}
                    className="flex gap-4 pt-4"
                 >
-                   <Button onClick={() => router.push('/project/upload')} className="h-16 px-10 min-w-[280px] rounded-2xl bg-orange-600 hover:bg-orange-700 text-white font-black text-lg shadow-2xl shadow-orange-600/30 gap-3 group transition-all hover:scale-105 active:scale-95">
-                      평가 의뢰하기 <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+                   <Button onClick={() => router.push('/project/upload')} className="h-16 px-10 min-w-[280px] rounded-xl cta-premium text-white font-black text-lg gap-3 group border-none">
+                      평가 의뢰하기 <ArrowRight className="group-hover:translate-x-1" />
                    </Button>
                 </motion.div>
               </div>
@@ -251,7 +251,7 @@ export default function FeaturesPage() {
                      whileInView={{ opacity: 1, y: 0 }}
                      viewport={{ once: true }}
                      transition={{ delay: i * 0.1 }}
-                     className="bg-white dark:bg-slate-900 p-10 rounded-xl space-y-6 hover:shadow-xl transition-all hover:-translate-y-2 border border-gray-100 dark:border-slate-800 hover:border-orange-500/20"
+                     className="bg-white dark:bg-slate-900 p-10 rounded-xl space-y-6 hover:shadow-xl border border-gray-100 dark:border-slate-800 hover:border-orange-500/20 double-bezel"
                    >
                       <div className={`w-14 h-14 ${f.bgColor} ${f.color} rounded-2xl flex items-center justify-center`}>
                          <f.icon className="w-7 h-7" />
@@ -261,7 +261,7 @@ export default function FeaturesPage() {
                             <span className="text-[10px] font-black text-orange-500 opacity-80 uppercase tracking-widest">{f.tag}</span>
                             <h3 className="text-2xl font-black text-gray-900 dark:text-white tracking-tight uppercase italic break-keep">{f.title}</h3>
                          </div>
-                         <p className="text-sm text-gray-500 dark:text-gray-400 font-medium leading-relaxed">
+                         <p className="text-sm text-gray-500 dark:text-gray-400 font-medium leading-relaxed break-keep">
                             {f.desc}
                          </p>
                       </div>
@@ -280,13 +280,13 @@ export default function FeaturesPage() {
               <h2 className="text-5xl md:text-7xl lg:text-8xl font-black text-gray-900 dark:text-white tracking-tighter italic uppercase leading-[0.9]">
                 지금 당신의 <br/> <span className="text-orange-500">가치</span>를 증명하세요
               </h2>
-              <p className="text-xl text-gray-500 dark:text-gray-400 font-medium max-w-xl mx-auto">
-                더 이상 수동적인 업로드에 그치지 마세요. 
+              <p className="text-xl text-gray-500 dark:text-gray-400 font-medium max-w-xl mx-auto break-keep">
+                더 이상 수동적인 업로드에 그치지 마세요.
                 전문가의 진단과 리얼한 시장 반응을 통해 다음 단계로 도약하세요.
               </p>
               <div className="flex justify-center pt-8">
-                  <Button onClick={() => router.push('/signup')} className="h-20 px-16 rounded-xl !bg-orange-500 !text-white hover:!bg-orange-600 font-black text-xl shadow-2xl shadow-orange-500/30 gap-4 transition-all hover:scale-105 active:scale-95 group">
-                    무료로 시작하기 <ChevronRight size={24} className="group-hover:translate-x-1 transition-transform" />
+                  <Button onClick={() => router.push('/signup')} className="h-20 px-16 rounded-xl cta-premium text-white font-black text-xl gap-4 group border-none">
+                    무료로 시작하기 <ChevronRight size={24} className="group-hover:translate-x-1" />
                   </Button>
               </div>
            </div>

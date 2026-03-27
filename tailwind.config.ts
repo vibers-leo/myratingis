@@ -71,9 +71,9 @@ const config = {
       keyframes: {},
       animation: {},
       fontFamily: {
-        sans: ["var(--font-poppins)", "Pretendard", "var(--font-noto-sans-kr)", "-apple-system", "BlinkMacSystemFont", "system-ui", "Roboto", "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", "sans-serif"],
+        sans: ["Pretendard Variable", "Pretendard", "-apple-system", "BlinkMacSystemFont", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "system-ui", "Roboto", "Helvetica Neue", "Segoe UI", "sans-serif"],
         poppins: ["var(--font-poppins)", "sans-serif"],
-        pretendard: ["Pretendard", "sans-serif"],
+        pretendard: ["Pretendard Variable", "Pretendard", "sans-serif"],
       },
       spacing: {
         '13': '3.25rem',

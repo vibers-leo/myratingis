@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { ClientProviders } from "@/components/ClientProviders";
 import { ScrollToTop } from "@/components/ScrollToTop";
@@ -13,13 +12,6 @@ import { VisitTracker } from "@/components/VisitTracker";
 import { OnboardingModal } from "@/components/auth/OnboardingModal";
 
 const RealtimeListener = dynamic(() => import("@/components/RealtimeListener"), { ssr: false });
-
-// Optimized font loading with next/font (auto-subset, self-hosted)
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap", // Prevent FOIT
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -80,7 +72,7 @@ export default function RootLayout({
         <link rel="alternate" type="application/rss+xml" title="제 평가는요? RSS" href="/rss.xml" />
       </head>
       <body
-        className={`${inter.variable} font-sans antialiased min-h-screen custom-scrollbar overscroll-none`}
+        className="font-sans antialiased min-h-screen custom-scrollbar overscroll-none"
       >
         {/* Kakao SDK - Load lazily (not needed for initial render) */}
         <Script

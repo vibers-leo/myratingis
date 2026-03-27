@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { motion, AnimatePresence } from 'framer-motion';
+// motion removed — using CSS-only for performance
 import { MyRatingIsHeader } from '@/components/MyRatingIsHeader';
 import { ChefHat, Star, Eye, MessageSquare, Clock, ArrowRight, Sparkles, Heart, Bookmark, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -224,27 +224,27 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
            <div className="space-y-4">
-              <div className="flex items-center gap-3 px-4 py-2 bg-orange-600/10 border border-orange-600/20 rounded-full w-fit">
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-orange-600/10 border border-orange-600/20 rounded-full">
                  <ChefHat className="w-4 h-4 text-orange-600" />
                  <span className="text-[10px] font-black text-orange-600 uppercase tracking-widest">진행 중인 평가 의뢰</span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-chef-text tracking-tighter italic uppercase">
+              <h1 className="text-4xl md:text-6xl font-black text-chef-text tracking-tighter italic uppercase break-keep">
                 평가 참여하기
               </h1>
-              <p className="text-chef-text opacity-60 font-bold max-w-xl text-lg">
-                공개를 희망한 프로젝트만 모아 보여드립니다.<br />
+              <p className="text-chef-text/60 font-medium max-w-xl text-base md:text-lg leading-relaxed break-keep">
+                공개를 희망한 프로젝트만 모아 보여드립니다.
                 당신의 소중한 의견이 창작자에게 큰 힘이 됩니다.
               </p>
            </div>
 
-           <div className="flex bg-chef-panel p-1 rounded-sm border border-chef-border">
+           <div className="flex bg-chef-panel p-1 rounded-lg border border-chef-border double-bezel">
               {['all', 'popular', 'latest'].map(f => (
-                <button 
-                  key={f} 
+                <button
+                  key={f}
                   onClick={() => setActiveFilter(f)}
                   className={cn(
-                    "px-6 py-2 text-[10px] font-black uppercase tracking-widest transition-all",
-                    activeFilter === f ? "bg-chef-text text-chef-bg shadow-lg" : "text-chef-text opacity-50 hover:opacity-100"
+                    "px-6 py-2.5 text-[10px] font-black uppercase tracking-widest rounded-md",
+                    activeFilter === f ? "bg-chef-text text-chef-bg shadow-lg" : "text-chef-text/50 hover:text-chef-text/80"
                   )}
                 >
                   {f}
@@ -255,27 +255,23 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
 
         {/* Auth Inducement Banner */}
         {!isAuthenticated && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-12 p-8 rounded-xl bg-gradient-to-r from-orange-600 to-orange-500 text-white relative overflow-hidden shadow-2xl"
-          >
+          <div className="mb-12 p-8 md:p-10 rounded-xl cta-premium text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10">
                <ChefHat size={120} />
             </div>
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
                <div className="text-center md:text-left space-y-2">
-                  <h3 className="text-2xl font-black italic uppercase tracking-tight flex items-center gap-2 justify-center md:justify-start">
+                  <h3 className="text-2xl font-black italic uppercase tracking-tight flex items-center gap-2 justify-center md:justify-start break-keep">
                      <Sparkles className="w-6 h-6" /> 평가 의뢰하기
                   </h3>
-                  <p className="text-white/80 font-bold">로그인하고 셰프가 되어 프로젝트를 평가해보세요. <br className="hidden md:block" />참여 시 다양한 리워드가 제공됩니다.</p>
+                  <p className="text-white/80 font-medium break-keep">로그인하고 셰프가 되어 프로젝트를 평가해보세요. <br className="hidden md:block" />참여 시 다양한 리워드가 제공됩니다.</p>
                </div>
                <div className="flex gap-3">
-                  <Button onClick={() => router.push('/login')} variant="secondary" className="h-14 px-8 rounded-lg font-black bg-white text-orange-600 hover:bg-white/90">로그인하기</Button>
-                  <Button onClick={() => router.push('/signup')} variant="outline" className="h-14 px-8 rounded-lg font-black border-2 border-white text-white bg-transparent hover:bg-white/10">회원가입</Button>
+                  <Button onClick={() => router.push('/login')} variant="secondary" className="h-14 px-8 rounded-xl font-black bg-white text-orange-600 hover:bg-white/90 bevel-cta">로그인하기</Button>
+                  <Button onClick={() => router.push('/signup')} variant="outline" className="h-14 px-8 rounded-xl font-black border-2 border-white text-white bg-transparent hover:bg-white/10">회원가입</Button>
                </div>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Project Grid */}
@@ -290,12 +286,9 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
               const showCumulative = auditConfig?.is_public_results === true;
 
               return (
-                <motion.div 
+                <div
                   key={p.project_id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  whileHover={{ x: 4 }}
-                  className="group relative flex flex-col md:flex-row gap-8 bg-chef-card border border-chef-border p-6 md:p-8 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300"
+                  className="group relative flex flex-col md:flex-row gap-6 md:gap-8 bg-chef-card p-5 md:p-8 rounded-xl double-bezel hover:border-orange-500/20"
                 >
                    {/* Left: Thumbnail Section */}
                    <div 
@@ -363,20 +356,20 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                    </div>
 
                    {/* Middle: Content Section */}
-                   <div className="flex-1 flex flex-col justify-center min-w-0 py-2">
-                      <div className="flex items-center gap-2 mb-2">
+                   <div className="flex-1 flex flex-col justify-center min-w-0 py-1 md:py-2">
+                      <div className="flex items-center gap-2 mb-3">
                          <span className="px-3 py-1 bg-orange-600/10 text-orange-600 text-[11px] font-black uppercase tracking-widest rounded-full">{p.category_name || "새 프로젝트"}</span>
-                         <span className="text-[10px] text-chef-text opacity-50 font-black italic">by {p.User?.username || "Unknown"}</span>
+                         <span className="text-[10px] text-chef-text/40 font-bold">by {p.User?.username || "Unknown"}</span>
                       </div>
-                      
-                       <h3 
-                        className="text-2xl md:text-3xl font-black text-chef-text tracking-tighter truncate mb-2 hover:text-orange-500 cursor-pointer transition-colors"
+
+                       <h3
+                        className="text-xl md:text-2xl font-black text-chef-text tracking-tight truncate mb-2 hover:text-orange-500 cursor-pointer break-keep"
                         onClick={() => handleProjectRoute(p)}
                       >
                          {p.title}
                       </h3>
-                      
-                      <p className="text-sm md:text-md text-chef-text opacity-60 font-medium line-clamp-2 mb-3 leading-relaxed">
+
+                      <p className="text-sm text-chef-text/50 font-medium line-clamp-2 mb-4 leading-relaxed break-keep">
                          {p.summary || p.description || p.content_text?.substring(0, 100) + '...'}
                       </p>
 
@@ -428,7 +421,7 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                    </div>
 
                    {/* Right: Actions Section */}
-                   <div className="flex flex-col justify-center gap-3 shrink-0 pt-4 md:pt-0 md:border-l md:border-chef-border md:pl-8 md:w-56">
+                   <div className="flex flex-col justify-center gap-3 shrink-0 pt-4 md:pt-0 md:border-l md:border-chef-border/50 md:pl-8 md:w-56">
                       
                       {/* Social Actions (New) */}
                       <div className="flex items-center justify-center gap-2 mb-2">
@@ -466,18 +459,18 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                       </div>
 
                       {p.has_rated && isAuthenticated ? (
-                        <Button 
+                        <Button
                           onClick={() => router.push(`/report/${p.project_id}`)}
-                          className="h-14 rounded-lg bevel-cta bg-green-600 hover:bg-green-700 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-green-600/10"
+                          className="h-14 rounded-xl bevel-cta bg-green-600 hover:bg-green-700 text-white font-black text-xs uppercase tracking-widest"
                         >
                           {showCumulative ? "평가 결과 리포트" : "내 평가 결과 보기"}
                         </Button>
                       ) : (
-                          <Button 
+                          <Button
                           onClick={() => {
                              router.push(`/review/viewer?projectId=${p.project_id}`);
                           }}
-                          className="h-14 rounded-none bevel-cta bg-orange-600 hover:bg-orange-700 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-orange-600/10"
+                          className="h-14 rounded-xl cta-premium text-white font-black text-xs uppercase tracking-widest border-none"
                         >
                           평가 시작하기
                         </Button>
@@ -499,22 +492,22 @@ export default function ProjectsClient({ initialProjects = [], initialTotal = 0 
                         </p>
                       )}
                    </div>
-                </motion.div>
+                </div>
               );
             })}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center py-40 space-y-6 text-center">
-             <div className="w-24 h-24 bg-chef-panel rounded-full flex items-center justify-center border border-chef-border animate-bounce">
-                <ChefHat className="w-10 h-10 text-chef-text opacity-50" />
+             <div className="w-24 h-24 bg-chef-panel rounded-2xl flex items-center justify-center double-bezel">
+                <ChefHat className="w-10 h-10 text-chef-text/40" />
              </div>
              <div className="space-y-2">
-                <h3 className="text-3xl font-black text-chef-text italic uppercase">등록된 평가가 없습니다</h3>
-                <p className="text-chef-text opacity-60 font-bold">평가를 기다리는 프로젝트가 아직 없습니다. 직접 의뢰를 시작해 보세요.</p>
+                <h3 className="text-2xl md:text-3xl font-black text-chef-text italic uppercase break-keep">등록된 평가가 없습니다</h3>
+                <p className="text-chef-text/50 font-medium break-keep">평가를 기다리는 프로젝트가 아직 없습니다. 직접 의뢰를 시작해 보세요.</p>
              </div>
-             <Button 
+             <Button
                onClick={() => router.push('/project/upload')}
-               className="bg-orange-600 hover:bg-orange-500 text-white font-black px-10 h-14 rounded-full shadow-2xl transition-all hover:scale-105"
+               className="cta-premium text-white font-black px-10 h-14 rounded-xl border-none"
              >
                평가 의뢰하기 <ArrowRight className="ml-2 w-5 h-5" />
              </Button>
