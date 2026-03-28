@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ChefHat, Star, ArrowRight, Sparkles, Users, BarChart3 } from "lucide-react";
 import { useTheme } from "@/providers/ThemeProvider";
+import VibersBanner from "@/components/VibersBanner";
 
 export default function Home() {
   const router = useRouter();
@@ -157,6 +158,11 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Vibers 크로스 프로모션 */}
+      <div className="relative z-10 flex justify-center py-8">
+        <VibersBanner size="leaderboard" currentProject="myratingis" />
+      </div>
     </div>
   );
 }
