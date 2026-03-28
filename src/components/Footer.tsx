@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FontAwesomeIcon } from "./FaIcon";
 import { faInstagram, faFacebook, faThreads, faYoutube } from "@fortawesome/free-brands-svg-icons";
 import { SOCIAL_LINKS } from "@/lib/constants";
+import CoupangBanner from "./CoupangBanner";
 
 import { usePathname } from "next/navigation";
 
@@ -32,6 +33,8 @@ export function Footer({ className }: { className?: string }) {
           </p>
         </div>
         
+        <CoupangBanner />
+
         {/* 소셜 아이콘 */}
         <div className="flex items-center gap-6 md:mr-20">
           <a 
