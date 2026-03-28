@@ -16,7 +16,8 @@ import {
   Settings,
   ArrowLeft,
   ChevronRight,
-  Presentation
+  Presentation,
+  Search
 } from "lucide-react";
 
 const menuItems = [
@@ -73,6 +74,12 @@ const menuItems = [
     path: "/admin/stats",
     icon: BarChart3,
     color: "text-indigo-500"
+  },
+  {
+    title: "SEO 관리",
+    path: "/admin/seo",
+    icon: Search,
+    color: "text-teal-500"
   },
   {
     title: "설정 관리",
