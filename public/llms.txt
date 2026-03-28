@@ -1,0 +1,16 @@
+# 제 평가는요? (MyRatingIs)
+> 전문평가위원과 참여고객의 날카로운 시선으로 프로젝트의 진짜 가치를 증명하는 AI 6축 평가 플랫폼
+
+## 주요 기능
+- 프로젝트 업로드 및 공유
+- AI 6축 자동 평가 엔진
+- 전문가 및 대중 평가 시스템
+- 협업 제안 및 매칭
+- 실시간 알림 시스템
+
+## 기술 스택
+- Next.js, Supabase (Auth + PostgreSQL), Tailwind CSS
+
+## 관련 링크
+- 서비스: https://myratingis.kr
+- 계발자들: https://vibers.co.kr

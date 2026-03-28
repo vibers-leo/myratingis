@@ -74,6 +74,26 @@ export default function RootLayout({
       <body
         className="font-sans antialiased min-h-screen custom-scrollbar overscroll-none"
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              "name": "제 평가는요?",
+              "url": "https://myratingis.kr",
+              "description": "전문평가위원과 참여고객의 날카로운 시선으로 프로젝트의 진짜 가치를 증명하는 AI 6축 평가 플랫폼",
+              "applicationCategory": "BusinessApplication",
+              "operatingSystem": "Web",
+              "creator": {
+                "@type": "Organization",
+                "name": "계발자들 (Vibers)",
+                "url": "https://vibers.co.kr"
+              },
+              "inLanguage": "ko"
+            })
+          }}
+        />
         {/* Google AdSense Auto Ads */}
         <Script
           async
