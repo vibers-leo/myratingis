@@ -74,6 +74,13 @@ export default function RootLayout({
       <body
         className="font-sans antialiased min-h-screen custom-scrollbar overscroll-none"
       >
+        {/* Google AdSense Auto Ads */}
+        <Script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7704550771011130"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         {/* Kakao SDK - Load lazily (not needed for initial render) */}
         <Script
           src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
