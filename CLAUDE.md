@@ -9,6 +9,11 @@
 - 협업 성사율 30% = 양면 플랫폼의 가장 강력한 성장 지표 (평가 → 협업 실행)
 - 초기 성공 공식: 전문가 50명 + 창작자 50명 → 협업 발생 → 케이스 스터디 → 입소문
 
+### 빌더 공통 지침
+- **gstack 빌더 철학**: 맥미니 루트 `gstack.md` — Boil the Lake, Search Before Building, 스프린트 프로세스
+- **개발 프로세스**: Think → Plan → Build → Review → Test → Ship → Reflect
+- **핵심 규칙**: 테스트 동시 작성, 새 패턴 도입 전 검색, 압축률 기반 추정
+
 ---
 
 # 프로젝트 작업 지침 (CLAUDE.md)
@@ -434,5 +439,35 @@ const thumbnail = await generateAIImage(
 
 ---
 
-**마지막 업데이트**: 2026-03-25
-**버전**: 1.2.0 (디자인 가이드 연결, 상위 브랜드 추가)
+## 🎨 Supanova 디자인 스킬
+
+### 개요
+랜딩 페이지 및 UI 디자인 작업 시 반드시 Supanova Design Skill을 참조합니다.
+프리미엄 품질의 HTML + Tailwind CSS 결과물을 위한 검증된 디자인 엔진입니다.
+
+### 스킬 파일 위치
+```
+skills/
+├── taste-skill.md    # 디자인 감각 엔진 (색상, 타이포, 레이아웃 규칙)
+├── soft-skill.md     # 소프트 랜딩 (부드러운 인터랙션, 모션)
+├── output-skill.md   # 최종 산출물 규칙 (HTML 구조, 접근성)
+└── redesign-skill.md # 기존 디자인 개선 프로세스
+```
+
+### 사용법
+- **새 페이지 디자인**: `taste-skill.md` → `soft-skill.md` → `output-skill.md` 순서로 참조
+- **기존 페이지 개선**: `redesign-skill.md` 참조
+- **핵심 규칙**: Korean-first, Pretendard 폰트, Tailwind CDN, Iconify Solar 아이콘
+- 디자인 작업 시작 전 반드시 해당 스킬 파일을 읽고 지침을 따릅니다
+
+---
+
+**마지막 업데이트**: 2026-03-28
+**버전**: 1.3.0 (Supanova 디자인 스킬 연동 추가)
+
+
+## 세션로그 기록 (필수)
+- 모든 개발 대화의 주요 내용을 `session-logs/` 폴더에 기록할 것
+- 파일명: `YYYY-MM-DD_한글제목.md` / 내용: 한글
+- 세션 종료 시, 마일스톤 달성 시, **컨텍스트 압축 전**에 반드시 저장
+- 상세 포맷은 상위 CLAUDE.md 참조

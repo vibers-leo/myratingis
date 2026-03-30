@@ -51,3 +51,5 @@ testsprite_tests/test_credentials.txt
 .gemini/
 .agent/
 session-logs/
+
+/src/generated/prisma

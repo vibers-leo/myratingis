@@ -27,7 +27,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'vibefolio.com' },
       { protocol: 'https', hostname: 'localhost' },
-      { protocol: 'https', hostname: '*.supabase.co' },
+      { protocol: 'https', hostname: '*.supabase.co' }, // 레거시 이미지
+      { protocol: 'https', hostname: 'storage.vibers.co.kr' }, // NCP 이미지 서버
       { protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' }, // Google Profile Images
       { protocol: 'https', hostname: 'wsrv.nl' }, // Image Proxy

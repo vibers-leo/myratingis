@@ -111,7 +111,7 @@ export default function MyPage() {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const { user: authUser, userProfile: authProfile, loading: authLoading, isAdmin } = useAuth();
+  const { user: authUser, userProfile: authProfile, loading: authLoading, isAdmin, token } = useAuth();
   
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [sharingProject, setSharingProject] = useState<any>(null);
@@ -568,31 +568,23 @@ export default function MyPage() {
 
     try {
       setLoading(true);
-      const fileExt = file.name.split('.').pop();
-      const fileName = `cover_${userId}_${Date.now()}.${fileExt}`;
-      const filePath = `${fileName}`; // profiles 버킷 루트에 저장
 
-      // 1. Storage에 업로드
-      const { error: uploadError } = await supabase.storage
-        .from('profiles')
-        .upload(filePath, file);
+      // 1. NCP 스토리지에 업로드
+      const { uploadImage } = await import('@/lib/storage');
+      const publicUrl = await uploadImage(file, 'profiles');
 
-      if (uploadError) throw uploadError;
+      // 2. DB 업데이트
+      const res = await fetch('/api/user/profile', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ cover_image_url: publicUrl }),
+      });
+      if (!res.ok) throw new Error('프로필 업데이트 실패');
 
-      // 2. Public URL 가져오기
-      const { data: { publicUrl } } = supabase.storage
-        .from('profiles')
-        .getPublicUrl(filePath);
-
-      // 3. DB 업데이트
-      const { error: updateError } = await (supabase
-        .from('profiles') as any)
-        .update({ cover_image_url: publicUrl })
-        .eq('id', userId);
-
-      if (updateError) throw updateError;
-
-      // 4. 상태 업데이트
+      // 3. 상태 업데이트
       setUserProfile((prev: any) => ({ ...prev, cover_image_url: publicUrl }));
       toast.success("커버 이미지가 변경되었습니다.");
     } catch (error) {

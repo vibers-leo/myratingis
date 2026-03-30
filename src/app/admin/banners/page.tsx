@@ -25,7 +25,7 @@ import {
   Upload
 } from "lucide-react";
 import Link from "next/link";
-import { uploadImage } from "@/lib/supabase/storage";
+import { uploadImage } from "@/lib/storage";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { toast } from "sonner";

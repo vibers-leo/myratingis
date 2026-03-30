@@ -22,6 +22,9 @@ export async function POST(req: NextRequest) {
         age_group: body.age_group || undefined,
         occupation: body.occupation || undefined,
         expertise: body.expertise ? (typeof body.expertise === 'object' ? body.expertise : { fields: [] }) : undefined,
+        ...(body.cover_image_url !== undefined && { cover_image_url: body.cover_image_url }),
+        ...(body.avatar_url !== undefined && { avatar_url: body.avatar_url }),
+        ...(body.profile_image !== undefined && { profile_image: body.profile_image }),
       },
       create: {
         id: authUser.id,
