@@ -15,21 +15,28 @@ export async function PUT(
 
   try {
     const body = await request.json();
-    const banner = await prisma.banners.update({
-      where: { id },
-      data: {
-        title: body.title ?? undefined,
-        subtitle: body.subtitle ?? undefined,
-        image_url: body.image_url ?? undefined,
-        link_url: body.link_url ?? undefined,
-        is_active: body.is_active ?? undefined,
-        display_order: body.display_order ?? undefined,
-        updated_at: new Date(),
-      },
-    });
-    return NextResponse.json({ banner });
+    const { title, content, category, version, tags, is_important, is_visible, is_popup, image_url, link_url, link_text } = body;
+
+    const [notice] = await prisma.$queryRaw<any[]>`
+      UPDATE notices SET
+        title = ${title},
+        content = ${content},
+        category = ${category ?? 'notice'},
+        version = ${version ?? null},
+        tags = ${tags ?? null},
+        is_important = ${is_important ?? false},
+        is_visible = ${is_visible ?? true},
+        is_popup = ${is_popup ?? false},
+        image_url = ${image_url ?? null},
+        link_url = ${link_url ?? null},
+        link_text = ${link_text ?? null},
+        updated_at = NOW()
+      WHERE id = ${Number(id)}
+      RETURNING *
+    `;
+    return NextResponse.json({ notice });
   } catch (error) {
-    console.error('[API/Banners/id] PUT error:', error);
+    console.error('[API/Notices/id] PUT error:', error);
     return NextResponse.json({ error: '서버 오류' }, { status: 500 });
   }
 }
@@ -46,10 +53,10 @@ export async function DELETE(
   if (!admin) return NextResponse.json({ error: '관리자 권한 필요' }, { status: 403 });
 
   try {
-    await prisma.banners.delete({ where: { id } });
+    await prisma.$executeRaw`DELETE FROM notices WHERE id = ${Number(id)}`;
     return NextResponse.json({ message: '삭제완료' });
   } catch (error) {
-    console.error('[API/Banners/id] DELETE error:', error);
+    console.error('[API/Notices/id] DELETE error:', error);
     return NextResponse.json({ error: '서버 오류' }, { status: 500 });
   }
 }

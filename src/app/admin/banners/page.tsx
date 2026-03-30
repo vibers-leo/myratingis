@@ -25,10 +25,9 @@ import {
   Upload
 } from "lucide-react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase/client";
 import { uploadImage } from "@/lib/supabase/storage";
 import { useAdmin } from "@/hooks/useAdmin";
-import { logActivity } from "@/lib/utils/logger";
+import { useAuth } from "@/lib/auth/AuthContext";
 import { toast } from "sonner";
 import {
   Tabs,
@@ -45,7 +44,7 @@ import {
 } from "@/components/ui/dialog";
 
 interface Banner {
-  id: number;
+  id: string;
   title: string;
   subtitle: string | null;
   description: string | null;
@@ -60,7 +59,7 @@ interface Banner {
 }
 
 interface RecruitItem {
-  id: number;
+  id: string;
   title: string;
   description: string;
   type: "job" | "contest" | "event";
@@ -77,10 +76,11 @@ interface RecruitItem {
 
 export default function AdminBannersPage() {
   const { isAdmin, isLoading: adminLoading } = useAdmin();
+  const { token } = useAuth();
   const router = useRouter();
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
@@ -102,16 +102,17 @@ export default function AdminBannersPage() {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [allPromotedItems, setAllPromotedItems] = useState<RecruitItem[]>([]);
 
+  const authHeaders = () => ({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+  });
+
   const loadBanners = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("banners")
-        .select("*")
-        .order("display_order", { ascending: true });
-
-      if (error) throw error;
-      if (data) setBanners(data as any);
+      const res = await fetch('/api/banners');
+      const data = await res.json();
+      if (data.banners) setBanners(data.banners);
     } catch (err) {
       console.error("Banner load error:", err);
     } finally {
@@ -120,19 +121,8 @@ export default function AdminBannersPage() {
   };
 
   const loadPromotedItems = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('recruit_items')
-        .select('*')
-        .eq('is_approved', true)
-        .eq('is_active', true)
-        .order('banner_priority', { ascending: true });
-
-      if (error) throw error;
-      setAllPromotedItems((data as any[]) || []);
-    } catch (err) {
-      console.error("Error loading promoted items:", err);
-    }
+    // recruit_items는 현재 API 미지원 — 빈 배열로 fallback
+    setAllPromotedItems([]);
   };
 
   useEffect(() => {
@@ -152,13 +142,13 @@ export default function AdminBannersPage() {
       setFormData({
         title: banner.title,
         subtitle: banner.subtitle || "",
-        description: banner.description || "",
-        description_one_line: banner.description_one_line || "",
-        button_text: banner.button_text || "자세히 보기",
+        description: (banner as any).description || "",
+        description_one_line: (banner as any).description_one_line || "",
+        button_text: (banner as any).button_text || "자세히 보기",
         image_url: banner.image_url,
         link_url: banner.link_url || "",
-        bg_color: banner.bg_color,
-        text_color: banner.text_color,
+        bg_color: (banner as any).bg_color || "#000000",
+        text_color: (banner as any).text_color || "#ffffff",
         is_active: banner.is_active,
         display_order: banner.display_order,
       });
@@ -190,48 +180,28 @@ export default function AdminBannersPage() {
       const submitData = {
         title: formData.title,
         subtitle: formData.subtitle || null,
-        description: formData.description || null,
-        description_one_line: formData.description_one_line || null,
-        button_text: formData.button_text || '자세히 보기',
         image_url: formData.image_url,
         link_url: formData.link_url || null,
-        bg_color: formData.bg_color,
-        text_color: formData.text_color,
         is_active: formData.is_active,
         display_order: formData.display_order,
       };
 
       if (editingBanner) {
-        const { error } = await (supabase
-          .from("banners") as any)
-          .update(submitData)
-          .eq("id", editingBanner.id);
-        if (error) throw error;
-        
-        await logActivity({
-          action: 'UPDATE',
-          targetType: 'BANNER',
-          targetId: editingBanner.id,
-          details: { title: submitData.title },
-          userId: (await supabase.auth.getUser()).data.user?.id || '',
-          userEmail: (await supabase.auth.getUser()).data.user?.email
+        const res = await fetch(`/api/banners/${editingBanner.id}`, {
+          method: 'PUT',
+          headers: authHeaders(),
+          body: JSON.stringify(submitData),
         });
+        if (!res.ok) throw new Error('수정 실패');
       } else {
-        const { error, data } = await (supabase.from("banners") as any).insert([submitData]).select();
-        if (error) throw error;
-
-        if (data && data[0]) {
-           await logActivity({
-            action: 'CREATE',
-            targetType: 'BANNER',
-            targetId: data[0].id,
-            details: { title: submitData.title },
-            userId: (await supabase.auth.getUser()).data.user?.id || '',
-            userEmail: (await supabase.auth.getUser()).data.user?.email
-          });
-        }
+        const res = await fetch('/api/banners', {
+          method: 'POST',
+          headers: authHeaders(),
+          body: JSON.stringify(submitData),
+        });
+        if (!res.ok) throw new Error('등록 실패');
       }
-      
+
       setIsModalOpen(false);
       loadBanners();
       toast.success("배너가 저장되었습니다.");
@@ -243,19 +213,14 @@ export default function AdminBannersPage() {
     }
   };
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = async (id: string) => {
     if (!confirm("정말 삭제하시겠습니까?")) return;
     try {
-      const { error } = await (supabase.from("banners") as any).delete().eq("id", id);
-      if (error) throw error;
-      
-      await logActivity({
-        action: 'DELETE',
-        targetType: 'BANNER',
-        targetId: id,
-        userId: (await supabase.auth.getUser()).data.user?.id || '',
-        userEmail: (await supabase.auth.getUser()).data.user?.email
+      const res = await fetch(`/api/banners/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
       });
+      if (!res.ok) throw new Error('삭제 실패');
       loadBanners();
       toast.success("배너가 삭제되었습니다.");
     } catch (err) {
@@ -266,65 +231,32 @@ export default function AdminBannersPage() {
 
   const toggleActive = async (banner: Banner) => {
     try {
-      const { error } = await (supabase
-        .from("banners") as any)
-        .update({ is_active: !banner.is_active })
-        .eq("id", banner.id);
-      if (error) throw error;
+      const res = await fetch(`/api/banners/${banner.id}`, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ is_active: !banner.is_active }),
+      });
+      if (!res.ok) throw new Error('변경 실패');
       loadBanners();
     } catch (err) {
       console.error("Toggle active error:", err);
     }
   };
 
-  const togglePromotedBanner = async (id: number, currentStatus: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('recruit_items')
-        .update({
-          show_as_banner: !currentStatus,
-          banner_location: !currentStatus ? 'both' : null,
-          banner_priority: !currentStatus ? 1 : 999,
-        } as any)
-        .eq('id', id);
-
-      if (error) throw error;
-      toast.success(currentStatus ? '배너에서 해제되었습니다.' : '배너로 등록되었습니다.');
-      loadPromotedItems();
-    } catch (err) {
-      console.error("Toggle error:", err);
-      toast.error("변경에 실패했습니다.");
-    }
+  const togglePromotedBanner = async (id: string, currentStatus: boolean) => {
+    // recruit_items API 미지원 — 안내만 표시
+    toast.info('홍보 항목 배너 기능은 현재 준비 중입니다.');
   };
 
-  const updatePromotedPriority = async (id: number, direction: 'up' | 'down') => {
-    const item = allPromotedItems.find(i => i.id === id);
-    if (!item) return;
-    const newPriority = direction === 'up' ? Math.max(0, item.banner_priority - 1) : item.banner_priority + 1;
-    
-    const { error } = await supabase
-      .from('recruit_items')
-      .update({ banner_priority: newPriority } as any)
-      .eq('id', id);
-    if (!error) {
-       loadPromotedItems();
-    }
+  const updatePromotedPriority = async (id: string, direction: 'up' | 'down') => {
+    // recruit_items API 미지원
+    toast.info('순위 변경 기능은 현재 준비 중입니다.');
   };
 
   const handleImportClick = async () => {
     setIsImportModalOpen(true);
-    try {
-      const { data, error } = await supabase
-        .from('recruit_items')
-        .select('id, title, description, type, link, thumbnail')
-        .order('created_at', { ascending: false })
-        .limit(20);
-      
-      if (error) throw error;
-      setRecruitItems((data as any[]) || []);
-    } catch (err) {
-      console.error("Error loading recruit items:", err);
-    }
+    // recruit_items API 미지원 — 빈 배열
+    setRecruitItems([]);
   };
 
   const importAsBanner = (item: RecruitItem) => {
@@ -340,31 +272,18 @@ export default function AdminBannersPage() {
     setIsModalOpen(true);
   };
 
-  const handleBannerImageUpload = async (id: number, file: File) => {
-    try {
-      toast.info("와이드 배너 업로드 중...");
-      const url = await uploadImage(file, 'banners');
-      const { error } = await supabase
-        .from('recruit_items')
-        .update({ banner_image_url: url } as any)
-        .eq('id', id);
-      
-      if (error) throw error;
-      toast.success("와이드 배너가 적용되었습니다.");
-      loadPromotedItems();
-    } catch (err) {
-      toast.error("업로드 실패: " + (err as Error).message);
-    }
+  const handleBannerImageUpload = async (id: string, file: File) => {
+    // recruit_items API 미지원
+    toast.info('와이드 배너 업로드는 현재 준비 중입니다.');
   };
 
   const handleDownload = async (url: string, filename: string) => {
     try {
-      // CORS 문제 해결을 위해 API 프록시를 통해 다운로드
       const proxyUrl = `/api/admin/proxy-download?url=${encodeURIComponent(url)}`;
       const response = await fetch(proxyUrl);
-      
+
       if (!response.ok) throw new Error('Proxy fetch failed');
-      
+
       const blob = await response.blob();
       const blobUrl = window.URL.createObjectURL(blob);
       const link = document.body.appendChild(document.createElement('a'));
@@ -375,7 +294,6 @@ export default function AdminBannersPage() {
       window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
       console.error("Download failed:", err);
-      // Fallback: 새 탭에서 열기 (직접 다운로드는 안될 수 있음)
       window.open(url, '_blank');
       toast.error("직접 다운로드 실패. 이미지를 새 탭에서 열었습니다.");
     }
@@ -429,11 +347,11 @@ export default function AdminBannersPage() {
                 <Card key={banner.id} className={`group overflow-hidden transition-all duration-300 hover:shadow-xl border-none p-1 rounded-xl ${!banner.is_active ? "opacity-50 grayscale" : "bg-white shadow-sm"}`}>
                   <CardHeader className="flex flex-row items-center justify-between p-6 pr-8">
                     <div className="flex items-center gap-6 flex-1">
-                      <div 
+                      <div
                         className="w-48 h-28 rounded-2xl bg-slate-100 flex-shrink-0 bg-cover bg-center border border-slate-100 shadow-inner group-hover:scale-105 transition-transform"
                         style={{ backgroundImage: `url(${banner.image_url})` }}
                       />
-                      
+
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-3">
                            <span className="text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-400 px-2 py-1 rounded">ORDER {banner.display_order}</span>
@@ -442,23 +360,23 @@ export default function AdminBannersPage() {
                            </Badge>
                         </div>
                         <CardTitle className="text-xl font-black text-slate-900">{banner.title}</CardTitle>
-                        <p className="text-slate-400 text-sm mt-1.5 font-medium line-clamp-1">{banner.description || banner.subtitle || "상세 설명이 없습니다."}</p>
+                        <p className="text-slate-400 text-sm mt-1.5 font-medium line-clamp-1">{(banner as any).description || banner.subtitle || "상세 설명이 없습니다."}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           className="w-12 h-12 rounded-2xl hover:bg-blue-50 text-blue-400 hover:text-blue-600"
                           onClick={() => handleDownload(banner.image_url, `banner_${banner.id}.png`)}
                           title="이미지 다운로드 (NanoBanana Pro 업로드용)"
                         >
                           <Download size={20} />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           className="w-12 h-12 rounded-2xl hover:bg-slate-50 text-slate-400 hover:text-slate-900 transition-all"
                           onClick={() => toggleActive(banner)}
                         >
@@ -514,9 +432,9 @@ export default function AdminBannersPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                           <Button 
-                             variant="ghost" 
-                             size="icon" 
+                           <Button
+                             variant="ghost"
+                             size="icon"
                              className="h-9 w-9 rounded-lg text-emerald-500 hover:bg-emerald-50"
                              onClick={() => {
                                const input = document.createElement('input');
@@ -532,9 +450,9 @@ export default function AdminBannersPage() {
                            >
                              <Upload size={16} />
                            </Button>
-                           <Button 
-                             variant="ghost" 
-                             size="icon" 
+                           <Button
+                             variant="ghost"
+                             size="icon"
                              className="h-9 w-9 rounded-lg text-blue-500 hover:bg-blue-50"
                              onClick={() => handleDownload(item.thumbnail, `promoted_${item.id}.png`)}
                              title="이미지 다운로드 (NanoBanana Pro 업로드용)"
@@ -579,8 +497,8 @@ export default function AdminBannersPage() {
         </TabsContent>
       </Tabs>
 
-      <EditorModal 
-        isOpen={isModalOpen} 
+      <EditorModal
+        isOpen={isModalOpen}
         onOpenChange={setIsModalOpen}
         editingBanner={editingBanner}
         formData={formData}
@@ -589,7 +507,7 @@ export default function AdminBannersPage() {
         loading={loading}
       />
 
-      <ImportModal 
+      <ImportModal
         isOpen={isImportModalOpen}
         onOpenChange={setIsImportModalOpen}
         recruitItems={recruitItems}
@@ -603,14 +521,14 @@ export default function AdminBannersPage() {
 // 아래는 모달 컴포넌트들입니다
 // ------------------------------------------------------------------------------------------------
 
-function EditorModal({ 
-  isOpen, 
-  onOpenChange, 
-  editingBanner, 
-  formData, 
-  setFormData, 
-  handleSubmit, 
-  loading 
+function EditorModal({
+  isOpen,
+  onOpenChange,
+  editingBanner,
+  formData,
+  setFormData,
+  handleSubmit,
+  loading
 }: any) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -624,10 +542,10 @@ function EditorModal({
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <label className="text-sm font-black text-slate-800 uppercase tracking-wider">이미지 설정 *</label>
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm" 
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
                 className="h-9 px-4 rounded-xl border-slate-200 text-xs font-bold hover:bg-slate-50"
                 onClick={() => document.getElementById('image-upload')?.click()}
                 disabled={loading}
@@ -635,10 +553,10 @@ function EditorModal({
                 {loading ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <Upload className="mr-2 h-3 w-3" />}
                 직접 업로드
               </Button>
-              <input 
-                type="file" 
-                id="image-upload" 
-                className="hidden" 
+              <input
+                type="file"
+                id="image-upload"
+                className="hidden"
                 accept="image/*"
                 onChange={async (e) => {
                   const file = e.target.files?.[0];
@@ -654,7 +572,7 @@ function EditorModal({
                 }}
               />
             </div>
-            <Input 
+            <Input
               required
               placeholder="이미지 URL (https://...)"
               className="h-12 rounded-2xl border-slate-100 bg-slate-50 font-medium placeholder:text-slate-300"
@@ -663,9 +581,9 @@ function EditorModal({
             />
             {formData.image_url && (
               <div className="relative w-full aspect-[16/6] rounded-xl overflow-hidden bg-slate-100 border border-slate-200 group">
-                <div 
-                  className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105" 
-                  style={{ backgroundImage: `url(${formData.image_url})` }} 
+                <div
+                  className="w-full h-full bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                  style={{ backgroundImage: `url(${formData.image_url})` }}
                 />
                 <div className="absolute inset-0 bg-black/5" />
               </div>
@@ -675,7 +593,7 @@ function EditorModal({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700">제목 *</label>
-              <Input 
+              <Input
                 required
                 placeholder="배너 메인 타이틀"
                 className="h-12 rounded-xl border-slate-100 bg-slate-50"
@@ -685,7 +603,7 @@ function EditorModal({
             </div>
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700">뱃지 텍스트</label>
-              <Input 
+              <Input
                 placeholder="예: CONTEST, EVENT"
                 className="h-12 rounded-xl border-slate-100 bg-slate-50"
                 value={formData.subtitle}
@@ -696,7 +614,7 @@ function EditorModal({
 
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-700">한 줄 설명 (배너 노출용)</label>
-            <Input 
+            <Input
               placeholder="배너에 실제 노출될 짧고 강렬한 한 문장"
               className="h-12 rounded-xl border-slate-100 bg-slate-50"
               value={formData.description_one_line}
@@ -706,7 +624,7 @@ function EditorModal({
 
           <div className="space-y-2">
             <label className="text-sm font-bold text-slate-700">상세 설명 (관리용)</label>
-            <Input 
+            <Input
               placeholder="관리자만 확인하는 상세 내용"
               className="h-12 rounded-xl border-slate-100 bg-slate-50"
               value={formData.description}
@@ -717,7 +635,7 @@ function EditorModal({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700">링크 URL</label>
-              <Input 
+              <Input
                 placeholder="/page or https://..."
                 className="h-12 rounded-xl border-slate-100 bg-slate-50"
                 value={formData.link_url}
@@ -726,7 +644,7 @@ function EditorModal({
             </div>
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700">버튼 텍스트</label>
-              <Input 
+              <Input
                 placeholder="자세히 보기"
                 className="h-12 rounded-xl border-slate-100 bg-slate-50"
                 value={formData.button_text}
@@ -738,7 +656,7 @@ function EditorModal({
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700">배경색</label>
-              <Input 
+              <Input
                 type="color"
                 value={formData.bg_color}
                 onChange={(e) => setFormData({...formData, bg_color: e.target.value})}
@@ -747,7 +665,7 @@ function EditorModal({
             </div>
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700">글자색</label>
-              <Input 
+              <Input
                 type="color"
                 value={formData.text_color}
                 onChange={(e) => setFormData({...formData, text_color: e.target.value})}
@@ -756,7 +674,7 @@ function EditorModal({
             </div>
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700">노출 순서</label>
-              <Input 
+              <Input
                 type="number"
                 value={formData.display_order}
                 onChange={(e) => setFormData({...formData, display_order: parseInt(e.target.value) || 0})}
@@ -766,8 +684,8 @@ function EditorModal({
           </div>
 
           <div className="flex items-center gap-3 py-2">
-            <input 
-              type="checkbox" 
+            <input
+              type="checkbox"
               id="is_active"
               checked={formData.is_active}
               onChange={(e) => setFormData({...formData, is_active: e.target.checked})}
@@ -832,7 +750,7 @@ function ImportModal({
             recruitItems.map((item: any) => (
               <div key={item.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl hover:bg-slate-100 transition-colors border border-slate-100">
                 <div className="flex items-center gap-4 flex-1">
-                   <div 
+                   <div
                      className="w-16 h-10 rounded-lg bg-slate-200 bg-cover bg-center flex-shrink-0 shadow-inner"
                      style={{ backgroundImage: `url(${item.thumbnail})` }}
                    />

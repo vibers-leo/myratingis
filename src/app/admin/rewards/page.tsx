@@ -2,17 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Gift, Users, Trophy, Loader2, CheckCircle2, Clock, Truck, XCircle, Shuffle, ChefHat, ArrowLeft } from "lucide-react";
+import { Gift, Users, Trophy, Loader2, CheckCircle2, Clock, Truck, XCircle, Shuffle, ChefHat, ArrowLeft, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { supabase } from "@/lib/supabase/client";
 import { MyRatingIsHeader } from "@/components/MyRatingIsHeader";
 import { cn } from "@/lib/utils";
 
 export default function AdminRewardsPage() {
   const router = useRouter();
-  const { user, isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading, token } = useAuth();
   const [rewards, setRewards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReward, setSelectedReward] = useState<any>(null);
@@ -30,22 +29,9 @@ export default function AdminRewardsPage() {
 
   const fetchRewards = async () => {
     try {
-      // project_rewards + projects 조인
-      const { data, error } = await (supabase as any)
-        .from('project_rewards')
-        .select('*, projects(title, author_email)')
-        .order('created_at', { ascending: false });
-
-      if (!error) setRewards(data || []);
-
-      // shop_orders 전체 조회
-      const { data: orders } = await (supabase as any)
-        .from('shop_orders')
-        .select('*, reward_items(name), profiles:user_id(username, nickname)')
-        .order('created_at', { ascending: false })
-        .limit(50);
-
-      setShopOrders(orders || []);
+      // project_rewards와 shop_orders는 현재 API 미지원 — 빈 배열로 fallback
+      setRewards([]);
+      setShopOrders([]);
     } catch (e) {
       console.error('[AdminRewards] Fetch error:', e);
     } finally {
@@ -56,23 +42,13 @@ export default function AdminRewardsPage() {
   const fetchClaims = async (rewardId: string, projectId: string) => {
     setClaimsLoading(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch(`/api/rewards/${projectId}`, {
-        headers: { 'Authorization': `Bearer ${session?.access_token}` },
+        headers: { 'Authorization': `Bearer ${token}` },
       });
       const result = await res.json();
       if (result.success) {
         setClaims(result.claims || []);
       }
-
-      // 상세 claims (admin은 user_id 포함)
-      const { data: detailedClaims } = await (supabase as any)
-        .from('reward_claims')
-        .select('*, profiles:user_id(username, nickname, email)')
-        .eq('project_reward_id', rewardId)
-        .order('claimed_at', { ascending: false });
-
-      if (detailedClaims) setClaims(detailedClaims);
     } catch (e) {
       console.error('[AdminRewards] Claims fetch error:', e);
     } finally {
@@ -84,12 +60,11 @@ export default function AdminRewardsPage() {
     if (!confirm('정말 추첨을 실행하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch('/api/rewards/lottery', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ project_id: projectId }),
       });
@@ -108,12 +83,11 @@ export default function AdminRewardsPage() {
 
   const handleAward = async (projectId: string, targetUserId: string) => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch('/api/rewards/award', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({ project_id: projectId, user_id: targetUserId }),
       });
@@ -132,16 +106,8 @@ export default function AdminRewardsPage() {
 
   const handleDeliveryStatus = async (orderId: string, newStatus: string) => {
     try {
-      await (supabase as any)
-        .from('shop_orders')
-        .update({
-          status: newStatus,
-          ...(newStatus === 'delivered' ? { delivered_at: new Date().toISOString() } : {}),
-        })
-        .eq('id', orderId);
-
-      toast.success(`상태가 '${newStatus}'로 변경되었습니다.`);
-      fetchRewards();
+      // shop_orders API 미지원 — 안내만 표시
+      toast.info('배송 상태 변경 기능은 현재 준비 중입니다.');
     } catch (e: any) {
       toast.error("상태 변경 실패", { description: e.message });
     }

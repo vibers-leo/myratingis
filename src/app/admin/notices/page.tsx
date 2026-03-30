@@ -6,21 +6,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Plus, 
-  Search, 
-  Trash2, 
-  Edit, 
-  Megaphone, 
-  ArrowLeft, 
-  Loader2, 
+import {
+  Plus,
+  Search,
+  Trash2,
+  Edit,
+  Megaphone,
+  ArrowLeft,
+  Loader2,
   Star,
   Upload,
   Tag,
-  GitCommit, 
-  AlertCircle, 
-  Calendar, 
-  Wrench, 
+  GitCommit,
+  AlertCircle,
+  Calendar,
+  Wrench,
   Camera,
   X,
   Save,
@@ -28,8 +28,8 @@ import {
   EyeOff
 } from "lucide-react";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase/client";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useAuth } from "@/lib/auth/AuthContext";
 import { uploadImage } from "@/lib/supabase/storage";
 import { toast } from "sonner";
 import TiptapEditor from "@/components/editor/TiptapEditor";
@@ -56,7 +56,7 @@ interface Notice {
   link_text?: string;
   created_at: string;
   version?: string;
-  category: string; 
+  category: string;
   tags?: string[];
 }
 
@@ -71,8 +71,9 @@ const CATEGORY_CONFIG = {
 
 export default function AdminNoticesPage() {
   const { isAdmin, isLoading: adminLoading } = useAdmin();
+  const { token } = useAuth();
   const router = useRouter();
-  
+
   // View State
   const [viewMode, setViewMode] = useState<'list' | 'editor'>('list');
   const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
@@ -82,16 +83,19 @@ export default function AdminNoticesPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const authHeaders = () => ({
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`,
+  });
+
   const loadNotices = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("notices")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      if (data) setNotices(data as any);
+      const res = await fetch('/api/admin/notices', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.notices) setNotices(data.notices as Notice[]);
     } catch (err) {
       console.error("Notice load error:", err);
     } finally {
@@ -127,8 +131,11 @@ export default function AdminNoticesPage() {
   const handleDelete = async (id: number) => {
     if (!confirm("정말 삭제하시겠습니까?")) return;
     try {
-      const { error } = await (supabase.from("notices") as any).delete().eq("id", id);
-      if (error) throw error;
+      const res = await fetch(`/api/admin/notices/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('삭제 실패');
       toast.success("삭제되었습니다.");
       loadNotices();
     } catch (err) {
@@ -137,7 +144,7 @@ export default function AdminNoticesPage() {
     }
   };
 
-  const filteredNotices = notices.filter(n => 
+  const filteredNotices = notices.filter(n =>
     n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (n.version && n.version.toLowerCase().includes(searchTerm.toLowerCase()))
   );
@@ -148,9 +155,10 @@ export default function AdminNoticesPage() {
   // --- EDITOR VIEW (Full Page) ---
   if (viewMode === 'editor') {
     return (
-      <NoticeEditor 
-        initialData={selectedNotice} 
-        onBack={handleBackToList} 
+      <NoticeEditor
+        initialData={selectedNotice}
+        token={token}
+        onBack={handleBackToList}
         onSave={() => {
             handleBackToList();
             toast.success(selectedNotice ? "공지사항이 수정되었습니다." : "새 공지사항이 등록되었습니다.");
@@ -186,8 +194,8 @@ export default function AdminNoticesPage() {
         <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 mb-8">
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <Input 
-              placeholder="제목, 버전 등으로 검색..." 
+            <Input
+              placeholder="제목, 버전 등으로 검색..."
               className="pl-11 h-12 bg-slate-50 border-none focus-visible:ring-1 focus-visible:ring-blue-500"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -206,7 +214,7 @@ export default function AdminNoticesPage() {
             filteredNotices.map(notice => {
               const categoryInfo = CATEGORY_CONFIG[notice.category as keyof typeof CATEGORY_CONFIG] || CATEGORY_CONFIG.notice;
               const Icon = categoryInfo.icon;
-              
+
               return (
                 <Card key={notice.id} className={`overflow-hidden transition-all hover:shadow-md border-slate-100 ${!notice.is_visible ? "opacity-60 bg-slate-50" : "bg-white"}`}>
                   <CardHeader className="flex flex-row items-center justify-between py-6">
@@ -215,7 +223,7 @@ export default function AdminNoticesPage() {
                       <div className={`w-12 h-12 rounded-2xl ${categoryInfo.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
                         <Icon size={22} />
                       </div>
-                      
+
                       <div>
                         {/* Badges Row */}
                         <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -232,7 +240,7 @@ export default function AdminNoticesPage() {
                         </div>
 
                         <CardTitle className="text-xl font-bold text-slate-900 mb-1">{notice.title}</CardTitle>
-                        
+
                         <div className="flex items-center gap-3 text-sm text-slate-400">
                           <span>{new Date(notice.created_at).toLocaleDateString()}</span>
                           {notice.tags && notice.tags.length > 0 && (
@@ -245,7 +253,7 @@ export default function AdminNoticesPage() {
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2">
                       <Button variant="ghost" size="icon" className="hover:bg-slate-100 text-slate-600" onClick={() => handleEdit(notice)}>
                         <Edit size={18} />
@@ -272,13 +280,13 @@ export default function AdminNoticesPage() {
 
 // --- SUB-COMPONENT: NOTICE EDITOR (Mimics Project Upload) ---
 
-function NoticeEditor({ initialData, onBack, onSave }: { initialData: Notice | null, onBack: () => void, onSave: () => void }) {
+function NoticeEditor({ initialData, token, onBack, onSave }: { initialData: Notice | null, token: string | null, onBack: () => void, onSave: () => void }) {
   // State
   const [title, setTitle] = useState(initialData?.title || "");
   const [content, setContent] = useState(initialData?.content || "");
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(initialData?.image_url || null);
-  
+
   // Settings
   const [category, setCategory] = useState(initialData?.category || "notice");
   const [version, setVersion] = useState(initialData?.version || "");
@@ -312,7 +320,7 @@ function NoticeEditor({ initialData, onBack, onSave }: { initialData: Notice | n
   const handleSave = async () => {
     // Validation
     if (!title.trim()) { toast.error("제목을 입력해주세요."); return; }
-    
+
     // Get HTML content from editor reference if available, else state
     const currentContent = editorRef.current ? editorRef.current.getHTML() : content;
     if (!currentContent || currentContent === '<p></p>') { toast.error("내용을 입력해주세요."); return; }
@@ -339,12 +347,25 @@ function NoticeEditor({ initialData, onBack, onSave }: { initialData: Notice | n
         link_text: linkText,
       };
 
+      const headers = {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      };
+
       if (initialData) {
-        const { error } = await (supabase.from("notices") as any).update(noticeData).eq("id", initialData.id);
-        if (error) throw error;
+        const res = await fetch(`/api/admin/notices/${initialData.id}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(noticeData),
+        });
+        if (!res.ok) throw new Error('수정 실패');
       } else {
-        const { error } = await (supabase.from("notices") as any).insert([noticeData]);
-        if (error) throw error;
+        const res = await fetch('/api/admin/notices', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(noticeData),
+        });
+        if (!res.ok) throw new Error('등록 실패');
       }
 
       onSave();
@@ -380,14 +401,14 @@ function NoticeEditor({ initialData, onBack, onSave }: { initialData: Notice | n
       </div>
 
       <div className="max-w-4xl mx-auto px-6 py-12 space-y-12">
-         
+
          {/* 1. Meta & Cover Section */}
          <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Title Input */}
             <div className="space-y-4">
-               <input 
-                  type="text" 
-                  placeholder="제목을 입력하세요" 
+               <input
+                  type="text"
+                  placeholder="제목을 입력하세요"
                   className="w-full text-4xl sm:text-5xl font-black bg-transparent border-none focus:outline-none placeholder:text-slate-200 text-slate-900"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
@@ -408,18 +429,18 @@ function NoticeEditor({ initialData, onBack, onSave }: { initialData: Notice | n
 
                   <div className="relative flex-1 max-w-[200px]">
                       <GitCommit className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                      <Input 
-                        placeholder="버전 (ex: v1.0.0)" 
+                      <Input
+                        placeholder="버전 (ex: v1.0.0)"
                         className="pl-9 h-10 rounded-xl bg-white border-slate-200 shadow-sm font-mono text-sm"
                         value={version}
                         onChange={(e) => setVersion(e.target.value)}
                       />
                   </div>
-                  
+
                   <div className="relative flex-1">
                       <Tag className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={14} />
-                      <Input 
-                        placeholder="태그 입력 (콤마로 구분)" 
+                      <Input
+                        placeholder="태그 입력 (콤마로 구분)"
                         className="pl-9 h-10 rounded-xl bg-white border-slate-200 shadow-sm text-sm"
                         value={tags}
                         onChange={(e) => setTags(e.target.value)}
@@ -456,8 +477,8 @@ function NoticeEditor({ initialData, onBack, onSave }: { initialData: Notice | n
 
          {/* 2. Editor Section */}
          <div className="bg-white rounded-xl shadow-xl shadow-slate-200/50 border border-slate-100 min-h-[600px] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 relative z-0">
-            <TiptapEditor 
-               content={content} 
+            <TiptapEditor
+               content={content}
                onChange={setContent}
                placeholder="공지사항 내용을 자유롭게 작성하세요..."
                onEditorReady={(editor) => { editorRef.current = editor; }}
@@ -499,13 +520,13 @@ function NoticeEditor({ initialData, onBack, onSave }: { initialData: Notice | n
                      <div className={`bg-white w-5 h-5 rounded-full shadow-md transform transition-transform ${isPopup ? 'translate-x-5' : 'translate-x-0'}`} />
                   </div>
                </div>
-               
+
                {isPopup && (
                   <div className="space-y-3 pt-2 animate-in fade-in">
                      <div className="space-y-1">
                         <label className="text-xs font-bold text-indigo-700">링크 URL (선택)</label>
-                        <Input 
-                           placeholder="https://..." 
+                        <Input
+                           placeholder="https://..."
                            className="bg-white border-indigo-200 h-9 text-sm"
                            value={linkUrl}
                            onChange={(e) => setLinkUrl(e.target.value)}
@@ -513,8 +534,8 @@ function NoticeEditor({ initialData, onBack, onSave }: { initialData: Notice | n
                      </div>
                      <div className="space-y-1">
                         <label className="text-xs font-bold text-indigo-700">버튼 텍스트</label>
-                        <Input 
-                           placeholder="자세히 보기" 
+                        <Input
+                           placeholder="자세히 보기"
                            className="bg-white border-indigo-200 h-9 text-sm"
                            value={linkText}
                            onChange={(e) => setLinkText(e.target.value)}

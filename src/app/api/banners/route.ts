@@ -35,14 +35,16 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, image_url, link_url, display_order } = body;
+    const { title, subtitle, image_url, link_url, display_order, is_active } = body;
 
     const banner = await prisma.banners.create({
       data: {
         title: title || '',
+        subtitle: subtitle || null,
         image_url: image_url || null,
         link_url: link_url || null,
         display_order: display_order || 0,
+        is_active: is_active !== undefined ? is_active : true,
       },
     });
 
