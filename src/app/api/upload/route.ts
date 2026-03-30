@@ -1,7 +1,7 @@
 // api/upload/route.ts — 클라이언트 → NCP 이미지 서버 프록시
 import { NextRequest, NextResponse } from "next/server";
 
-const IMAGE_SERVER = "http://49.50.138.93:8090";
+const IMAGE_SERVER = "http://49.50.138.93:8091";
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const ALLOWED_TYPES = [
